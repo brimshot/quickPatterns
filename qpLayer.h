@@ -1,17 +1,22 @@
 #ifndef QP_LAYER_H
 #define QP_LAYER_H
 
-#include <quickPatterns.h>
+enum QP_BRUSH_TYPE {ADD, SUBTRACT, COMBINE, OVERLAY, OVERWRITE, MASK};
 
-class qpPattern;
+#include <qpLinkedList.h>
+#include <qpPattern.h>
 
 class qpLayer {
 
   private:
 
-    int continualFadeAmount = 0;
-
     qpLinkedList <qpPattern> patterns;
+
+    CRGB *leds;
+    int numLeds;
+
+    int continualFadeAmount = 0;
+    bool bPersistWhenPatternsInactive = false;
 
     void addToLeds(CRGB *targetLeds, int numLeds);
     void subtractFromLeds(CRGB *targetLeds, int numLeds);
@@ -24,16 +29,27 @@ class qpLayer {
 
   public:
 
-    CRGB *leds;
-    int numLeds;
-
-//    qpLayer(EasyLightStrand *easyLightStrand);
-
     void assignTargetLeds(CRGB *leds, int numLeds);
 
-    qpLayer &setLayerBrush(BRUSH_TYPE brush);
 
     // ~ Config interface
+
+    qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
+
+    qpLayer &continuallyFadeLayerBy(int fadeAmount) {
+      this->continualFadeAmount = constrain(fadeAmount, 0, 255);
+
+      return *this;
+    }
+
+    qpLayer &persistWhenPatternsInactive(bool trueOrFalse = true) {
+      this->bPersistWhenPatternsInactive = trueOrFalse;
+
+      return *this;
+    }
+
+
+    // ~ Patterns
 
     qpPattern &addPattern(qpPattern *pattern);
 
@@ -45,12 +61,6 @@ class qpLayer {
     qpPattern &operator()(int patternIndex) {
 
       return this->pattern(patternIndex);
-    }
-
-    qpLayer &continuallyFadeLayerBy(int fadeAmount) {
-      this->continualFadeAmount = constrain(fadeAmount, 0, 255);
-
-      return *this;
     }
 
     // ~ Drawing

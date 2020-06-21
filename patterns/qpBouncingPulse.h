@@ -36,7 +36,7 @@ class qpBouncingPulse : public qpPattern {
         // reverse direction
         this->dir *= -1;
 
-        _cycle();
+        _countCycle();
       }
 
     }

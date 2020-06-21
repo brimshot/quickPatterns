@@ -16,17 +16,25 @@ qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
 void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
+  bool patternsRendered = false;
+
   if(this->continualFadeAmount)
     fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
 
-  while(qpPattern *currentPattern = this->patterns.fetch())
-    currentPattern->update();
-    
-  (this->*applyToLedsFunction)(targetLeds, numLeds);
+  while(qpPattern *currentPattern = this->patterns.fetch()) {
+      (currentPattern->*(currentPattern->updateActiveStatus))();
+      if(currentPattern->isActive()) {
+        currentPattern->render();
+        patternsRendered = true;
+      }
+  }
+
+  if(patternsRendered || this->bPersistWhenPatternsInactive)
+    (this->*applyToLedsFunction)(targetLeds, numLeds);
 
 }
 
-
+// Set reference to LEDs this layer's patterns will write to which are then written onto main
 void qpLayer::assignTargetLeds(CRGB *leds, int numLeds) {
 
   this->leds = leds;
@@ -39,7 +47,7 @@ void qpLayer::assignTargetLeds(CRGB *leds, int numLeds) {
 
 }
 
-qpLayer &qpLayer::setLayerBrush(BRUSH_TYPE brushType) {
+qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
 
   switch(brushType) {
     case ADD:

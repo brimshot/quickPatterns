@@ -1,24 +1,24 @@
 #ifndef QP_SCENE_H
 #define QP_SCENE_H
 
-#include <quickPatterns.h>
-
-class quickPatterns;
-class qpLayer;
+#include <FastLED.h>
+#include <qpLinkedList.h>
+#include <qpLightStrand.h>
+#include <qpLayer.h>
 
 class qpScene {
 
   private:
 
-    quickPatterns *lightStrand;
+    qpLightStrand *lightStrand;
 
     qpLinkedList <qpLayer> layers;
 
   public:
 
-    qpScene(quickPatterns *quickPatterns);
+    qpScene(qpLightStrand *lightStrand);
 
-    void attachToStrand(quickPatterns *lightStrand);
+    void attachToStrand(qpLightStrand *lightStrand);
 
     qpLayer &layer(int index);
     qpLayer &addLayer();

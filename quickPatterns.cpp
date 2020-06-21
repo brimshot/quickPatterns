@@ -1,15 +1,22 @@
 #include <quickPatterns.h>
 
+qpLayer *lastAccessedLayer;
+
 /*-----------
 Setup
 */
 
 //int EASYLIGHT_MEM_USE = 0;
 
-quickPatterns::quickPatterns(CRGB *leds, int numLeds) : leds(leds), numLeds(numLeds) {
+quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
 
-  this->currentScene = &this->scene(0); //creates our first scene and sets pointers to this strands LEDs, do we even need this?
+  this->lightStrand = new qpLightStrand(leds, numLeds);
 
+  this->currentScene = &this->scene(0); //creates our first scene and sets pointers to this strands LEDs, do we even need this??
+
+  this->addEntropy();
+  this->addEntropy();
+  this->addEntropy();
 //  EASYLIGHT_MEM_USE = ((numLeds * sizeof(CRGB)) + sizeof(quickPatterns));
 }
 
@@ -25,45 +32,15 @@ void quickPatterns::draw() {
 
   if(currentMillis >= this->nextTickMillis) {
 
-    this->clearMain();
+    this->lightStrand->clearMain();
 
-    this->currentScene->draw(this->leds, this->numLeds);
+    this->currentScene->draw(this->lightStrand->leds, this->lightStrand->numLeds);
 
     this->nextTickMillis = (currentMillis + this->tickLengthInMillis);
+
+    this->currentTick++;
   }
 
-}
-
-void quickPatterns::clearMain() {
-
-  fill_solid(this->leds, this->numLeds, CRGB::Black);
-}
-
-void quickPatterns::clearAll() {
-
-  this->clearMain();
-
-  while(CRGB *currentLeds = this->ledArrays.fetch())
-    fill_solid(currentLeds, this->numLeds, CRGB::Black);
-
-}
-
-
-/*-----------
-Master led arrays
-*/
-
-/**
-The led arrays are associated with the master strand. This allows us to re-use led arrays when switching scenes instead of each scene / layer unique pair declaring it's own set of leds in memory
-*/
-CRGB *quickPatterns::getLedArray(int index) {
-
-  if(index > (this->ledArrays.numElements-1)) {
-    this->ledArrays.append(new CRGB[this->numLeds]);
-    return this->ledArrays.getLast();
-  }
-
-  return this->ledArrays.getItem(index);
 }
 
 
@@ -76,62 +53,60 @@ qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
   return this->scene(0).addLayer().addPattern(pattern);
 }
 
+
 /*------------
 Scene and layer access
 */
 
 
+// Returns requested scene or automatically adds and returns a new scene if index does not yet exist
 qpScene &quickPatterns::scene(int index) {
 
   if(index > (this->scenes.numElements - 1)) {
-    this->scenes.append(new qpScene(this));
+    this->scenes.append(new qpScene(this->lightStrand));
     return *this->scenes.getLast();
   }
 
   return *this->scenes.getItem(index);
 }
 
+// Returns requested layer or automatically adds and returns a new layer if index does not yet exist
 qpLayer &quickPatterns::layer(int layerIndex) {
 
-  this->lastReferencedLayer = &this->scene(0).layer(layerIndex);
+  lastAccessedLayer = &this->scene(0).layer(layerIndex);
 
-  return *this->lastReferencedLayer;
+  return *lastAccessedLayer;
 }
 
+// Returns pattern 0 on layer indicated by index
 qpPattern&quickPatterns::operator()(int layerIndex) {
 
-  this->lastReferencedLayer = &this->scene(0).layer(layerIndex); //shouldn't be necessary
+  //this->lastReferencedLayer
+  lastAccessedLayer = &this->scene(0).layer(layerIndex); //shouldn't be necessary?
 
   return this->scene(0).layer(layerIndex).pattern(0);
 }
 
-qpPattern&quickPatterns::operator()(int layerIndex, int patternIndex) {
+qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex) {
 
-  this->lastReferencedLayer = &this->scene(0).layer(layerIndex); //shouldn't be necessary
+//  this->lastReferencedLayer
+  lastAccessedLayer = &this->scene(sceneIndex).layer(layerIndex); //shouldn't be necessary?
 
-  return this->scene(0).layer(layerIndex).pattern(patternIndex);
+  return this->scene(sceneIndex).layer(layerIndex).pattern(0);
 }
-
 
 qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex, int patternIndex) {
 
-  this->lastReferencedLayer = &this->scene(sceneIndex).layer(layerIndex); //shouldnt be necessary
+  //this->lastReferencedLayer
+  lastAccessedLayer = &this->scene(sceneIndex).layer(layerIndex); //shouldnt be necessary
 
   return this->scene(sceneIndex).layer(layerIndex).pattern(patternIndex);
 }
 
+
 /*-------------
 Scene selection
 */
-
-void quickPatterns::loadScene(qpScene &scene) {
-
-  this->clearAll();
-
-  scene.attachToStrand(this);
-  this->currentScene = &scene;
-}
-
 
 void quickPatterns::nextScene() {
   this->sceneIndex++;
@@ -147,7 +122,9 @@ void quickPatterns::playScene(int index) {
   if(index >= this->scenes.numElements)
     return;
 
-  this->clearAll();
+  this->lightStrand->clearAll();
+
+  this->sceneIndex = index;
 
   this->currentScene = this->scenes.getItem(index);
 }
@@ -155,7 +132,11 @@ void quickPatterns::playScene(int index) {
 
 void quickPatterns::playRandomScene() {
 
-  int index = random8(0, (this->scenes.numElements-1));
+  int index;
+  do {
+    index = random8(0, (this->scenes.numElements));
+  } while(index == this->sceneIndex);
+
   this->playScene(index);
 }
 
@@ -163,6 +144,11 @@ void quickPatterns::playRandomScene() {
 /*-----------
 Util
 */
+
+qpLayer &quickPatterns::sameLayer() {
+  return *lastAccessedLayer;
+}
+
 
 inline void quickPatterns::addEntropy() {
   random16_add_entropy(analogRead(0));
