@@ -28,8 +28,7 @@ class qpScene {
 
     qpPattern &addPattern(qpPattern *pattern);
 
-    qpPattern &operator()(int layerIndex); // returns pattern 0 at the specified layer
-
+    qpPattern &operator()(int layerIndex) { return this->layer(layerIndex).pattern(0); }
 
     void draw(CRGB *targetLeds, int numLeds);
 };

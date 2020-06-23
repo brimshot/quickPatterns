@@ -54,9 +54,3 @@ qpLayer &qpScene::layer(int index) {
 
   return *this->lastReferencedLayer;
 }
-
-
-qpPattern &qpScene::operator()(int layerIndex) {
-
-  return this->layer(layerIndex).pattern(0);
-}

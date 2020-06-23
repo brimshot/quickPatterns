@@ -7,7 +7,7 @@ qpLayer::qpLayer() {
 qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
   this->patterns.append(pattern);
-  if(this->leds) {
+  if(this->leds) { //TODO: do we ever NOT have leds.. ?
     pattern->assignTargetLeds(this->leds, this->numLeds);
     pattern->initialize();
   }
@@ -46,6 +46,7 @@ void qpLayer::assignTargetLeds(CRGB *leds, int numLeds) {
 
   fill_solid(this->leds, this->numLeds, CRGB::Black);
 
+  //TODO: initialize here... initialize inside the pattern... ? TODO: YES, seems to make sense right
   while(qpPattern *currentPattern = this->patterns.fetch())
     currentPattern->assignTargetLeds(this->leds, this->numLeds);
 
@@ -53,7 +54,7 @@ void qpLayer::assignTargetLeds(CRGB *leds, int numLeds) {
 
 
 
-/*--------
+/*------------
 Brushes
 */
 
@@ -77,9 +78,6 @@ qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
       break;
     case MASK:
       this->applyToLedsFunction = &qpLayer::maskLeds;
-      break;
-    default:
-//          Serial.println("Missing brush");
       break;
   }
 
@@ -122,7 +120,7 @@ void qpLayer::maskLeds(CRGB *targetLeds, int numLeds) {
 
 
 /*-------
-Reference
+Access
 */
 
 qpPattern &qpLayer::pattern(int patternIndex) {
