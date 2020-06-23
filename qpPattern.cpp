@@ -188,9 +188,9 @@ qpPattern &qpPattern::changeColorEveryNCycles(int minCycles, int maxCycles) {
   return *this;
 }
 
-qpPattern &qpPattern::changeColorEveryNUpdates(int minUpdates, int maxUpdates) {
+qpPattern &qpPattern::changeColorEveryNFrames(int minFrames, int maxFrames) {
 
-  this->setColorDurationRange(minUpdates, maxUpdates);
+  this->setColorDurationRange(minFrames, maxFrames);
   this->colorPeriodsCounter = &this->updates;
 
   return *this;

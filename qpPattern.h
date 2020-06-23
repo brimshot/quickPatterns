@@ -152,7 +152,7 @@ class qpPattern {
 
     qpPattern &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
     qpPattern &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
-    qpPattern &changeColorEveryNUpdates(int minUpdates, int maxUpdates = 0);
+    qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
     qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
 
     qpPattern &withChanceToChangeColor(byte percentage);

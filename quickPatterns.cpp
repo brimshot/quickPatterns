@@ -23,13 +23,15 @@ void quickPatterns::draw() {
 
   if(currentMillis >= this->nextTickMillis) {
 
-    this->lightStrand->clearMain();
-
-    this->currentScene->draw(this->lightStrand->leds, this->lightStrand->numLeds);
+//    Serial.println("Next tick millis (" + String(this->nextTickMillis) + ") and currentMillis (" + String(currentMillis) + ")");
 
     this->nextTickMillis = (currentMillis + this->tickLengthInMillis);
 
     this->currentTick++;
+
+    this->lightStrand->clearMain();
+
+    this->currentScene->draw(this->lightStrand->leds, this->lightStrand->numLeds);
   }
 
 }
