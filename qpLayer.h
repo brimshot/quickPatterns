@@ -16,7 +16,9 @@ class qpLayer {
     int numLeds;
 
     int continualFadeAmount = 0;
-    bool bPersistWhenPatternsInactive = false;
+    bool bPersistWhenPatternsInactive = true;
+
+    qpPattern *lastReferencedPattern;
 
     void addToLeds(CRGB *targetLeds, int numLeds);
     void subtractFromLeds(CRGB *targetLeds, int numLeds);
@@ -29,8 +31,9 @@ class qpLayer {
 
   public:
 
-    void assignTargetLeds(CRGB *leds, int numLeds);
+    qpLayer();
 
+    void assignTargetLeds(CRGB *leds, int numLeds);
 
     // ~ Config interface
 
@@ -42,26 +45,24 @@ class qpLayer {
       return *this;
     }
 
-    qpLayer &persistWhenPatternsInactive(bool trueOrFalse = true) {
-      this->bPersistWhenPatternsInactive = trueOrFalse;
+    qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true) {
+      this->bPersistWhenPatternsInactive = (! trueOrFalse);
 
       return *this;
     }
-
 
     // ~ Patterns
 
     qpPattern &addPattern(qpPattern *pattern);
 
-    qpPattern &pattern(int patternIndex) {
-
-      return *this->patterns.getItem(patternIndex);
-    }
+    qpPattern &pattern(int patternIndex);
 
     qpPattern &operator()(int patternIndex) {
 
       return this->pattern(patternIndex);
     }
+
+    qpPattern &samePattern() { return *this->lastReferencedPattern; }
 
     // ~ Drawing
 

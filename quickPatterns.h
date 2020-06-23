@@ -6,13 +6,14 @@
 
 //TODO: randomness not random!
 //TODO: check if include defs work
-//TODO: find a way to remove FastLED from this header
+//TODO: find a way to remove FastLED from other headers
 
 //TODO: why so many
 #include <qpLinkedList.h>
 #include <qpPattern.h>
 #include <qpLayer.h>
 #include <qpScene.h>
+#include <qpShow.h>
 #include <qpLightStrand.h>
 
 
@@ -23,6 +24,7 @@ class quickPatterns {
     short tickLengthInMillis = 25;
     uint32_t nextTickMillis = 0;
     uint32_t currentTick = 0;
+    uint32_t previousTick = 0;
 
     qpLightStrand *lightStrand;
 
@@ -31,7 +33,7 @@ class quickPatterns {
     int sceneIndex = 0;
     qpScene *currentScene = NULL;
 
-    inline void addEntropy();
+    qpScene *lastReferencedScene;
 
   public:
 
@@ -51,6 +53,14 @@ class quickPatterns {
       return this->currentTick;
     }
 
+    bool isAtTick(int tick) {
+      if((this->currentTick == tick) && (this->currentTick != this->previousTick)) { //this is so true is only returned one time
+        this->previousTick = this->currentTick;
+        return true;
+      }
+
+      return false;
+    }
 
     // ~ Pattern access
 
@@ -62,15 +72,17 @@ class quickPatterns {
 
     // ~ Component access
 
+    qpScene &newScene();
     qpScene &scene(int sceneIndex);
     qpLayer &layer(int layerIndex);
     qpPattern &pattern(int patternIndex); //returns specified patter on layer 0
 
-//    qpScene &sameScene() { return *this->lastReferencedScene; } //TODO: remove
-    qpLayer &sameLayer();
-    //going to need samePattern for color access
+    qpScene &sameScene() { return *this->lastReferencedScene; }
+    qpLayer &sameLayer() { return this->sameScene().sameLayer(); }
+    qpPattern &samePattern() { return this->sameScene().sameLayer().samePattern(); }
 
     // ~ Scene selection
+
     void playScene(int index);
     void nextScene();
     void playRandomScene();

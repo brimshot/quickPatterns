@@ -63,6 +63,9 @@ class qpPattern {
     void setActivePeriodRange(int minPeriods, int maxPeriods);
     void activatePeriodically();
     void resetActivationTimer();
+    void (qpPattern::*deactiveWhenAppropriate)();
+
+    void deactivatePeriodically();
 
     // Interface for layer
 
@@ -133,7 +136,7 @@ class qpPattern {
     qpPattern &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
 
     qpPattern &stayActiveForNTicks(int minTicks, int maxTicks = 0);
-    qpPattern &stayActiveForNUpdates(int minUpdates, int maxUpdates = 0);
+    qpPattern &stayActiveForNFrames(int minUpdates, int maxUpdates = 0);
     qpPattern &stayActiveForNCycles(int minCycles, int maxCycles = 0);
 
     qpPattern &withChanceOfActivation(int percentage);
@@ -159,7 +162,7 @@ class qpPattern {
     bool activate();
     void deactivate();
 
-    qpPattern &setPalette(CRGBPalette16 colorPalette, byte stepSize);
+    qpPattern &setPalette(CRGBPalette16 colorPalette, byte stepSize = 3);
     qpPattern &setColorSet(CRGB *colorSet, int numElements);
 
 };

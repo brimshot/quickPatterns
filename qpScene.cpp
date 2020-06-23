@@ -1,7 +1,5 @@
 #include <qpScene.h>
 
-extern qpLayer *lastAccessedLayer;
-
 qpScene::qpScene(qpLightStrand *lightStrand) {
 
   this->attachToStrand(lightStrand);
@@ -12,17 +10,15 @@ void qpScene::attachToStrand(qpLightStrand *lightStrand) {
 
   this->lightStrand = lightStrand;
 
-  qpLayer *currentLayer = this->layers.fetch();
   int layerIndex = 0;
-  while(currentLayer) {
+  while(qpLayer *currentLayer = this->layers.fetch()) {
     currentLayer->assignTargetLeds(lightStrand->getLedArray(layerIndex), lightStrand->getNumLeds());
-    currentLayer = this->layers.fetch();
     layerIndex++;
   }
 
 }
 
-//TODO: just go on the scene man!
+//TODO: just go on the light strand?! why pass the leds? is there a reason?
 void qpScene::draw(CRGB *targetLeds, int numLeds) {
 
   while(qpLayer *currentLayer = this->layers.fetch())
@@ -40,16 +36,12 @@ qpPattern &qpScene::addPattern(qpPattern *pattern) {
 qpLayer &qpScene::addLayer() {
 
   this->layers.append(new qpLayer);
+  this->lastReferencedLayer = this->layers.getLast();
 
-  if(this->lightStrand) {
-    this->layers.getLast()->assignTargetLeds(this->lightStrand->getLedArray(this->layers.numElements), this->lightStrand->getNumLeds());
-    //TODO: figure out how to do this!!
-//    this->lightStrand->setLastUsedLayer(this->layers.getLast());
+  if(this->lightStrand)
+    this->lastReferencedLayer->assignTargetLeds(this->lightStrand->getLedArray(this->layers.numElements), this->lightStrand->getNumLeds());
 
-    lastAccessedLayer = this->layers.getLast();
-  }
-
-  return *this->layers.getLast();
+  return *this->lastReferencedLayer;
 }
 
 
@@ -58,13 +50,9 @@ qpLayer &qpScene::layer(int index) {
   if(index > (this->layers.numElements - 1))
     return this->addLayer();
 
-  //TODO: figure out what to do with this! a global? kind of gross right. but mayb
-//  this->lightStrand->setLastUsedLayer(this->layers.getItem(index));
+  this->lastReferencedLayer = this->layers.getItem(index);
 
-  //TODO: can this be quicker... ?
-  lastAccessedLayer = this->layers.getItem(index);
-
-  return *this->layers.getItem(index);
+  return *this->lastReferencedLayer;
 }
 
 

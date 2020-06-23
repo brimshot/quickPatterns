@@ -5,6 +5,7 @@ qpPattern::qpPattern() {
 
   this->_currentColor = CRGB::Black;
   this->updateActiveStatus = (&qpPattern::doNothing);
+  this->deactiveWhenAppropriate = (&qpPattern::doNothing);
   this->updateColorFunction = (&qpPattern::doNothing);
   this->loadNextColorFunction = (&qpPattern::doNothing);
 }
@@ -14,13 +15,14 @@ void qpPattern::render() {
 
   if((this->ticks % this->ticksBetweenFrames) == 0) {
     this->updates++;
-    this->draw(); 
+    this->draw();
   }
 
   this->ticks++;
 
   (this->*updateColorFunction)();
 
+  (this->*deactiveWhenAppropriate)();
 }
 
 bool qpPattern::isActive() {
@@ -31,15 +33,8 @@ bool qpPattern::isActive() {
 
 void qpPattern::activatePeriodically() {
 
-  if(this->currentlyActive) {
-
-    if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive) {
-      this->deactivate();
-      this->resetActivationTimer();
-      return;
-    }
-
-  }
+  if(this->currentlyActive)
+    return;
 
   if(this->ticksUntilActive > 0) {
     this->ticksUntilActive--;
@@ -50,6 +45,14 @@ void qpPattern::activatePeriodically() {
   this->resetActivationTimer(); //TODO: where does this go?
 }
 
+void qpPattern::deactivatePeriodically() {
+
+  if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive) {
+    this->deactivate();
+    this->resetActivationTimer();
+    return;
+  }
+}
 
 bool qpPattern::activate() {
 
@@ -124,15 +127,17 @@ qpPattern &qpPattern::stayActiveForNTicks(int minTicks, int maxTicks) {
 
   this->activePeriodsCounter = &this->ticks;
   this->setActivePeriodRange(minTicks, maxTicks);
+  this->deactiveWhenAppropriate = (&qpPattern::deactivatePeriodically);
 
   return *this;
 }
 
 
-qpPattern &qpPattern::stayActiveForNUpdates(int minUpdates, int maxUpdates) {
+qpPattern &qpPattern::stayActiveForNFrames(int minUpdates, int maxUpdates) {
 
   this->activePeriodsCounter = &this->updates;
   this->setActivePeriodRange(minUpdates, maxUpdates);
+  this->deactiveWhenAppropriate = (&qpPattern::deactivatePeriodically);
 
   return *this;
 }
@@ -142,6 +147,7 @@ qpPattern &qpPattern::stayActiveForNCycles(int minCycles, int maxCycles) {
 
   this->activePeriodsCounter = &this->cycles;
   this->setActivePeriodRange(minCycles, maxCycles);
+  this->deactiveWhenAppropriate = (&qpPattern::deactivatePeriodically);
 
   return *this;
 }

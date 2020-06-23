@@ -1,5 +1,9 @@
 #include <qpLayer.h>
 
+qpLayer::qpLayer() {
+  this->setLayerBrush(OVERLAY);
+}
+
 qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
   this->patterns.append(pattern);
@@ -8,7 +12,7 @@ qpPattern &qpLayer::addPattern(qpPattern *pattern) {
     pattern->initialize();
   }
 
-  this->setLayerBrush(OVERLAY);
+  this->lastReferencedPattern = pattern;
 
   return *pattern;
 }
@@ -46,6 +50,12 @@ void qpLayer::assignTargetLeds(CRGB *leds, int numLeds) {
     currentPattern->assignTargetLeds(this->leds, this->numLeds);
 
 }
+
+
+
+/*--------
+Brushes
+*/
 
 qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
 
@@ -108,4 +118,16 @@ void qpLayer::maskLeds(CRGB *targetLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++) {
     targetLeds[i] -= -this->leds[i];
   }
+}
+
+
+/*-------
+Reference
+*/
+
+qpPattern &qpLayer::pattern(int patternIndex) {
+
+  this->lastReferencedPattern = this->patterns.getItem(patternIndex);
+
+  return *this->lastReferencedPattern;
 }

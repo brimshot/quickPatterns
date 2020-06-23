@@ -14,6 +14,8 @@ class qpScene {
 
     qpLinkedList <qpLayer> layers;
 
+    qpLayer *lastReferencedLayer;
+
   public:
 
     qpScene(qpLightStrand *lightStrand);
@@ -22,10 +24,12 @@ class qpScene {
 
     qpLayer &layer(int index);
     qpLayer &addLayer();
+    qpLayer &sameLayer() { return *this->lastReferencedLayer; }
 
     qpPattern &addPattern(qpPattern *pattern);
 
     qpPattern &operator()(int layerIndex); // returns pattern 0 at the specified layer
+
 
     void draw(CRGB *targetLeds, int numLeds);
 };

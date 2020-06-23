@@ -1,29 +1,20 @@
 #include <quickPatterns.h>
 
-qpLayer *lastAccessedLayer;
-
-/*-----------
-Setup
-*/
-
-//int EASYLIGHT_MEM_USE = 0;
-
 quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
 
   this->lightStrand = new qpLightStrand(leds, numLeds);
 
-  this->currentScene = &this->scene(0); //creates our first scene and sets pointers to this strands LEDs, do we even need this??
+  //draw can't draw without this!
+  this->currentScene = &this->scene(0);
 
-  this->addEntropy();
-  this->addEntropy();
-  this->addEntropy();
-//  EASYLIGHT_MEM_USE = ((numLeds * sizeof(CRGB)) + sizeof(quickPatterns));
+  random16_add_entropy(analogRead(1));
+  random16_add_entropy(analogRead(2));
+  random16_add_entropy(analogRead(3));
 }
 
 
-
-/*---------
-Rendering
+/*------------
+Render
 */
 
 void quickPatterns::draw() {
@@ -45,7 +36,7 @@ void quickPatterns::draw() {
 
 
 /*------------
-Quick access add patterns
+Pattern quick add
 */
 
 qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
@@ -58,54 +49,33 @@ qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 Scene and layer access
 */
 
+qpScene &quickPatterns::newScene() {
+
+  this->scenes.append(new qpScene(this->lightStrand));  //TODO: why doesn't append return a reference to added scene?
+  this->lastReferencedScene = this->scenes.getLast();
+
+  return *this->lastReferencedScene;
+}
 
 // Returns requested scene or automatically adds and returns a new scene if index does not yet exist
 qpScene &quickPatterns::scene(int index) {
 
-  if(index > (this->scenes.numElements - 1)) {
-    this->scenes.append(new qpScene(this->lightStrand));
-    return *this->scenes.getLast();
-  }
+  if(index > (this->scenes.numElements - 1))
+    return this->newScene();
 
-  return *this->scenes.getItem(index);
+  this->lastReferencedScene = this->scenes.getItem(index);
+
+  return *this->lastReferencedScene;
 }
 
-// Returns requested layer or automatically adds and returns a new layer if index does not yet exist
 qpLayer &quickPatterns::layer(int layerIndex) {
 
-  lastAccessedLayer = &this->scene(0).layer(layerIndex);
-
-  return *lastAccessedLayer;
-}
-
-// Returns pattern 0 on layer indicated by index
-qpPattern&quickPatterns::operator()(int layerIndex) {
-
-  //this->lastReferencedLayer
-  lastAccessedLayer = &this->scene(0).layer(layerIndex); //shouldn't be necessary?
-
-  return this->scene(0).layer(layerIndex).pattern(0);
-}
-
-qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex) {
-
-//  this->lastReferencedLayer
-  lastAccessedLayer = &this->scene(sceneIndex).layer(layerIndex); //shouldn't be necessary?
-
-  return this->scene(sceneIndex).layer(layerIndex).pattern(0);
-}
-
-qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex, int patternIndex) {
-
-  //this->lastReferencedLayer
-  lastAccessedLayer = &this->scene(sceneIndex).layer(layerIndex); //shouldnt be necessary
-
-  return this->scene(sceneIndex).layer(layerIndex).pattern(patternIndex);
+  return this->scene(0).layer(layerIndex);
 }
 
 
-/*-------------
-Scene selection
+/*------------
+Scene navigation
 */
 
 void quickPatterns::nextScene() {
@@ -141,21 +111,28 @@ void quickPatterns::playRandomScene() {
 }
 
 
-/*-----------
-Util
+/*------------
+Access
 */
 
-qpLayer &quickPatterns::sameLayer() {
-  return *lastAccessedLayer;
+qpPattern&quickPatterns::operator()(int layerIndex) {
+
+  return this->scene(0).layer(layerIndex).pattern(0);
+}
+
+qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex) {
+
+  return this->scene(sceneIndex).layer(layerIndex).pattern(0);
+}
+
+qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex, int patternIndex) {
+
+  return this->scene(sceneIndex).layer(layerIndex).pattern(patternIndex);
 }
 
 
-inline void quickPatterns::addEntropy() {
-  random16_add_entropy(analogRead(0));
-}
 
-
-/**
+/*------------
 Debug
 */
 

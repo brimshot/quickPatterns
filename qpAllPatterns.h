@@ -10,6 +10,8 @@
 #include "patterns/qpWanderingLine.h";
 #include "patterns/qpFeathers.h";
 #include "patterns/qpTheaterChase.h";
+#include "patterns/qpRandomBar.h";
+#include "patterns/qpPusher.h";
 
 
 #endif
