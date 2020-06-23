@@ -34,11 +34,9 @@ These are examples that tend to look better on flat strips of LEDs, making use o
 #include <quickPatterns.h>
 #include <qpAllPatterns.h>
 
-#define CHIPSET     WS2812B
+#define CHIPSET     WS2812
 #define DATA_PIN    8          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
-#define NUM_LEDS_PER_STRIP 50
-#define NUM_STRIPS 2
-#define NUM_LEDS    NUM_LEDS_PER_STRIP*NUM_STRIPS
+#define NUM_LEDS    100
 #define BRIGHTNESS  32
 #define COLOR_ORDER GRB         //GRB for WS2812, RGB for WS2811
 
