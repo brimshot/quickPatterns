@@ -7,9 +7,9 @@ quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
   //draw can't draw without this!
   this->currentScene = &this->scene(0);
 
-  random16_add_entropy(analogRead(1));
-  random16_add_entropy(analogRead(2));
-  random16_add_entropy(analogRead(3));
+  random16_add_entropy(random());
+  random16_add_entropy(random());
+  random16_add_entropy(analogRead(0));
 }
 
 

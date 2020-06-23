@@ -38,7 +38,7 @@ These are examples intended for a matrix with
 #include <quickPatterns.h>
 #include <qpAllPatterns.h>
 
-#define CHIPSET     WS2812B
+#define CHIPSET     WS2811
 #define DATA_PIN    8          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
 #define NUM_LEDS_PER_STRIP 50
 #define NUM_STRIPS 2
@@ -123,12 +123,6 @@ void setup() {
   #endif
 
   // ~ Scene 0 - scene 0 demonstrates simultaneous patterns, timed activation and two options for dynamically changing colors
-
-  quickPatterns.addPattern(new qpTheaterChase())
-    .singleColor(CRGB::Yellow)
-    .drawEveryNTicks(3);
-
-  return;
 
   /*
   quickPatterns.addPattern(new qpJuggle())

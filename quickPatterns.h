@@ -4,18 +4,11 @@
 #define DIR_FORWARD 1
 #define DIR_REVERSE -1
 
-//TODO: randomness not random!
-//TODO: check if include defs work
-//TODO: find a way to remove FastLED from other headers
-
-//TODO: why so many
 #include <qpLinkedList.h>
 #include <qpPattern.h>
 #include <qpLayer.h>
 #include <qpScene.h>
-#include <qpShow.h>
 #include <qpLightStrand.h>
-
 
 class quickPatterns {
 

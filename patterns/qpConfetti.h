@@ -12,7 +12,7 @@ class qpConfetti : public qpPattern {
 
     void draw() {
 
-      for( uint16_t i = random8(this->spread); i < _numLeds; i += (random8(this->spread) + 1))
+      for( uint16_t i = random16(this->spread); i < _numLeds; i += (random16(this->spread) + 1))
         _targetLeds[i] = _getColor();
     }
 
