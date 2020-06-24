@@ -1,8 +1,7 @@
 #ifndef QP_PATTERN_H
 #define QP_PATTERN_H
 
-#include <FastLED.h> //why doens't layer need this???
-//#include <quickPatterns.h>
+#include <FastLED.h>
 
 class qpPattern {
 
@@ -17,7 +16,7 @@ class qpPattern {
     int cycles = 0;
     int activations = 0;
 
-    // ~ Color
+    // Color
 
     CRGB _currentColor;
 
@@ -43,7 +42,7 @@ class qpPattern {
     void loadNextColorFromSetSequentially();
 
 
-    // ~ Animation
+    // Animation
 
     int ticksBetweenFrames = 1;
 
@@ -87,10 +86,12 @@ class qpPattern {
     * _numLeds and _targetLeds are undefined (empty pointers) when the pattern constructors are called.
     * Any pre-rendering calculations that require the number of LEDs to be known should be put in the initialize() function
     */
+
     CRGB *_targetLeds;
     int _numLeds = 0;
 
     // Color values
+
     CRGBPalette16 _colorPalette;
     byte _paletteIndex = 0;
     byte _paletteStep = 0;
@@ -99,14 +100,15 @@ class qpPattern {
     byte numColorsInSet = 0;
     byte colorSetIndex = 0;
 
-    // ~ These are the core animation functions to be implemented by the sub-classes
-    virtual void initialize() { /* called once when pattern is created, after LEDs are assigned */ }
-    virtual void draw() { /* called at each update interval */ }
-
-    //TODO: eventually we will have an array of color objects we access via this getter
     inline CRGB _getColor(int index = 0) {
       return this->_currentColor;
     }
+
+    // These are the core animation functions to be implemented by the sub-classes
+
+    virtual void initialize() { /* called once when pattern is created, after LEDs are assigned */ }
+    virtual void draw() { /* called at each update interval */ }
+
 
     inline bool _inBounds(int pos) {
       return ((pos >= 0) && (pos < _numLeds));
@@ -116,7 +118,6 @@ class qpPattern {
       this->cycles++;
     }
 
-    //TODO: rename to _clear()
     inline void _clearLeds() {
       fill_solid(_targetLeds, _numLeds, CRGB::Black);
     }
@@ -157,7 +158,7 @@ class qpPattern {
 
     qpPattern &withChanceToChangeColor(byte percentage);
 
-    // ~ Real time changes
+    // Real time changes
 
     bool activate();
     void deactivate();

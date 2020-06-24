@@ -35,7 +35,7 @@ class qpLayer {
 
     void assignTargetLeds(CRGB *leds, int numLeds);
 
-    // ~ Config interface
+    // Config
 
     qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
 
@@ -51,7 +51,7 @@ class qpLayer {
       return *this;
     }
 
-    // ~ Patterns
+    // Patterns
 
     qpPattern &addPattern(qpPattern *pattern);
 
@@ -64,9 +64,8 @@ class qpLayer {
 
     qpPattern &samePattern() { return *this->lastReferencedPattern; }
 
-    // ~ Drawing
+    // Render
 
-    //how the hell does passing things in make sense?
     void draw(CRGB *targetLeds, int numLeds);
 
 };

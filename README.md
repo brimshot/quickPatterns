@@ -1,6 +1,6 @@
 # quickPatterns
 
-A FastLED patterns library and manager. quickPatterns allows multiple animations to run on top of one another with configurable speeds, colors and timing.
+A FastLED pattern runner and library. quickPatterns allows multiple animations to run on top of one another with configurable speeds, colors and timing.
 
 [Example sketch](#example-sketch)
 
@@ -516,7 +516,7 @@ quickPatterns.scene(0).layer(1).addPattern(new qpBouncingPulse(8));
 quickPatterns(1).singleColor(CRGB::Red); //sets pattern 0 on layer 1 to red
 ```
 
-### Scene, layer
+#### Scene, layer
 
 Quick access to the first pattern (pattern 0) a specific scene / layer:
 ```
@@ -527,7 +527,7 @@ is the same as
 quickPatterns.scene(1).layer(2).pattern(0)
 ```
 
-### Scene, layer, pattern
+#### Scene, layer, pattern
 
 Quick access to a specific scene, layer and pattern:
 ```
@@ -553,7 +553,7 @@ class myCustomPattern : public qpPattern {
   void draw() {
 
     //clear previous pixels on this layer
-    _clear();
+    _clearLeds();
 
     //move a single pixel along the strand step by step
     _targetLeds[pos++] = _getColor();
@@ -591,7 +591,7 @@ The number of leds in the current layer
 
 Returns a CRGB object with the current color as per this patterns [color configuration](#configuring-pattern-colors)
 
-**_clear()**
+**_clearLeds()**
 
 Clears the leds on this pattern's layer - be aware that this will clear data written by other patterns on the same layer as well
 
@@ -633,52 +633,58 @@ They can be included individually in sketches by including each header as needed
 ```
 qpBouncingPulse(int size, int direction = DIR_FORWARD)
 ```
-A section of lights of length *size* that moves back and forth along the light strip. If the second parameter is set to DIR_REVERSE, the initial starting point will be from the end of the light strip. One cycle is one trip along the length of strip in either direction.
+A section of lights of length *size* that moves back and forth along the light strip. If the second parameter is set to DIR_REVERSE, the initial starting point will be from the end of the light strip.
 
 **qpBouncingBars**
 ```
 qpBouncingBars(int size)
 ```
-Two sections of lights of length *size* that start at opposite ends of the light strip, meet in the middle then return to the ends. A cycle is each time the bars return to the ends of the strip.
+Two sections of length *size* that start at opposite ends of the light strip, meet in the middle, then return.
 
-TODO: rename to glitter
 **qpConfetti**
 ```
-qpConfetti(int spread = 40)
+qpConfetti(int spread = 30)
 ```
-
+Illuminates a random number of pixels between 0 and the total available each frame. Increase spread or decrease draw frequency to increase spacing.
 
 **qpFeathers**
 ```
 qpFeathers(int size, int direction = DIR_FORWARD)
 ```
-Turns on the lights of the strand in sections of size *size* sequentially. One cycle is counted when the the last light in the strand has been illuminated.
+Turns on the lights of the strand in sections of size *size* sequentially.
+
+**qpFlashRandomSection**
+```
+qpFlashRandomSection(int sectionSize, byte numFlashes = 8)
+```
+Flashes a random section of lights of length *sectionSize* on and off *numFlashes* times.
 
 **qpJuggle**
 ```
-qpJuggle(int TODO:finish)
+qpJuggle()
 ```
+Eight lights that weave in and out sync.
 
 **qpMovingGradient**
 ```
 qpMovingGradient(CRGBPalette16 palette, int deltaX = 3, int deltaY = 1)
 ```
-Fills the strand with a gradient from the supplied color palette. deltaX is the change in hue between each led. deltaY is the change in the initial hue each frame. To show the strand as a single color set deltaX to 0. To stop the colors from 'moving', set deltaY to 0. A cycle is when the starting hue reaches 255 and loops back to 0.
+Fills the strand with a gradient from the supplied color palette. deltaX is the change in hue between each pixel. deltaY is the change in the initial hue each frame.
 
 **qpSinelon**
 ```
 qpSinelon(int speed)
 ```
-Fills in lights following a sine wave using FastLED's beatsin16 function running at *speed*. Best practice is to combine with [layer fading](layer-fading) to avoid filling the strand solid.
+A pixel weaving back and forth across the strand.
 
 **qpTheaterChase**
 ```
 qpTheaterChase()
 ```
-Classic theater chase pattern that moves lights in threes. One cycle is one movement of 3 positions.
+Classic theater chase pattern that moves lights in threes.
 
 **qpWanderingLine**
 ```
 qpWanderingLine(int size)
 ```
-A section of lights of length *size* that moves back and forth randomly along the light strip. This pattern has no 'cycle' attribute.
+A section of lights of length *size* that move back and forth randomly along the light strip.

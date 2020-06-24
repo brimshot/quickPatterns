@@ -23,10 +23,8 @@ class qpBouncingPulse : public qpPattern {
       _clearLeds();
 
       for(int i = 0; i < this->length; i++) {
-        if(_inBounds(this->pos + i)) {
+        if(_inBounds(this->pos + i))
           _targetLeds[(this->pos + i)] = _getColor();
-//          _targetLeds[(this->pos + i)].fadeToBlackBy(255 - ((255/this->length)*i)); //TODO: this isn't working....
-        }
       }
 
       //move the pulse one position

@@ -1,4 +1,3 @@
-
 //TODO: rename to Glitter
 class qpConfetti : public qpPattern {
 

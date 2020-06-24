@@ -12,7 +12,7 @@ class qpFlashRandomSection : public qpPattern {
     }
 
   public:
-    qpFlashRandomSection(const int sectionSize, const byte numFlashes = 8) {
+    qpFlashRandomSection(int sectionSize, byte numFlashes = 8) {
       this->sectionSize = sectionSize;
       this->numFlashes = numFlashes;
       this->flashSteps = this->numFlashes*2;

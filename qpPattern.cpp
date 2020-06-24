@@ -25,6 +25,7 @@ void qpPattern::render() {
   (this->*deactiveWhenAppropriate)();
 }
 
+
 bool qpPattern::isActive() {
 
   return this->currentlyActive;
@@ -42,8 +43,9 @@ void qpPattern::activatePeriodically() {
   }
 
   this->activate();
-  this->resetActivationTimer(); //TODO: where does this go?
+  this->resetActivationTimer();
 }
+
 
 void qpPattern::deactivatePeriodically() {
 
@@ -77,11 +79,6 @@ bool qpPattern::activate() {
 }
 
 
-void qpPattern::deactivate() {
-
-  this->currentlyActive = false;
-}
-
 void qpPattern::resetActivationTimer() {
 
   // If we are activating at a random internval, calculate the next interval
@@ -91,6 +88,11 @@ void qpPattern::resetActivationTimer() {
     this->ticksUntilActive = this->minTicksBetweenActivations;
 }
 
+
+void qpPattern::deactivate() {
+
+  this->currentlyActive = false;
+}
 
 /*---------
 Pattern speed
@@ -107,7 +109,6 @@ qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 /*--------
 Periodic pattern activation
 */
-
 
 qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
 
@@ -316,8 +317,7 @@ void qpPattern::loadNextPaletteColorSequentially() {
 
 void qpPattern::loadNextPaletteColorRandomly() {
 
-  // Since the last 15 hues of a palette are circular (fade back towards 0), only go to 240
-  this->_currentColor =  ColorFromPalette(this->_colorPalette, random16(0, 240));
+  this->_currentColor =  ColorFromPalette(this->_colorPalette, random16(0, 255));
 }
 
 void qpPattern::loadNextColorFromSetSequentially() {

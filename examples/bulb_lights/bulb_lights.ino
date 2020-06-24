@@ -278,25 +278,7 @@ void setup() {
 void loop()
 {
 
-//  myfunc(10);
-//  myFirstShow(qp);
-//  qps->playShow();
   quickPatterns.draw();
-  /*
-  AT(100) {
-    Serial.println("Hit a boundary of 100 " + String(quickPatterns.getTicks()));
-    qp(0,1).stayActiveForNCycles(2)
-      .activate();
-    WHENDONE(qp(0,1)) {
-      qp(0,2).stayActiveForNCycles(1)
-        .activate();
-    }
-  }
-  AT(900) {
-
-  }
-  */
-//  memcpy(leds, myLeds, sizeof(CRGB)*100);
   FastLED.show();
 
   #ifdef ESP8266
@@ -304,7 +286,6 @@ void loop()
   #endif
 
   EVERY_N_SECONDS(30) {
-//    quickPatterns.playRandomScene();
     quickPatterns.nextScene();
   }
 

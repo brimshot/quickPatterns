@@ -33,6 +33,7 @@ These are examples that tend to look better on flat strips of LEDs, making use o
 
 #include <quickPatterns.h>
 #include <qpAllPatterns.h>
+#include "popupDroid.h"
 
 #define CHIPSET     WS2812
 #define DATA_PIN    8          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
@@ -69,12 +70,17 @@ void setup() {
 
   // ~ Configure quickPatterns
 
-  //TODO: esp8266
-  quickPatterns.setTickMillis(25);
+  #ifdef ESP8266
+  EasyLights.setTickMillis(0);
+  #endif
+
+  #ifndef ESP8266
+  EasyLights.setTickMillis(25);
+  #endif
 
 
-  // ~ Scene 0 - scene 0 demonstrates simultaneous patterns at differing speeds
-  /*
+  // ~ Scene 0 - demonstrates running simultaneous patterns at differing speeds
+
   // Each call to addPattern() automatically creates a new 'layer' on which that pattern is rendered which we can use to combine, blend and time independently
 
   // Layer 0 - blue bars, 9 pixels width
@@ -92,14 +98,49 @@ void setup() {
     .drawEveryNTicks(3); //move at a slower speed
   quickPatterns.sameLayer().setLayerBrush(COMBINE);
 
+
+  // ~ Scene 1 - demonstrates a use of state machine patterns
+
+  quickPatterns.newScene().addPattern(new popupDroid(16))
+    .singleColor(CRGB::Yellow)
+    .activatePeriodicallyEveryNTicks(200, 400)
+    .stayActiveForNCycles(1);
+
+  quickPatterns.sameScene().addPattern(new popupDroid(8))
+    .singleColor(CRGB::Red)
+    .activatePeriodicallyEveryNTicks(20, 70)
+    .stayActiveForNCycles(1);
+
+  quickPatterns.sameScene().addPattern(new popupDroid(8))
+    .singleColor(CRGB::Blue)
+    .activatePeriodicallyEveryNTicks(20, 70)
+    .stayActiveForNCycles(1);
+  quickPatterns.sameLayer().setLayerBrush(ADD);
+
+  /*
+  quickPatterns.addPattern(new qpMovingGradient(OceanColors_p))
+    .drawEveryNTicks(3);
+
+  quickPatterns.addPattern(new qpRandomBar(10))
+      .singleColor(CRGB::White)
+      .activatePeriodicallyEveryNTicks(30)
+      .stayActiveForNFrames(6)
+      .drawEveryNTicks(2);
+  quickPatterns.sameLayer().setLayerBrush(SUBTRACT).continuallyFadeLayerBy(30);
   */
 
-  quickPatterns.addPattern(new qpMovingGradient(CRGBPalette16(CRGB::Blue, CRGB::Green)))
-    .drawEveryNTicks(20);
+
+  /*
+  quickPatterns.addPattern(new qpJuggle())
+    .chooseColorSequentiallyFromPalette(ForestColors_p)
+    .changeColorEveryNTicks(8)
+    .drawEveryNTicks(2);
+  quickPatterns.sameLayer().continuallyFadeLayerBy(20);
 
   quickPatterns.addPattern(new qpBouncingPulse(10))
       .singleColor(CRGB::White);
   quickPatterns.sameLayer().setLayerBrush(SUBTRACT);
+  */
 
 }
 
@@ -111,6 +152,11 @@ void loop()
 
   quickPatterns.draw();
   FastLED.show();
+
+  //On ESP8266 boards due to FastLED latching / write issue, we set our 'tick' length to 0 (see above) and manage the global update speed via hard delay
+  #ifdef ESP8266
+  FastLED.delay(25);
+  #endif
 
   EVERY_N_SECONDS(30) {
     quickPatterns.nextScene();

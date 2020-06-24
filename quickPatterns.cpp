@@ -13,17 +13,13 @@ quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
 }
 
 
-/*------------
-Render
-*/
+// ~ Render
 
 void quickPatterns::draw() {
 
   uint32_t currentMillis = millis();
 
   if(currentMillis >= this->nextTickMillis) {
-
-//    Serial.println("Next tick millis (" + String(this->nextTickMillis) + ") and currentMillis (" + String(currentMillis) + ")");
 
     this->nextTickMillis = (currentMillis + this->tickLengthInMillis);
 
@@ -37,9 +33,7 @@ void quickPatterns::draw() {
 }
 
 
-/*------------
-Pattern quick add
-*/
+// ~ Quick add
 
 qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 
@@ -47,13 +41,11 @@ qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 }
 
 
-/*------------
-Scene and layer access
-*/
+// ~ Access
 
 qpScene &quickPatterns::newScene() {
 
-  this->scenes.append(new qpScene(this->lightStrand));  //TODO: why doesn't append return a reference to added scene?
+  this->scenes.append(new qpScene(this->lightStrand));
   this->lastReferencedScene = this->scenes.getLast();
 
   return *this->lastReferencedScene;
@@ -76,9 +68,7 @@ qpLayer &quickPatterns::layer(int layerIndex) {
 }
 
 
-/*------------
-Scene navigation
-*/
+// ~ Scene navigation
 
 void quickPatterns::nextScene() {
   this->sceneIndex++;
@@ -113,9 +103,7 @@ void quickPatterns::playRandomScene() {
 }
 
 
-/*------------
-Access
-*/
+// ~ Quick access operators
 
 qpPattern&quickPatterns::operator()(int layerIndex) {
 
