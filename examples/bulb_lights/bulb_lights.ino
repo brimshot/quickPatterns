@@ -25,18 +25,14 @@ SOFTWARE.
 
 
 /*************
-Examples of using the qp library
+Demo reel using the quickPatterns library
 
-These are examples that tend to look better on bulb style lights,
-
-These are examples that tend to look better on flat strips of LEDs, making heavy use of negative space, state machine based patterns and
-
-These are examples intended for a matrix with
+These are examples that tend to look better on bulb style lights, making use of wave animations
 **************/
 
 #include <FastLED.h>
 #include <quickPatterns.h>
-#include <qpAllPatterns.h>
+#include <qpSamplePatterns.h>
 
 #define CHIPSET     WS2811
 #define DATA_PIN    8          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
@@ -46,41 +42,12 @@ These are examples intended for a matrix with
 #define BRIGHTNESS  32
 #define COLOR_ORDER RGB         //GRB for WS2812, RGB for WS2811
 
-/*
-#define LIGHTSHOW(NAME) void NAME(quickPatterns &qp) { \
-//    static quickPatterns *qp = qp;
-
-*/
-
-/*
-#define AT(TICKS) if(doTicks(controller, TICKS)) //if((qp->getTicks() == TICKS) && (previousTick != TICKS))
-
-#define LIGHTSHOW(NAME) void NAME(quickPatterns &controller)
-*/
-
-//#define AT(TICKS) qpShow.addEvent()->conditionalFunction = []() { return true; };
 
 //Declare master set of leds for FastLED to write to
 CRGB leds[NUM_LEDS];
 
-//Declare EasyLightStrand and pass in CRGB array
 quickPatterns quickPatterns(leds, NUM_LEDS); //NUM_STRIPS*NUM_LEDS_PER_STRIP);
-
-//qpShow *qps = new qpShow();
-
-/*
-bool funcoTime() {
-  return true;
-}
-*/
-
 void setup() {
-
-//  quickPatterns controller(leds, NUM_LEDS);
-  /*
-  qps->addEvent()->conditionalFunction = [](quickPatterns *controller) { return controller->isAtTick(300); };
-  qps->currentEvent()->eventCode = [](quickPatterns *controller)
-  */
 
   delay(3000); // Recovery delay
 
@@ -95,24 +62,13 @@ void setup() {
     .setDither(BRIGHTNESS < 255);
 
 
-//  FastLED.addLeds<CHIPSET, 8, COLOR_ORDER>(leds, 0, 50);
-  /*
-    .setCorrection(TypicalLEDStrip)
-    .setDither(BRIGHTNESS < 255);
-  */
-
-//  FastLED.addLeds<CHIPSET, 9, COLOR_ORDER>(leds, 50, 100);
-  /*
-    .setCorrection(TypicalLEDStrip)
-    .setDither(BRIGHTNESS < 255);
-  */
-
   FastLED.setBrightness(BRIGHTNESS);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, 450);
 
   FastLED.clear();
 
-  // ~ Setup
+
+  // ~ Configure quickPatterns
 
   #ifdef ESP8266
   quickPatterns.setTickMillis(0);
@@ -122,100 +78,45 @@ void setup() {
   quickPatterns.setTickMillis(25);
   #endif
 
-  // ~ Scene 0 - scene 0 demonstrates simultaneous patterns, timed activation and two options for dynamically changing colors
-
-  /*
-  quickPatterns.addPattern(new qpJuggle())
-    .chooseColorSequentiallyFromPalette(CRGBPalette16(CRGB::Green, CRGB::Blue))
-    .changeColorEveryNTicks(6)
-    .drawEveryNTicks(4);
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20);
-
-  quickPatterns.addPattern(new qpRandomBar(10))
-    .singleColor(CRGB::Yellow)
-    .activatePeriodicallyEveryNTicks(10)
-    .stayActiveForNFrames(1);
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20).setLayerBrush(COMBINE);
-  */
-
-  /*
-  quickPatterns.addPattern(new qpFeathers(5))
-    .drawEveryNTicks(3)
-    .activatePeriodicallyEveryNTicks(100)
-    .stayActiveForNCycles(1)
-    .chooseColorRandomlyFromPalette(RainbowColors_p)
-    .changeColorEveryNCycles(1);
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20).setLayerBrush(ADD);
-  */
-
-  /*
-  quickPatterns.addPattern(new qpJuggle())
-    .chooseColorSequentiallyFromPalette(CRGBPalette16(CRGB::Yellow, CRGB::Pink))
-    .changeColorEveryNTicks(10)
-    .drawEveryNTicks(4); //slowing down our updates gives a wider spread to the juggle effect
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20);
-
-
-  quickPatterns.addPattern(new qpBouncingPulse(8))
-    .deactivate();
-  */
-
-//  qps->currentEvent->conditionalFunction = &funcoTime;
-
-  /*
-  quickPatterns.addPattern(new qpPusher(10))
-    .singleColor(CRGB::RoyalBlue)
-    .drawEveryNTicks(2);
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20);
-
-  quickPatterns.addPattern(new qpPusher(6))
-    .singleColor(CRGB::Red);
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20).setLayerBrush(ADD);
-
-  return;
-  */
+  // ~ Scene 0 - demonstrates simultaneous patterns, timed activation and two options for dynamically changing colors
 
   // Each call to addPattern() automatically creates a new 'layer' on which that pattern is rendered which we can use to combine, blend and time independently
 
-  // Layer one - a sine wave that moves back and forth along the strip. The wave color moves through the rainbow palette sequentially
+  // sine wave that moves back and forth along the strip rainbow palette sequentially
   quickPatterns.addPattern(new qpSinelon(16))
     .chooseColorSequentiallyFromPalette(RainbowColors_p)
     .changeColorEveryNTicks(2);
   // The sameLayer() function returns a reference to the last layer accessed. We are going to continually fade this layer's light such that old pixels fade away once rendered. Fade values are from 0-255
   quickPatterns.sameLayer().continuallyFadeLayerBy(20);
 
-//  CRGB pulseColors[3] = {CRGB::Blue, CRGB::Yellow, CRGB::HotPink};
-  // Create a color set
+  // create a color set
   CRGB *pulseColors = new CRGB[3];
   pulseColors[0] = CRGB::Blue;
   pulseColors[1] = CRGB::Yellow;
   pulseColors[2] = CRGB::Pink;
 
-  // A small line of pixels that bounces back and forth along the strip - the color is from our set created above
+  // small line of pixels that bounces back and forth
   quickPatterns.addPattern(new qpBouncingPulse(8))
     .chooseColorSequentiallyFromSet(pulseColors, 3)
     .changeColorEveryNCycles(4);
 
-
+  // randomly activated lightning flashes
   quickPatterns.addPattern(new qpFlashRandomSection(10))
-      .singleColor(CRGB::White);
-
-  quickPatterns.samePattern().activatePeriodicallyEveryNTicks(100, 200)
+      .singleColor(CRGB::White)
+      .activatePeriodicallyEveryNTicks(100, 200)
       .stayActiveForNCycles(2, 4);
 
-  // ** Scene 1 - scene 1 demonstrates timed activation and duration
 
-  // Scenes are groups of layers + patterns that can be referenced as a unit. When we call addPattern() without the scene() function preceding it (as above), we automatically access scene 0
-  // To configure a set of scenes, simply prepend the scene() function before adding patterns with the id of the scene you want to manipulate
+  // ~ Scene 1 - demonstrates timed activation and duration
 
-  // Lay down a base juggle effect
+  // juggle effect base layer
   quickPatterns.newScene().addPattern(new qpJuggle())
     .chooseColorSequentiallyFromPalette(ForestColors_p)
     .changeColorEveryNTicks(10)
     .drawEveryNTicks(4); //slowing down our updates gives a wider spread to the juggle effect
   quickPatterns.sameLayer().continuallyFadeLayerBy(20);
 
-  // Yellow sine wave that will activate randomly at intervals between 80 and 150 ticks. Once active, the pattern stays active for 50 ticks
+  // sine wave activated randomly at intervals between 80 and 150 ticks. once active, stays active for 50 ticks. changes from blue to purple
   quickPatterns.sameScene().addPattern(new qpBouncingPulse(20))
     .chooseColorSequentiallyFromPalette(CRGBPalette16(CRGB::Blue, CRGB::Purple))
     .changeColorEveryNTicks(1)
@@ -223,6 +124,7 @@ void setup() {
     .stayActiveForNCycles(4);
   quickPatterns.sameLayer().continuallyFadeLayerBy(20).setLayerBrush(ADD);
 
+  // periodic yellow feathers
   quickPatterns.sameScene().addPattern(new qpRandomBar(10))
     .singleColor(CRGB::Yellow)
     .activatePeriodicallyEveryNTicks(160)
@@ -231,38 +133,18 @@ void setup() {
   quickPatterns.sameLayer().continuallyFadeLayerBy(20).setLayerBrush(COMBINE);
 
 
-  // ** Scene 2 - scene 2 demonstrates two different layer brushes, ADD and SUBTRACT
+  // ~ Scene 2 - demonstrates the MASK brush
 
-  // Lay down a base rainbow gradient
-  /*
-  quickPatterns.scene(2).addPattern(new qpMovingGradient(OceanColors_p, 0))
-    .drawEveryNTicks(3);
-
-  // Soft white confetti. Using the ADD brush to add this layers light to those below, we apply a sparkle effect on the underlying gradient colors
-  quickPatterns.scene(2).addPattern(new qpConfetti())
-    .singleColor(CRGB(64, 64, 64))
-    .drawEveryNTicks(4); //slower confetti reduces the busy-ness of the effect
-  quickPatterns.sameLayer().continuallyFadeLayerBy(30).setLayerBrush(ADD);
-
-  // Roving negative space - by setting the pattern color to white and using the SUBTRACT brush to subtract this layer's light from those below, we can draw our pattern with negative space
-  quickPatterns.scene(2).addPattern(new qpWanderingLine(8))
-    .singleColor(CRGB::White);
-  quickPatterns.sameLayer().setLayerBrush(SUBTRACT);
-  */
-
-
-  // ~ Scene 3 - scene 3 demonstrates the MASK brush
-
-  // Lay down a base layer of a moving rainbow gradient
+  // rainbow gradient base layer
   quickPatterns.newScene().addPattern(new qpMovingGradient(RainbowColors_p));
 
-  // Add soft white confetti. Using the ADD brush to add this layers light to what's below which gives a popping sparkle effect and will leave sparkles as the mask fades
+  // soft white confetti. Using the ADD brush to add this layers light to what's below which gives a popping sparkle effect and will leave sparkles as the mask fades
   quickPatterns.sameScene().addPattern(new qpConfetti())
     .singleColor(CRGB::White)
     .drawEveryNTicks(4);
   quickPatterns.sameLayer().continuallyFadeLayerBy(30).setLayerBrush(ADD);
 
-  // Add a feather mask. Feathers illuminate the strand in sections,
+  // feather mask periodically illuminates the strand in sections
   quickPatterns.sameScene().addPattern(new qpFeathers(10))
     .singleColor(CRGB::White)
     .drawEveryNTicks(3)
@@ -270,7 +152,22 @@ void setup() {
     .stayActiveForNCycles(1);
   quickPatterns.sameLayer().setLayerBrush(MASK).continuallyFadeLayerBy(10);
 
-//  quickPatterns.playScene(3);
+  // small pink runner on top
+  quickPatterns.sameScene().addPattern(new qpBouncingPulse(5))
+    .singleColor(CRGB::HotPink);
+
+
+  // ~ Scene 3 - demonstrates periodic pattern activation
+
+  //stop and go rainbow theater chase
+  quickPatterns.newScene().addPattern(new qpTheaterChase())
+    .drawEveryNTicks(3)
+    .chooseColorSequentiallyFromPalette(RainbowColors_p)
+    .changeColorEveryNTicks(6)
+    .activatePeriodicallyEveryNTicks(25, 75)
+    .stayActiveForNTicks(25, 75);
+
+  quickPatterns.playScene(3);
 
 }
 
@@ -290,42 +187,3 @@ void loop()
   }
 
 }
-
-/*
-LIGHTSHOW(myFirstShow, qp) {
-  AT(0) {
-    qp(2, 0).setPalette(CRGBPalette16(CRGB::Yellow, CRGB::Orange));
-    quickPatterns.playScene(2);
-  }
-  AT(300) {
-    qp(2, 0).setPalette(CRGBPalette16(CRGB::Purple, CRGB::Blue));
-  }
-  AT(600) {
-    RESTARTLIGHTSHOW
-  }
-}
-*/
-
-/*
-LIGHTSHOW(myFirstShow) {
-  AT(300) {
-    controller(0, 1).singleColor(CRGB::Blue)
-        .stayActiveForNCycles(2)
-        .activate();
-  }
-  AT(900) {
-    controller(0).setPalette(CRGBPalette16(CRGB::Blue, CRGB::Purple));
-  }
-  AT(1000) {
-    controller(0, 1).singleColor(CRGB::Red)
-        .stayActiveForNCycles(4)
-        .activate();
-  }
-}
-*/
-
-/*
-LIGHTSHOW(myfunc, myparam) {
-  Serial.println("my param is" + String(myparam));
-}
-*/

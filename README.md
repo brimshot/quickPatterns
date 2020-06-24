@@ -1,6 +1,8 @@
 # quickPatterns
 
-A FastLED pattern runner and library. quickPatterns allows multiple animations to run on top of one another with configurable speeds, colors and timing.
+A FastLED based pattern runner and library for running on strips of LED lights.
+
+quickPatterns allows multiple animations to run on top of one another with configurable speeds, colors and timing.
 
 [Example sketch](#example-sketch)
 
@@ -16,14 +18,14 @@ A FastLED pattern runner and library. quickPatterns allows multiple animations t
 
 [Using layer brushes](#using-layer-brushes)
 
-[Scenes](#scenes)
+[Creating scenes](#creating-scenes)
 
-[Additional methods and options](#additional-methods-and-options)
+[Additional methods](#additional-methods)
+
+[Sample patterns](#sample-patterns)
 
 [Writing new patterns](#writing-new-patterns)
 
-
-[Included patterns](#included-patterns)
 
 ## Example sketch
 A simple example that can be run right away
@@ -413,7 +415,7 @@ Combine the values of this layers pixels with those below.
 The mask brush subtracts the inverse of the light values in the current layer from those below.
 When a pattern with black and white pixels used is as a mask, any white pixels in the mask will allow those from below to show through, while any black pixels will eliminate what's underneath. Use this brush to leave 'windows' of visible space from patterns that are being rendered on the below layers.
 
-## Scenes
+## Creating scenes
 
 Scenes are collections of layers that can be referenced as a unit. By default, calls to *addPattern()* and *layer()*, as used in our first examples,  reference scene 0 and scene 0 will be rendered when *quickPatterns.draw()* is called unless otherwise specified.
 
@@ -462,7 +464,7 @@ quickPatterns.playRandomScene();
 ```
 
 
-## Additional methods and options
+## Additional methods
 
 ### Layer fading
 
@@ -537,6 +539,73 @@ is the same as
 ```
 quickPattern.scene(1).layer(0).pattern(2)
 ```
+
+
+
+## Sample patterns
+
+The following sample pattern classes are included with the library.
+
+**qpBouncingPulse**
+```
+qpBouncingPulse(int size, int direction = DIR_FORWARD)
+```
+A section of lights of length *size* that moves back and forth along the light strip. If the second parameter is set to DIR_REVERSE, the initial starting point will be from the end of the light strip.
+
+**qpBouncingBars**
+```
+qpBouncingBars(int size)
+```
+Two sections of length *size* that start at opposite ends of the light strip, meet in the middle, then return.
+
+**qpConfetti**
+```
+qpConfetti(int spread = 30)
+```
+Illuminates a random number of pixels between 0 and the total available each frame. Increase spread or decrease draw frequency to increase spacing.
+
+**qpFeathers**
+```
+qpFeathers(int size, int direction = DIR_FORWARD)
+```
+Turns on the lights of the strand in sections of size *size* sequentially.
+
+**qpFlashRandomSection**
+```
+qpFlashRandomSection(int sectionSize, byte numFlashes = 8)
+```
+Flashes a random section of lights of length *sectionSize* on and off *numFlashes* times.
+
+**qpJuggle**
+```
+qpJuggle()
+```
+Eight lights that weave in and out sync.
+
+**qpMovingGradient**
+```
+qpMovingGradient(CRGBPalette16 palette, int deltaX = 3, int deltaY = 1)
+```
+Fills the strand with a gradient from the supplied color palette. deltaX is the change in hue between each pixel. deltaY is the change in the initial hue each frame.
+
+**qpSinelon**
+```
+qpSinelon(int speed)
+```
+A pixel weaving back and forth across the strand.
+
+**qpTheaterChase**
+```
+qpTheaterChase()
+```
+Classic theater chase pattern that moves lights in threes.
+
+**qpWanderingLine**
+```
+qpWanderingLine(int size)
+```
+A section of lights of length *size* that move back and forth randomly along the light strip.
+
 
 
 ## Writing new patterns
@@ -622,69 +691,3 @@ void initialize() {
   this->halfwayPoint = _numLeds / 2; //correct way, number of leds is known when initialize() is called
 }
 ```
-
-
-## Included patterns
-
-The following pattern classes are included with the quickPatterns library.
-They can be included individually in sketches by including each header as needed or all patterns can be included via the <qpAllPatterns.h> header
-
-**qpBouncingPulse**
-```
-qpBouncingPulse(int size, int direction = DIR_FORWARD)
-```
-A section of lights of length *size* that moves back and forth along the light strip. If the second parameter is set to DIR_REVERSE, the initial starting point will be from the end of the light strip.
-
-**qpBouncingBars**
-```
-qpBouncingBars(int size)
-```
-Two sections of length *size* that start at opposite ends of the light strip, meet in the middle, then return.
-
-**qpConfetti**
-```
-qpConfetti(int spread = 30)
-```
-Illuminates a random number of pixels between 0 and the total available each frame. Increase spread or decrease draw frequency to increase spacing.
-
-**qpFeathers**
-```
-qpFeathers(int size, int direction = DIR_FORWARD)
-```
-Turns on the lights of the strand in sections of size *size* sequentially.
-
-**qpFlashRandomSection**
-```
-qpFlashRandomSection(int sectionSize, byte numFlashes = 8)
-```
-Flashes a random section of lights of length *sectionSize* on and off *numFlashes* times.
-
-**qpJuggle**
-```
-qpJuggle()
-```
-Eight lights that weave in and out sync.
-
-**qpMovingGradient**
-```
-qpMovingGradient(CRGBPalette16 palette, int deltaX = 3, int deltaY = 1)
-```
-Fills the strand with a gradient from the supplied color palette. deltaX is the change in hue between each pixel. deltaY is the change in the initial hue each frame.
-
-**qpSinelon**
-```
-qpSinelon(int speed)
-```
-A pixel weaving back and forth across the strand.
-
-**qpTheaterChase**
-```
-qpTheaterChase()
-```
-Classic theater chase pattern that moves lights in threes.
-
-**qpWanderingLine**
-```
-qpWanderingLine(int size)
-```
-A section of lights of length *size* that move back and forth randomly along the light strip.

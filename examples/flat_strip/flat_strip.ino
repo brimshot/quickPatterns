@@ -25,14 +25,14 @@ SOFTWARE.
 
 
 /*************
-Examples of using the quickPatterns library
+Demo reel using the quickPatterns library
 
-These are examples that tend to look better on flat strips of LEDs, making use of negative space and state machine based patterns
+These are examples that tend to look better on flat strips of LEDs, making use of negative space and more rigid movement
 **************/
 
 
 #include <quickPatterns.h>
-#include <qpAllPatterns.h>
+#include <qpSamplePatterns.h>
 #include "popupDroid.h"
 
 #define CHIPSET     WS2812
@@ -71,28 +71,28 @@ void setup() {
   // ~ Configure quickPatterns
 
   #ifdef ESP8266
-  EasyLights.setTickMillis(0);
+  quickPatterns.setTickMillis(0);
   #endif
 
   #ifndef ESP8266
-  EasyLights.setTickMillis(25);
+  quickPatterns.setTickMillis(25);
   #endif
 
 
-  // ~ Scene 0 - demonstrates running simultaneous patterns at differing speeds
+  // ~ Scene 0 - demonstrates running simultaneous patterns at differing speeds, the same bouncing bars pattern with 3 different configurations will weave in and out of sync
 
   // Each call to addPattern() automatically creates a new 'layer' on which that pattern is rendered which we can use to combine, blend and time independently
 
-  // Layer 0 - blue bars, 9 pixels width
+  // blue bars, 9 pixels width
   quickPatterns.addPattern(new qpBouncingBars(9))
     .singleColor(CRGB::Blue);
 
-  // Layer 1 - short red bars, 5 pixels
+  // short red bars, 5 pixels
   quickPatterns.addPattern(new qpBouncingBars(5))
     .singleColor(CRGB::Red);
   quickPatterns.sameLayer().setLayerBrush(ADD); //when passing over underlying pixels, add their light together
 
-  // Layer 2 - slow yellow bars, 5 pixels
+  // slow yellow bars, 5 pixels
   quickPatterns.addPattern(new qpBouncingBars(5))
     .singleColor(CRGB::Yellow)
     .drawEveryNTicks(3); //move at a slower speed
@@ -101,46 +101,70 @@ void setup() {
 
   // ~ Scene 1 - demonstrates a use of state machine patterns
 
+  //popup droid is a little state machine that flashes a few times then moves randomly up and down the strand before disappearing
+
+  //yellow version, less frequent on the lowest layer
   quickPatterns.newScene().addPattern(new popupDroid(16))
     .singleColor(CRGB::Yellow)
     .activatePeriodicallyEveryNTicks(200, 400)
     .stayActiveForNCycles(1);
 
+  //red version, randomly every 20 to 70 ticks
   quickPatterns.sameScene().addPattern(new popupDroid(8))
     .singleColor(CRGB::Red)
     .activatePeriodicallyEveryNTicks(20, 70)
     .stayActiveForNCycles(1);
 
+  //blue version, randomly every 20 to 70 ticks
   quickPatterns.sameScene().addPattern(new popupDroid(8))
     .singleColor(CRGB::Blue)
     .activatePeriodicallyEveryNTicks(20, 70)
     .stayActiveForNCycles(1);
   quickPatterns.sameLayer().setLayerBrush(ADD);
 
-  /*
-  quickPatterns.addPattern(new qpMovingGradient(OceanColors_p))
-    .drawEveryNTicks(3);
 
-  quickPatterns.addPattern(new qpRandomBar(10))
-      .singleColor(CRGB::White)
-      .activatePeriodicallyEveryNTicks(30)
-      .stayActiveForNFrames(6)
-      .drawEveryNTicks(2);
-  quickPatterns.sameLayer().setLayerBrush(SUBTRACT).continuallyFadeLayerBy(30);
-  */
+  // ~ Scene 2 - demonstrates the use of the SUBTRACT brush to animate with negative space
 
+  // gradient base layer
+  quickPatterns.newScene().addPattern(new qpMovingGradient(OceanColors_p));
 
-  /*
-  quickPatterns.addPattern(new qpJuggle())
-    .chooseColorSequentiallyFromPalette(ForestColors_p)
-    .changeColorEveryNTicks(8)
-    .drawEveryNTicks(2);
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20);
-
-  quickPatterns.addPattern(new qpBouncingPulse(10))
-      .singleColor(CRGB::White);
+  //randomly moving line of negative space
+  quickPatterns.sameScene().addPattern(new qpWanderingLine(10))
+    .singleColor(CRGB::White);
   quickPatterns.sameLayer().setLayerBrush(SUBTRACT);
-  */
+
+  //another
+  quickPatterns.sameScene().addPattern(new qpWanderingLine(10))
+    .singleColor(CRGB::White);
+  quickPatterns.sameLayer().setLayerBrush(SUBTRACT);
+
+
+  // ~ Scene 3 - demonstrates the MASK brush
+
+  // moving rainbow gradient base layer
+  quickPatterns.newScene().addPattern(new qpMovingGradient(RainbowColors_p));
+
+  // soft white confetti. Using the ADD brush to add this layers light to what's below which gives a sparkle effect
+  quickPatterns.sameScene().addPattern(new qpConfetti())
+    .singleColor(CRGB::White)
+    .drawEveryNTicks(4);
+  quickPatterns.sameLayer().continuallyFadeLayerBy(30).setLayerBrush(ADD);
+
+  // create a moving visible window into below patterns using the mask brush
+  quickPatterns.sameScene().addPattern(new qpWanderingLine(30))
+    .singleColor(CRGB::White);
+  quickPatterns.sameLayer().setLayerBrush(MASK);
+
+
+  // ~ Scene 4 - demonstrates periodic pattern activation
+
+  //stop and go rainbow theater chase that randomly starts and stops
+  quickPatterns.newScene().addPattern(new qpTheaterChase())
+    .drawEveryNTicks(3)
+    .chooseColorSequentiallyFromPalette(RainbowColors_p)
+    .changeColorEveryNTicks(6)
+    .activatePeriodicallyEveryNTicks(25, 75)
+    .stayActiveForNTicks(25, 75);
 
 }
 
