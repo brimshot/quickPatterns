@@ -35,13 +35,12 @@ These are examples that tend to look better on bulb style lights, making use of 
 #include <qpSamplePatterns.h>
 
 #define CHIPSET     WS2811
-#define DATA_PIN    8          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
-#define NUM_LEDS_PER_STRIP 50
-#define NUM_STRIPS 2
-#define NUM_LEDS    NUM_LEDS_PER_STRIP*NUM_STRIPS
+#define DATA_PIN    8
+#define NUM_LEDS    100
 #define BRIGHTNESS  32
 #define COLOR_ORDER RGB         //GRB for WS2812, RGB for WS2811
 
+#define TICKLENGTH  25
 
 //Declare master set of leds for FastLED to write to
 CRGB leds[NUM_LEDS];
@@ -50,10 +49,6 @@ quickPatterns quickPatterns(leds, NUM_LEDS); //NUM_STRIPS*NUM_LEDS_PER_STRIP);
 void setup() {
 
   delay(3000); // Recovery delay
-
-//  Serial.begin(9600);
-
-  randomSeed(analogRead(1));
 
   // ~ Configure FastLED
 
@@ -70,12 +65,13 @@ void setup() {
 
   // ~ Configure quickPatterns
 
+  // Due to a potential latching issue when writing data, we use a hard delay for timing with the ESP8266
   #ifdef ESP8266
   quickPatterns.setTickMillis(0);
   #endif
 
   #ifndef ESP8266
-  quickPatterns.setTickMillis(25);
+  quickPatterns.setTickMillis(TICKLENGTH);
   #endif
 
   // ~ Scene 0 - demonstrates simultaneous patterns, timed activation and two options for dynamically changing colors
@@ -167,8 +163,6 @@ void setup() {
     .activatePeriodicallyEveryNTicks(25, 75)
     .stayActiveForNTicks(25, 75);
 
-  quickPatterns.playScene(3);
-
 }
 
 
@@ -179,7 +173,7 @@ void loop()
   FastLED.show();
 
   #ifdef ESP8266
-  FastLED.delay(25);
+  FastLED.delay(TICKLENGTH);
   #endif
 
   EVERY_N_SECONDS(30) {

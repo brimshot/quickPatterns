@@ -1,8 +1,6 @@
 # quickPatterns
 
-A FastLED based pattern runner and library for running on strips of LED lights.
-
-quickPatterns allows multiple animations to run on top of one another with configurable speeds, colors and timing.
+A FastLED patterns manager that allows multiple animations to run simultaneously on the same strand of lights with configurable speeds, colors and activation timing.
 
 [Example sketch](#example-sketch)
 
@@ -20,19 +18,17 @@ quickPatterns allows multiple animations to run on top of one another with confi
 
 [Creating scenes](#creating-scenes)
 
-[Additional methods](#additional-methods)
-
-[Sample patterns](#sample-patterns)
+[Additional configuration methods](#additional-configuration-methods)
 
 [Writing new patterns](#writing-new-patterns)
+
+[Sample patterns](#sample-patterns)
 
 
 ## Example sketch
 A simple example that can be run right away
 
 ```
-//TODO: ESP8266 DELAY
-
 #include <quickPatterns.h>
 #include <qpAllPatterns.h>
 
@@ -67,6 +63,15 @@ void setup() {
 
   // ~ Configure quickPatterns
 
+  // Due to a potential latching issue when writing data, we use a hard delay for timing with the ESP8266
+  #ifdef ESP8266
+  quickPatterns.setTickMillis(0);
+  #endif
+
+  #ifndef ESP8266
+  quickPatterns.setTickMillis(25);
+  #endif
+
   //A line of 8 pixels that bounces back and forth while cycling through the rainbow
   quickPatterns.addPattern(new qpBouncingPulse(8))
     .chooseColorSequentiallyFromPalette(RainbowColors_p)
@@ -83,6 +88,10 @@ void loop()
 {
   quickPatterns.draw();
   FastLED.show();
+
+  #ifndef ESP8266
+  FastLED.delay(25);
+  #endif
 }
 ```
 
@@ -92,7 +101,7 @@ void loop()
 
 ### Basic setup
 
-quickPatterns uses the [FastLED](link) library which must be installed on your system first.
+quickPatterns uses the [FastLED](link) library which must be installed on your system first, and this document assumes you are familiar with the basics of using FastLED
 
 At the top of your file declare an array of LEDs as you would in any FastLED based sketch
 
@@ -105,16 +114,19 @@ Next, declare the quickPatterns controller, passing in your LEDs and length
 quickPatterns quickPatterns(leds, NUM_LEDS);
 ```
 
-In your *setup()* function, configure FastLED as normal, then configure quickPatterns as described in the section below.
+In your *setup()* function, configure FastLED as normal, then add patterns to the quickPatterns controller as will be described below.
 ```
 void setup() {
-  ...
-  // configure FastLED
-  ...
+
+  FastLED.addLeds<...>
+
+  ...  // configure FastLED
+
+
+  // configure quickPatterns (see below)
 
   ...
-  // configure quickPatterns (see below)
-  ...
+
 }
 ```
 
@@ -129,8 +141,7 @@ void loop()
 
 ### Adding the patterns
 
-Once the quickPatterns controller has been instantiated you can use the addPattern() method and pass in a new instance of any class that inherits from the qpPattern
-class (use a class from the [included patterns](#included-patterns) or [write your own](#writing-new-patterns))
+Once the quickPatterns controller has been instantiated you can use the addPattern() method and pass in a new instance of any class that inherits from the qpPattern class ([write your own](#writing-new-patterns) or use a [sample pattern](#sample-patterns))
 
 For example, a simple pulse of eight pixels that moves back and forth a string of lights:
 ```
@@ -143,15 +154,15 @@ In this case we are chaining the singleColor() method which sets our pulse patte
 
 ### Setting pattern speeds
 
-Updates and changes in quickPatterns operate on a tick system. Each tick, active patterns are drawn and any updates processed.
+Updates and changes in quickPatterns operate on a tick system. Each tick, active patterns are drawn and any pending changes processed.
 
-The default tick length is 25 milliseconds, but the length of a tick is configurable on the controller. To change the master tick length, use the setTickMillis() function
+The default tick length is 25 milliseconds, but the length of a tick is configurable on the controller. To change the master tick length, use the setTickMillis() method
 
 ```
 quickPatterns.setTickMillis(50); //sets tick length to 50 milliseconds
 ```
 
-By default each pattern will update once per tick. This can be changed with the pattern configuration method drawEveryNTicks(), which allows for setting the render frequency of a given patterns.
+By default each pattern will update once per tick. This can be changed with the pattern configuration method drawEveryNTicks(), which allows for lowering a patterns render frequency.
 
 ```
 quickPatterns.addPattern(new bouncingPulse(8))
@@ -162,8 +173,6 @@ By adding drawEveryNTicks(2) to the configuration chain, our pulse pattern will 
 
 Ticks are also used to calculate pattern activation and duration timings (see [periodic pattern activation](#periodic-pattern-activation)).
 
-#### Note
-Even if tick length is set to 0, there is always a lower to bound to what speed can realistically be achieved depending on what microcontroller and lights you are using.
 
 ## Understanding layers
 
@@ -215,7 +224,7 @@ Patterns can be displayed using a single color, a palette of colors or a set of 
 
 ### Constant color
 
-To show a pattern in one color only, use the singleColor() function
+To show a pattern in one color only, use the singleColor() method
 ```
 //Bouncing pulse that's always yellow
 quickPatterns.addPattern(new qpBouncingPulse(8))
@@ -464,7 +473,7 @@ quickPatterns.playRandomScene();
 ```
 
 
-## Additional methods
+## Additional configuration methods
 
 ### Layer fading
 
@@ -484,9 +493,9 @@ quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be r
 
 ### sameLayer(), sameScene(), samePattern()
 
-Use these functions to gain access to the last referenced scene, layer or pattern.
+Use these methods to gain access to the last referenced scene, layer or pattern.
 
-For example, use the sameScene() function when you are adding multiple patterns to a new scene remove the need to track the scenes index
+For example, use the sameScene() method when you are adding multiple patterns to a new scene remove the need to track the scenes index
 ```
 quickPatterns.newScene().addPattern(new qpBouncingPulse(8)) //creates a new scene and adds the pattern
   .singleColor(CRGB::Red);
@@ -497,7 +506,7 @@ quickPatterns.sameScene().addPattern(new qpBouncingPulse(8)) //creates layer 1, 
 quickPatterns.sameScene().addPattern(new qpSinelon(13)) //creates layer 2, pattern 0 on the same scene
   .singleColor(CRGB::Green);
 
-//use the sameLayer() function to continue to configure the last accessed layer
+//use the sameLayer() method to continue to configure the last accessed layer
 quickPatterns.sameLayer().setLayerBrush(ADD); //sets the brush for our new scene, layer 2 to ADD
 quickPatterns.sameLayer().continuallyFadeBy(20); //adds fading to our new scene, layer 2
 ```
@@ -539,73 +548,6 @@ is the same as
 ```
 quickPattern.scene(1).layer(0).pattern(2)
 ```
-
-
-
-## Sample patterns
-
-The following sample pattern classes are included with the library.
-
-**qpBouncingPulse**
-```
-qpBouncingPulse(int size, int direction = DIR_FORWARD)
-```
-A section of lights of length *size* that moves back and forth along the light strip. If the second parameter is set to DIR_REVERSE, the initial starting point will be from the end of the light strip.
-
-**qpBouncingBars**
-```
-qpBouncingBars(int size)
-```
-Two sections of length *size* that start at opposite ends of the light strip, meet in the middle, then return.
-
-**qpConfetti**
-```
-qpConfetti(int spread = 30)
-```
-Illuminates a random number of pixels between 0 and the total available each frame. Increase spread or decrease draw frequency to increase spacing.
-
-**qpFeathers**
-```
-qpFeathers(int size, int direction = DIR_FORWARD)
-```
-Turns on the lights of the strand in sections of size *size* sequentially.
-
-**qpFlashRandomSection**
-```
-qpFlashRandomSection(int sectionSize, byte numFlashes = 8)
-```
-Flashes a random section of lights of length *sectionSize* on and off *numFlashes* times.
-
-**qpJuggle**
-```
-qpJuggle()
-```
-Eight lights that weave in and out sync.
-
-**qpMovingGradient**
-```
-qpMovingGradient(CRGBPalette16 palette, int deltaX = 3, int deltaY = 1)
-```
-Fills the strand with a gradient from the supplied color palette. deltaX is the change in hue between each pixel. deltaY is the change in the initial hue each frame.
-
-**qpSinelon**
-```
-qpSinelon(int speed)
-```
-A pixel weaving back and forth across the strand.
-
-**qpTheaterChase**
-```
-qpTheaterChase()
-```
-Classic theater chase pattern that moves lights in threes.
-
-**qpWanderingLine**
-```
-qpWanderingLine(int size)
-```
-A section of lights of length *size* that move back and forth randomly along the light strip.
-
 
 
 ## Writing new patterns
@@ -691,3 +633,73 @@ void initialize() {
   this->halfwayPoint = _numLeds / 2; //correct way, number of leds is known when initialize() is called
 }
 ```
+
+
+## Sample patterns
+
+The following sample patterns are included with the library. These are the patterns used in the demo sketches in the /examples folder
+
+**qpBouncingPulse**
+```
+qpBouncingPulse(int size, int direction = DIR_FORWARD)
+```
+A section of lights of length *size* that moves back and forth along the light strip. If the second parameter is set to DIR_REVERSE, the initial starting point will be from the end of the light strip.
+
+**qpBouncingBars**
+```
+qpBouncingBars(int size)
+```
+Two sections of length *size* that start at opposite ends of the light strip, meet in the middle, then return.
+
+**qpConfetti**
+```
+qpConfetti(int spread = 30)
+```
+Illuminates a random number of pixels between 0 and the total available each frame. Increase spread or decrease draw frequency to increase spacing.
+
+**qpFeathers**
+```
+qpFeathers(int size, int direction = DIR_FORWARD)
+```
+Turns on the lights of the strand in sections of size *size* sequentially.
+
+**qpFlashRandomSection**
+```
+qpFlashRandomSection(int sectionSize, byte numFlashes = 8)
+```
+Flashes a random section of lights of length *sectionSize* on and off *numFlashes* times.
+
+**qpJuggle**
+```
+qpJuggle()
+```
+Eight lights that weave in and out sync.
+
+**qpMovingGradient**
+```
+qpMovingGradient(CRGBPalette16 palette, int deltaX = 3, int deltaY = 1)
+```
+Fills the strand with a gradient from the supplied color palette. deltaX is the change in hue between each pixel. deltaY is the change in the initial hue each frame.
+
+**qpSinelon**
+```
+qpSinelon(int speed)
+```
+A pixel weaving back and forth across the strand.
+
+**qpTheaterChase**
+```
+qpTheaterChase()
+```
+Classic theater chase pattern that moves lights in threes.
+
+**qpWanderingLine**
+```
+qpWanderingLine(int size)
+```
+A section of lights of length *size* that move back and forth randomly along the light strip.
+
+---
+Copyright (c) 2020 Chris Brim
+
+Tested on: ESP8266, Arduino Mega, Teensy 3.2

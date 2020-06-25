@@ -46,15 +46,6 @@ class quickPatterns {
       return this->currentTick;
     }
 
-    bool isAtTick(int tick) {
-      if((this->currentTick == tick) && (this->currentTick != this->previousTick)) { //this is so true is only returned one time
-        this->previousTick = this->currentTick;
-        return true;
-      }
-
-      return false;
-    }
-
     // ~ Pattern access
 
     qpPattern &addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0

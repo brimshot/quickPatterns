@@ -1,22 +1,5 @@
 #include <qpScene.h>
 
-qpScene::qpScene(qpLightStrand *lightStrand) {
-
-  this->attachToStrand(lightStrand);
-}
-
-
-void qpScene::attachToStrand(qpLightStrand *lightStrand) {
-
-  this->lightStrand = lightStrand;
-
-  int layerIndex = 0;
-  while(qpLayer *currentLayer = this->layers.fetch()) {
-    currentLayer->assignTargetLeds(lightStrand->getLedArray(layerIndex), lightStrand->getNumLeds());
-    layerIndex++;
-  }
-
-}
 
 //TODO: just go on the light strand?! why pass the leds? is there a reason?
 void qpScene::draw(CRGB *targetLeds, int numLeds) {
@@ -39,7 +22,7 @@ qpLayer &qpScene::addLayer() {
   this->lastReferencedLayer = this->layers.getLast();
 
   if(this->lightStrand)
-    this->lastReferencedLayer->assignTargetLeds(this->lightStrand->getLedArray(this->layers.numElements), this->lightStrand->getNumLeds());
+    this->lastReferencedLayer->assignTargetLeds(this->lightStrand->getLedArray(this->layers.numElements - 1), this->lightStrand->getNumLeds());
 
   return *this->lastReferencedLayer;
 }

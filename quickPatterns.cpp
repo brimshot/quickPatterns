@@ -7,8 +7,8 @@ quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
   //draw can't draw without this!
   this->currentScene = &this->scene(0);
 
-  random16_add_entropy(random());
-  random16_add_entropy(random());
+  random16_add_entropy(random(0, 1000));
+  random16_add_entropy(random(0, 1000));
   random16_add_entropy(analogRead(0));
 }
 
@@ -41,16 +41,6 @@ qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 }
 
 
-// ~ Access
-
-qpScene &quickPatterns::newScene() {
-
-  this->scenes.append(new qpScene(this->lightStrand));
-  this->lastReferencedScene = this->scenes.getLast();
-
-  return *this->lastReferencedScene;
-}
-
 // Returns requested scene or automatically adds and returns a new scene if index does not yet exist
 qpScene &quickPatterns::scene(int index) {
 
@@ -61,6 +51,17 @@ qpScene &quickPatterns::scene(int index) {
 
   return *this->lastReferencedScene;
 }
+
+qpScene &quickPatterns::newScene() {
+
+  this->scenes.append(new qpScene(this->lightStrand));
+  this->lastReferencedScene = this->scenes.getLast();
+
+  return *this->lastReferencedScene;
+}
+
+
+// ~ Access
 
 qpLayer &quickPatterns::layer(int layerIndex) {
 
