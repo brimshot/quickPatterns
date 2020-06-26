@@ -18,12 +18,10 @@ class qpScene {
 
   public:
 
-    qpScene(qpLightStrand *lightStrand);
-
-    void attachToStrand(qpLightStrand *lightStrand);
+    qpScene(qpLightStrand *lightStrand) : lightStrand(lightStrand) {}
 
     qpLayer &layer(int index);
-    qpLayer &addLayer();
+    qpLayer &newLayer();
     qpLayer &sameLayer() { return *this->lastReferencedLayer; }
 
     qpPattern &addPattern(qpPattern *pattern);

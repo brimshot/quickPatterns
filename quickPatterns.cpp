@@ -4,26 +4,19 @@ quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
 
   this->lightStrand = new qpLightStrand(leds, numLeds);
 
-  //draw can't draw without this!
-  this->currentScene = &this->scene(0);
-
-  random16_add_entropy(random());
-  random16_add_entropy(random());
+  random16_add_entropy(random(0, 1000));
+  random16_add_entropy(random(0, 1000));
   random16_add_entropy(analogRead(0));
 }
 
 
-/*------------
-Render
-*/
+// Render
 
 void quickPatterns::draw() {
 
   uint32_t currentMillis = millis();
 
   if(currentMillis >= this->nextTickMillis) {
-
-//    Serial.println("Next tick millis (" + String(this->nextTickMillis) + ") and currentMillis (" + String(currentMillis) + ")");
 
     this->nextTickMillis = (currentMillis + this->tickLengthInMillis);
 
@@ -37,27 +30,13 @@ void quickPatterns::draw() {
 }
 
 
-/*------------
-Pattern quick add
-*/
+// Quick add
 
 qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 
-  return this->scene(0).addLayer().addPattern(pattern);
+  return this->scene(0).newLayer().addPattern(pattern);
 }
 
-
-/*------------
-Scene and layer access
-*/
-
-qpScene &quickPatterns::newScene() {
-
-  this->scenes.append(new qpScene(this->lightStrand));  //TODO: why doesn't append return a reference to added scene?
-  this->lastReferencedScene = this->scenes.getLast();
-
-  return *this->lastReferencedScene;
-}
 
 // Returns requested scene or automatically adds and returns a new scene if index does not yet exist
 qpScene &quickPatterns::scene(int index) {
@@ -70,15 +49,27 @@ qpScene &quickPatterns::scene(int index) {
   return *this->lastReferencedScene;
 }
 
+qpScene &quickPatterns::newScene() {
+
+  this->lastReferencedScene = this->scenes.append(new qpScene(this->lightStrand));
+
+  // if this is the first scene added, make it our current scene
+  if(this->scenes.numElements == 1)
+    this->currentScene = this->lastReferencedScene;
+
+  return *this->lastReferencedScene;
+}
+
+
+// ~ Access
+
 qpLayer &quickPatterns::layer(int layerIndex) {
 
   return this->scene(0).layer(layerIndex);
 }
 
 
-/*------------
-Scene navigation
-*/
+// ~ Scene navigation
 
 void quickPatterns::nextScene() {
   this->sceneIndex++;
@@ -113,9 +104,7 @@ void quickPatterns::playRandomScene() {
 }
 
 
-/*------------
-Access
-*/
+// Quick access operators
 
 qpPattern&quickPatterns::operator()(int layerIndex) {
 
@@ -131,15 +120,3 @@ qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex, int patternI
 
   return this->scene(sceneIndex).layer(layerIndex).pattern(patternIndex);
 }
-
-
-
-/*------------
-Debug
-*/
-
-/*
-int quickPatterns::getMemUse() {
-  return EASYLIGHT_MEM_USE;
-}
-*/

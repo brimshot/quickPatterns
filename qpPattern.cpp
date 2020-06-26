@@ -25,6 +25,7 @@ void qpPattern::render() {
   (this->*deactiveWhenAppropriate)();
 }
 
+
 bool qpPattern::isActive() {
 
   return this->currentlyActive;
@@ -42,16 +43,17 @@ void qpPattern::activatePeriodically() {
   }
 
   this->activate();
-  this->resetActivationTimer(); //TODO: where does this go?
+  this->resetActivationTimer();
 }
+
 
 void qpPattern::deactivatePeriodically() {
 
   if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive) {
     this->deactivate();
     this->resetActivationTimer();
-    return;
   }
+
 }
 
 bool qpPattern::activate() {
@@ -77,11 +79,6 @@ bool qpPattern::activate() {
 }
 
 
-void qpPattern::deactivate() {
-
-  this->currentlyActive = false;
-}
-
 void qpPattern::resetActivationTimer() {
 
   // If we are activating at a random internval, calculate the next interval
@@ -92,9 +89,13 @@ void qpPattern::resetActivationTimer() {
 }
 
 
-/*---------
-Pattern speed
-*/
+void qpPattern::deactivate() {
+
+  this->currentlyActive = false;
+}
+
+
+// Pattern speed
 
 qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 
@@ -104,10 +105,7 @@ qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 }
 
 
-/*--------
-Periodic pattern activation
-*/
-
+// Periodic pattern activation
 
 qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
 
@@ -167,9 +165,7 @@ void qpPattern::setActivePeriodRange(int minPeriods, int maxPeriods) {
 }
 
 
-/*---------
-Color timing
-*/
+// Color timing
 
 qpPattern &qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
@@ -303,9 +299,7 @@ CRGB qpPattern::_loadNextColor() {
 }
 
 
-/*---------
-Load color functions
-*/
+// Load color functions
 
 void qpPattern::loadNextPaletteColorSequentially() {
 
@@ -316,8 +310,7 @@ void qpPattern::loadNextPaletteColorSequentially() {
 
 void qpPattern::loadNextPaletteColorRandomly() {
 
-  // Since the last 15 hues of a palette are circular (fade back towards 0), only go to 240
-  this->_currentColor =  ColorFromPalette(this->_colorPalette, random16(0, 240));
+  this->_currentColor =  ColorFromPalette(this->_colorPalette, random16(0, 255));
 }
 
 void qpPattern::loadNextColorFromSetSequentially() {
@@ -333,18 +326,15 @@ void qpPattern::loadNextColorFromSetRandomly() {
 
 
 
-/*---------
-Basic config - called by Layer
-*/
+// Basic config - called by Layer
 
 void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
   this->_targetLeds = leds;
   this->_numLeds = numLeds;
 }
 
-/*---------
-Direct color configuration
-*/
+
+// Direct color configuration
 
 qpPattern &qpPattern::setPalette(CRGBPalette16 colorPalette, byte stepSize) {
 

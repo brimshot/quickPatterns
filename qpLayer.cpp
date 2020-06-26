@@ -1,18 +1,13 @@
 #include <qpLayer.h>
 
-qpLayer::qpLayer() {
-  this->setLayerBrush(OVERLAY);
-}
-
 qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
-  this->patterns.append(pattern);
+  this->lastReferencedPattern = this->patterns.append(pattern);
+
   if(this->leds) { //TODO: do we ever NOT have leds.. ?
     pattern->assignTargetLeds(this->leds, this->numLeds);
     pattern->initialize();
   }
-
-  this->lastReferencedPattern = pattern;
 
   return *pattern;
 }
@@ -38,25 +33,8 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
 }
 
-// Set reference to LEDs this layer's patterns will write to which are then written onto main
-void qpLayer::assignTargetLeds(CRGB *leds, int numLeds) {
 
-  this->leds = leds;
-  this->numLeds = numLeds;
-
-  fill_solid(this->leds, this->numLeds, CRGB::Black);
-
-  //TODO: initialize here... initialize inside the pattern... ? TODO: YES, seems to make sense right
-  while(qpPattern *currentPattern = this->patterns.fetch())
-    currentPattern->assignTargetLeds(this->leds, this->numLeds);
-
-}
-
-
-
-/*------------
-Brushes
-*/
+// Brushes
 
 qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
 
@@ -119,9 +97,7 @@ void qpLayer::maskLeds(CRGB *targetLeds, int numLeds) {
 }
 
 
-/*-------
-Access
-*/
+// Access
 
 qpPattern &qpLayer::pattern(int patternIndex) {
 

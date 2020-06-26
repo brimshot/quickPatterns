@@ -15,7 +15,11 @@ class qpMovingGradient : public qpPattern {
     To fade the entire strand one color at a time across the gradient, set deltaX to 0
     To stop flow of colors moving down the strand, set deltaY to 0
     */
-    qpMovingGradient(CRGBPalette16 palette, const byte deltaX = 3, const byte deltaY = 1) : deltaX(deltaX), deltaY(deltaY), palette(palette) {}
+    qpMovingGradient(CRGBPalette16 palette, byte deltaX = 3, byte deltaY = 1) : palette(palette) {
+        this->deltaX = deltaX;
+        this->deltaY = deltaY;
+    }
+
     void draw() {
 
       uint8_t hue = this->startHue;
