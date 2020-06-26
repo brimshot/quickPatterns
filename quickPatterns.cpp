@@ -37,7 +37,7 @@ void quickPatterns::draw() {
 
 qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 
-  return this->scene(0).addLayer().addPattern(pattern);
+  return this->scene(0).newLayer().addPattern(pattern);
 }
 
 
@@ -54,8 +54,7 @@ qpScene &quickPatterns::scene(int index) {
 
 qpScene &quickPatterns::newScene() {
 
-  this->scenes.append(new qpScene(this->lightStrand));
-  this->lastReferencedScene = this->scenes.getLast();
+  this->lastReferencedScene = this->scenes.append(new qpScene(this->lightStrand));
 
   return *this->lastReferencedScene;
 }

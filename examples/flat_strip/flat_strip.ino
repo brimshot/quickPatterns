@@ -177,7 +177,6 @@ void setup() {
     .singleColor(CRGB::White);
   quickPatterns.sameLayer().setLayerBrush(MASK);
 
-  quickPatterns.playScene(4);
 }
 
 

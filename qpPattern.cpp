@@ -52,8 +52,8 @@ void qpPattern::deactivatePeriodically() {
   if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive) {
     this->deactivate();
     this->resetActivationTimer();
-    return;
   }
+
 }
 
 bool qpPattern::activate() {

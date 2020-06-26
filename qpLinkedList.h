@@ -37,7 +37,6 @@ public:
 
     int numElements = 0;
 
-    //Get a specific item from list
     T *getItem(int index) {
 
       qpListNode <T> *tmp = this->firstElement;
@@ -48,24 +47,24 @@ public:
           return tmp->item;
         tmp = tmp->next;
         i++;
-      }
+      } 
 
       return nullptr;
     }
 
 
-    //Get reference to item in last node of list
     T *getLast() {
       return this->lastElement->item;
     }
 
 
-    //Add an item to the end of the list
-    void append(T *item) {
+    T *append(T *item) {
 
       this->increaseByOneElement();
 
       this->lastElement->item = item;
+
+      return item;
     }
 
 

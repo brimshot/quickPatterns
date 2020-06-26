@@ -12,17 +12,13 @@ void qpScene::draw(CRGB *targetLeds, int numLeds) {
 
 qpPattern &qpScene::addPattern(qpPattern *pattern) {
 
-  return this->addLayer().addPattern(pattern);
+  return this->newLayer().addPattern(pattern);
 }
 
 
-qpLayer &qpScene::addLayer() {
+qpLayer &qpScene::newLayer() {
 
-  this->layers.append(new qpLayer);
-  this->lastReferencedLayer = this->layers.getLast();
-
-  if(this->lightStrand)
-    this->lastReferencedLayer->assignTargetLeds(this->lightStrand->getLedArray(this->layers.numElements - 1), this->lightStrand->getNumLeds());
+  this->lastReferencedLayer = this->layers.append(new qpLayer(this->lightStrand->getLedArray(this->layers.numElements), this->lightStrand->getNumLeds()));
 
   return *this->lastReferencedLayer;
 }
@@ -31,7 +27,7 @@ qpLayer &qpScene::addLayer() {
 qpLayer &qpScene::layer(int index) {
 
   if(index > (this->layers.numElements - 1))
-    return this->addLayer();
+    return this->newLayer();
 
   this->lastReferencedLayer = this->layers.getItem(index);
 

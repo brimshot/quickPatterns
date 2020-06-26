@@ -22,7 +22,7 @@ class qpPattern {
 
     // Periodic color changes
 
-    int *colorPeriodsCounter = NULL;
+    int *colorPeriodsCounter = nullptr;
     unsigned int periodCountAtLastColorChange = 0;
     unsigned int minColorDuration = 1;
     unsigned int maxColorDuration = 0;
