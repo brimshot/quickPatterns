@@ -73,12 +73,12 @@ void setup() {
   quickPatterns.setTickMillis(TICKLENGTH);
   #endif
 
-  //A line of 8 pixels that bounces back and forth while cycling through the rainbow
+  //cylon of 8 pixels that cycles through the rainbow
   quickPatterns.addPattern(new qpBouncingBars(8))
     .chooseColorSequentiallyFromPalette(RainbowColors_p)
     .changeColorEveryNTicks(2);
 
-  //Periodically toss in some lightning flashses at random places along the strand. Flash for 10x
+  //Periodically toss in some lightning flashes at random places along the strand. Flash for 10x
   quickPatterns.addPattern(new qpFlashRandomSection(10))
       .singleColor(CRGB::White)
       .activatePeriodicallyEveryNTicks(100, 200)
