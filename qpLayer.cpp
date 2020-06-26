@@ -1,11 +1,5 @@
 #include <qpLayer.h>
 
-/*
-qpLayer::qpLayer() {
-  this->setLayerBrush(OVERLAY);
-}
-*/
-
 qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
   this->lastReferencedPattern = this->patterns.append(pattern);
@@ -40,9 +34,7 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 }
 
 
-/*------------
-Brushes
-*/
+// Brushes
 
 qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
 
@@ -105,9 +97,7 @@ void qpLayer::maskLeds(CRGB *targetLeds, int numLeds) {
 }
 
 
-/*-------
-Access
-*/
+// Access
 
 qpPattern &qpLayer::pattern(int patternIndex) {
 

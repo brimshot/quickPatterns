@@ -4,16 +4,13 @@ quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
 
   this->lightStrand = new qpLightStrand(leds, numLeds);
 
-  //draw can't draw without this!
-  this->currentScene = &this->scene(0);
-
   random16_add_entropy(random(0, 1000));
   random16_add_entropy(random(0, 1000));
   random16_add_entropy(analogRead(0));
 }
 
 
-// ~ Render
+// Render
 
 void quickPatterns::draw() {
 
@@ -33,7 +30,7 @@ void quickPatterns::draw() {
 }
 
 
-// ~ Quick add
+// Quick add
 
 qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 
@@ -55,6 +52,10 @@ qpScene &quickPatterns::scene(int index) {
 qpScene &quickPatterns::newScene() {
 
   this->lastReferencedScene = this->scenes.append(new qpScene(this->lightStrand));
+
+  // if this is the first scene added, make it our current scene
+  if(this->scenes.numElements == 1)
+    this->currentScene = this->lastReferencedScene;
 
   return *this->lastReferencedScene;
 }
@@ -103,7 +104,7 @@ void quickPatterns::playRandomScene() {
 }
 
 
-// ~ Quick access operators
+// Quick access operators
 
 qpPattern&quickPatterns::operator()(int layerIndex) {
 
@@ -119,15 +120,3 @@ qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex, int patternI
 
   return this->scene(sceneIndex).layer(layerIndex).pattern(patternIndex);
 }
-
-
-
-/*------------
-Debug
-*/
-
-/*
-int quickPatterns::getMemUse() {
-  return EASYLIGHT_MEM_USE;
-}
-*/

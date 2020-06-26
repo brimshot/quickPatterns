@@ -32,48 +32,36 @@ class quickPatterns {
 
     quickPatterns(CRGB *leds, int numLeds);
 
-    // ~ Rendering
+    // Rendering
 
     void draw();
-
-    // ~ Timing
 
     void setTickMillis(int tickLengthMillis) {
       this->tickLengthInMillis = tickLengthMillis;
     }
 
-    int getTicks() {
-      return this->currentTick;
-    }
+    // Access
 
-    // ~ Pattern access
-
+    qpPattern &pattern(int patternIndex); //returns specified patter on layer 0
     qpPattern &addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0
+    qpPattern &samePattern() { return this->sameScene().sameLayer().samePattern(); }
+
+    qpLayer &layer(int layerIndex);
+    qpLayer &sameLayer() { return this->sameScene().sameLayer(); }
+
+    qpScene &scene(int sceneIndex);
+    qpScene &newScene();
+    qpScene &sameScene() { return *this->lastReferencedScene; }
 
     qpPattern &operator()(int layerIndex); //returns pattern 0 from the specified layer in scene 0
     qpPattern &operator()(int sceneIndex, int layerIndex); //returns pattern 0 from the specified layer in the specified scene
     qpPattern &operator()(int sceneIndex, int layerIndex, int patternIndex);
 
-    // ~ Component access
-
-    qpScene &newScene();
-    qpScene &scene(int sceneIndex);
-    qpLayer &layer(int layerIndex);
-    qpPattern &pattern(int patternIndex); //returns specified patter on layer 0
-
-    qpScene &sameScene() { return *this->lastReferencedScene; }
-    qpLayer &sameLayer() { return this->sameScene().sameLayer(); }
-    qpPattern &samePattern() { return this->sameScene().sameLayer().samePattern(); }
-
-    // ~ Scene selection
+    // Scene navigation
 
     void playScene(int index);
     void nextScene();
     void playRandomScene();
-
-    // ~ Debug
-
-//    int getMemUse();
 
 };
 

@@ -94,9 +94,8 @@ void qpPattern::deactivate() {
   this->currentlyActive = false;
 }
 
-/*---------
-Pattern speed
-*/
+
+// Pattern speed
 
 qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 
@@ -106,9 +105,7 @@ qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 }
 
 
-/*--------
-Periodic pattern activation
-*/
+// Periodic pattern activation
 
 qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
 
@@ -168,9 +165,7 @@ void qpPattern::setActivePeriodRange(int minPeriods, int maxPeriods) {
 }
 
 
-/*---------
-Color timing
-*/
+// Color timing
 
 qpPattern &qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
@@ -304,9 +299,7 @@ CRGB qpPattern::_loadNextColor() {
 }
 
 
-/*---------
-Load color functions
-*/
+// Load color functions
 
 void qpPattern::loadNextPaletteColorSequentially() {
 
@@ -333,18 +326,15 @@ void qpPattern::loadNextColorFromSetRandomly() {
 
 
 
-/*---------
-Basic config - called by Layer
-*/
+// Basic config - called by Layer
 
 void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
   this->_targetLeds = leds;
   this->_numLeds = numLeds;
 }
 
-/*---------
-Direct color configuration
-*/
+
+// Direct color configuration
 
 qpPattern &qpPattern::setPalette(CRGBPalette16 colorPalette, byte stepSize) {
 

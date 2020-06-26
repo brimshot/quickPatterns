@@ -27,7 +27,6 @@ SOFTWARE.
 
 #include <quickPatterns.h>
 #include <qpSamplePatterns.h>
-#include "popupDroid.h"
 
 #define CHIPSET     WS2812
 #define DATA_PIN    8          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
@@ -157,19 +156,26 @@ void setup() {
 
   // ~ Scene 4 - demonstrates the MASK brush
 
-  // moving rainbow gradient base layer
+  // rainbow gradient base layer
   quickPatterns.newScene().addPattern(new qpMovingGradient(RainbowColors_p));
 
-  // soft white confetti. Use the ADD brush to add this layers light to what's below to give a sparkle effect on the rainbow
+  // soft white confetti. Using the ADD brush to add this layers light to what's below which gives a popping sparkle effect and will leave sparkles as the mask fades
   quickPatterns.sameScene().addPattern(new qpConfetti())
     .singleColor(CRGB::White)
     .drawEveryNTicks(4);
-  quickPatterns.sameLayer().continuallyFadeLayerBy(20).setLayerBrush(ADD);
+  quickPatterns.sameLayer().continuallyFadeLayerBy(30).setLayerBrush(ADD);
 
-  // create a moving visible window into below patterns using the mask brush
-  quickPatterns.sameScene().addPattern(new qpWanderingLine(30))
-    .singleColor(CRGB::White);
-  quickPatterns.sameLayer().setLayerBrush(MASK);
+  // feather mask periodically illuminates the strand in sections
+  quickPatterns.sameScene().addPattern(new qpFeathers(10))
+    .singleColor(CRGB::White)
+    .drawEveryNTicks(2)
+    .activatePeriodicallyEveryNTicks(50, 200)
+    .stayActiveForNCycles(1);
+  quickPatterns.sameLayer().setLayerBrush(MASK).continuallyFadeLayerBy(10);
+
+  // small pink runner on top
+  quickPatterns.sameScene().addPattern(new qpBouncingPulse(5))
+    .singleColor(CRGB::HotPink);
 
 }
 
