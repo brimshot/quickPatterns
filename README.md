@@ -30,7 +30,7 @@ A simple example that can be run right away
 
 ```
 #include <quickPatterns.h>
-#include <qpSameplPatterns.h>
+#include <qpSamplePatterns.h>
 
 #define CHIPSET     WS2812B
 #define DATA_PIN    11          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
