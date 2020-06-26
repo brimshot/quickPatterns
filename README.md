@@ -33,10 +33,11 @@ A simple example that can be run right away
 #include <qpSamplePatterns.h>
 
 #define CHIPSET     WS2812B
-#define DATA_PIN    11          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
+#define DATA_PIN    8
 #define NUM_LEDS    100
 #define BRIGHTNESS  64
-#define COLOR_ORDER RGB         //GRB for WS2812, RGB for WS2811
+#define COLOR_ORDER GRB         //GRB for WS2812, RGB for WS2811
+#define TICKLENGTH  25
 
 CRGB leds[NUM_LEDS];
 
@@ -69,11 +70,11 @@ void setup() {
   #endif
 
   #ifndef ESP8266
-  quickPatterns.setTickMillis(25);
+  quickPatterns.setTickMillis(TICKLENGTH);
   #endif
 
   //A line of 8 pixels that bounces back and forth while cycling through the rainbow
-  quickPatterns.addPattern(new qpBouncingPulse(8))
+  quickPatterns.addPattern(new qpBouncingBars(8))
     .chooseColorSequentiallyFromPalette(RainbowColors_p)
     .changeColorEveryNTicks(2);
 
@@ -89,8 +90,8 @@ void loop()
   quickPatterns.draw();
   FastLED.show();
 
-  #ifndef ESP8266
-  FastLED.delay(25);
+  #ifdef ESP8266
+  FastLED.delay(TICKLENGTH);
   #endif
 }
 ```

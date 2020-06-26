@@ -31,8 +31,7 @@ class qpLayer {
 
   public:
 
-    qpLayer::qpLayer(CRGB *leds, int numLeds) : leds(leds), numLeds(numLeds) {
-
+    qpLayer(CRGB *leds, int numLeds) : leds(leds), numLeds(numLeds) {
       this->setLayerBrush(OVERLAY);
       fill_solid(this->leds, this->numLeds, CRGB::Black);
     }
