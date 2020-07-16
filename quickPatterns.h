@@ -9,6 +9,7 @@
 #include <qpLayer.h>
 #include <qpScene.h>
 #include <qpLightStrand.h>
+#include <qpColor.h>
 
 class quickPatterns {
 

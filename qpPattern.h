@@ -2,8 +2,16 @@
 #define QP_PATTERN_H
 
 #include <FastLED.h>
+#include <qpLinkedList.h>
+#include <qpColor.h>
+
+
+class qpColor;
 
 class qpPattern {
+
+  friend class qpLayer;
+  friend class qpColor;
 
   private:
 
@@ -18,7 +26,11 @@ class qpPattern {
 
     // Color
 
-    CRGB _currentColor;
+    qpLinkedList<qpColor> colors;
+
+    CRGB _currentColor; //this is going to go away
+    qpColor *lastReferencedColor;
+
 
     // Periodic color changes
 
@@ -76,7 +88,6 @@ class qpPattern {
 
     void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per pattern config */ }
 
-    friend class qpLayer;
 
   protected:
 
@@ -100,9 +111,7 @@ class qpPattern {
     byte numColorsInSet = 0;
     byte colorSetIndex = 0;
 
-    inline CRGB _getColor(int index = 0) {
-      return this->_currentColor;
-    }
+    CRGB _getColor(int index = 0);
 
     // These are the core animation functions to be implemented by the sub-classes
 
@@ -144,6 +153,8 @@ class qpPattern {
 
     // Colors
 
+    qpColor &color(int index);
+
     qpPattern &singleColor(CRGB color);
     qpPattern &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize = 3);
     qpPattern &chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette);
@@ -156,7 +167,7 @@ class qpPattern {
     qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
     qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
 
-    qpPattern &withChanceToChangeColor(byte percentage);
+    qpPattern &withChanceToChangeColor(int percentage);
 
     // Real time changes
 

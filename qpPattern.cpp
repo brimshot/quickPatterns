@@ -8,6 +8,9 @@ qpPattern::qpPattern() {
   this->deactiveWhenAppropriate = (&qpPattern::doNothing);
   this->updateColorFunction = (&qpPattern::doNothing);
   this->loadNextColorFunction = (&qpPattern::doNothing);
+
+  //initialize color 0
+  this->colors.append(new qpColor());
 }
 
 
@@ -15,6 +18,12 @@ void qpPattern::render() {
 
   if((this->ticks % this->ticksBetweenFrames) == 0) {
     this->updates++;
+
+    /*
+    while(qpColor *currentColor = this->colors.fetch())
+      (currentColor->*(currentColor->updateColorFunction))();
+    */
+
     this->draw();
   }
 
@@ -169,8 +178,12 @@ void qpPattern::setActivePeriodRange(int minPeriods, int maxPeriods) {
 
 qpPattern &qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
+  /*
   this->setColorDurationRange(minTicks, maxTicks);
   this->colorPeriodsCounter = &this->ticks;
+  */
+
+  this->color(0).changeColorEveryNTicks(minTicks, maxTicks);
 
   return *this;
 }
@@ -178,28 +191,42 @@ qpPattern &qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
 qpPattern &qpPattern::changeColorEveryNCycles(int minCycles, int maxCycles) {
 
+  /*
   this->setColorDurationRange(minCycles, maxCycles);
   this->colorPeriodsCounter = &this->cycles;
+  */
+
+  this->color(0).changeColorEveryNCycles(minCycles, maxCycles);
 
   return *this;
 }
 
 qpPattern &qpPattern::changeColorEveryNFrames(int minFrames, int maxFrames) {
 
+  /*
   this->setColorDurationRange(minFrames, maxFrames);
   this->colorPeriodsCounter = &this->updates;
+  */
+
+  this->color(0).changeColorEveryNFrames(minFrames, maxFrames);
 
   return *this;
 }
 
 qpPattern &qpPattern::changeColorEveryNActivations(int minActivations, int maxActivations) {
 
+  /*
   this->setColorDurationRange(minActivations, maxActivations);
   this->colorPeriodsCounter = &this->activations;
+  */
+
+  this->color(0).changeColorEveryNActivations(minActivations, maxActivations);
 
   return *this;
 }
 
+
+/*
 
 void qpPattern::setColorDurationRange(unsigned int minPeriods, unsigned int maxPeriods) {
 
@@ -210,22 +237,39 @@ void qpPattern::setColorDurationRange(unsigned int minPeriods, unsigned int maxP
 }
 
 
-qpPattern &qpPattern::withChanceToChangeColor(byte percentage) {
+qpPattern &qpPattern::withChanceToChangeColor(int percentage) {
 
   this->chanceToChangeColor = constrain(percentage, 0, 100);
 
   return *this;
 }
 
-
-/*--------
-Color settings
 */
+
+
+// Color settings
+
+CRGB qpPattern::_getColor(int index) {
+
+   return this->colors.getItem(index)->getColor();
+}
+
+qpColor &qpPattern::color(int index) {
+
+  if(index > (this->colors.numElements - 1))
+    this->lastReferencedColor = this->colors.append(new qpColor());
+  else
+    this->lastReferencedColor = this->colors.getItem(index);
+
+  return *this->lastReferencedColor;
+}
 
 qpPattern &qpPattern::singleColor(CRGB color) {
 
-  this->_currentColor = color;
-  this->updateColorFunction = (&qpPattern::doNothing);
+  this->colors.getItem(0)->singleColor(color);
+
+//  this->_currentColor = color;
+//  this->updateColorFunction = (&qpPattern::doNothing);
 
   return *this;
 }
@@ -233,8 +277,12 @@ qpPattern &qpPattern::singleColor(CRGB color) {
 
 qpPattern &qpPattern::chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize) {
 
+  /*
   this->setPalette(colorPalette, stepSize);
   this->loadNextColorFunction = (&qpPattern::loadNextPaletteColorSequentially);
+  */
+
+  this->color(0).chooseColorSequentiallyFromPalette(colorPalette, stepSize);
 
   return *this;
 }
@@ -242,11 +290,15 @@ qpPattern &qpPattern::chooseColorSequentiallyFromPalette(CRGBPalette16 colorPale
 
 qpPattern &qpPattern::chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette) {
 
+  /*
   this->setPalette(colorPalette, 0);
   this->loadNextColorFunction = (&qpPattern::loadNextPaletteColorRandomly);
 
   // Initialize to a random color
   this->loadNextPaletteColorRandomly();
+  */
+
+  this->color(0).chooseColorRandomlyFromPalette(colorPalette);
 
   return *this;
 }
@@ -262,11 +314,15 @@ qpPattern &qpPattern::chooseColorSequentiallyFromSet(CRGB *colorSet, byte numCol
 
 qpPattern &qpPattern::chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet) {
 
+  /*
   this->setColorSet(colorSet, numColorsInSet);
   this->loadNextColorFunction = (&qpPattern::loadNextColorFromSetRandomly);
 
   // Initialize to a random color
   this->loadNextColorFromSetRandomly();
+  */
+
+  this->color(0).chooseColorRandomlyFromSet(colorSet, numColorsInSet);
 
   return *this;
 }
