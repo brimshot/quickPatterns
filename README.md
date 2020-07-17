@@ -1,6 +1,6 @@
 # quickPatterns
 
-A FastLED patterns manager that allows multiple animations to run simultaneously on the same strand of lights with configurable speeds, colors and activation timing.
+A FastLED based patterns manager for addressable LEDs (WS2812B, NeoPixels, etc.) that allows multiple animations to run simultaneously on the same strand of lights with configurable colors and timings.
 
 [Example sketch](#example-sketch)
 
