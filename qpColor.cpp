@@ -123,9 +123,9 @@ void qpColor::setColorDuration(int minPeriods, int maxPeriods) {
 }
 
 
-qpColor &qpColor::changeColorEveryNTicks(int minActivations, int maxActivations) {
+qpColor &qpColor::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
-  this->setColorDuration(minActivations, maxActivations);
+  this->setColorDuration(minTicks, maxTicks);
   this->colorPeriodsCounter = &this->parent->ticks;
 
   return *this;

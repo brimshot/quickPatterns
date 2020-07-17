@@ -3,7 +3,6 @@
 
 #include <qpPattern.h>
 
-
 class qpPattern;
 
 class qpColor {
@@ -73,10 +72,10 @@ class qpColor {
 
     // Periodic changes
 
-    qpColor &changeColorEveryNTicks(int minActivations, int maxActivations);
-    qpColor &changeColorEveryNCycles(int minCycles, int maxCycles);
-    qpColor &changeColorEveryNFrames(int minFrames, int maxFrames);
-    qpColor &changeColorEveryNActivations(int minActivations, int maxActivations);
+    qpColor &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
+    qpColor &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
+    qpColor &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
+    qpColor &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
     qpColor &withChanceToChangeColor(int percentage);
 
     void _loadNextColor();
