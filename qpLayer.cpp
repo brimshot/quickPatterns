@@ -20,13 +20,8 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
   if(this->continualFadeAmount)
     fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
 
-  while(qpPattern *currentPattern = this->patterns.fetch()) {
-      (currentPattern->*(currentPattern->updateActiveStatus))();
-      if(currentPattern->isActive()) {
-        currentPattern->render();
-        patternsRendered = true;
-      }
-  }
+  while(qpPattern *currentPattern = this->patterns.fetch())
+        patternsRendered &= currentPattern->render();
 
   if(patternsRendered || this->bPersistWhenPatternsInactive)
     (this->*applyToLedsFunction)(targetLeds, numLeds);

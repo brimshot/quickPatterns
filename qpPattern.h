@@ -2,8 +2,15 @@
 #define QP_PATTERN_H
 
 #include <FastLED.h>
+#include <qpLinkedList.h>
+#include <qpColor.h>
+
+
+class qpColor;
 
 class qpPattern {
+
+  friend class qpColor;
 
   private:
 
@@ -16,31 +23,10 @@ class qpPattern {
     int cycles = 0;
     int activations = 0;
 
-    // Color
+    // Colors
 
-    CRGB _currentColor;
-
-    // Periodic color changes
-
-    int *colorPeriodsCounter = nullptr;
-    unsigned int periodCountAtLastColorChange = 0;
-    unsigned int minColorDuration = 1;
-    unsigned int maxColorDuration = 0;
-    unsigned int currentColorDuration = 0;
-    byte chanceToChangeColor = 0;
-
-    void setColorDurationRange(unsigned int minPeriods, unsigned int maxPeriods);
-
-    void (qpPattern::*updateColorFunction)(); // periodic or constant
-    void (qpPattern::*loadNextColorFunction)(); // random or sequential
-
-    void updateColorPeriodically();
-
-    void loadNextPaletteColorRandomly();
-    void loadNextPaletteColorSequentially();
-    void loadNextColorFromSetRandomly();
-    void loadNextColorFromSetSequentially();
-
+    qpLinkedList<qpColor> colors;
+    qpColor *lastReferencedColor;
 
     // Animation
 
@@ -64,19 +50,11 @@ class qpPattern {
     void resetActivationTimer();
     void (qpPattern::*deactiveWhenAppropriate)();
 
-    void deactivatePeriodically();
-
-    // Interface for layer
-
-    void assignTargetLeds(CRGB *leds, int numLeds); // Called when pattern is added to layer
     void (qpPattern::*updateActiveStatus)();
-    bool isActive();
-    void render();
-
+    void deactivatePeriodically();
 
     void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per pattern config */ }
 
-    friend class qpLayer;
 
   protected:
 
@@ -92,23 +70,11 @@ class qpPattern {
 
     // Color values
 
-    CRGBPalette16 _colorPalette;
-    byte _paletteIndex = 0;
-    byte _paletteStep = 0;
-
-    CRGB *_colorSet;
-    byte numColorsInSet = 0;
-    byte colorSetIndex = 0;
-
-    inline CRGB _getColor(int index = 0) {
-      return this->_currentColor;
-    }
+    CRGB _getColor(int index = 0);
 
     // These are the core animation functions to be implemented by the sub-classes
 
-    virtual void initialize() { /* called once when pattern is created, after LEDs are assigned */ }
     virtual void draw() { /* called at each update interval */ }
-
 
     inline bool _inBounds(int pos) {
       return ((pos >= 0) && (pos < _numLeds));
@@ -122,11 +88,17 @@ class qpPattern {
       fill_solid(_targetLeds, _numLeds, CRGB::Black);
     }
 
-    CRGB _loadNextColor();
-
   public:
 
     qpPattern();
+
+    void assignTargetLeds(CRGB *leds, int numLeds); // Called when pattern is added to layer
+
+    virtual void initialize() { /* called once when pattern is created, after LEDs are assigned */ }
+
+    // Layer rendering
+
+    bool render();
 
     // Pattern speed
 
@@ -144,6 +116,10 @@ class qpPattern {
 
     // Colors
 
+    qpColor &newColor();
+    qpColor &color(int index);
+    qpColor &sameColor() { return *this->lastReferencedColor; }
+
     qpPattern &singleColor(CRGB color);
     qpPattern &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize = 3);
     qpPattern &chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette);
@@ -156,15 +132,12 @@ class qpPattern {
     qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
     qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
 
-    qpPattern &withChanceToChangeColor(byte percentage);
+    qpPattern &withChanceToChangeColor(int percentage);
 
-    // Real time changes
+    // Status control
 
     bool activate();
     void deactivate();
-
-    qpPattern &setPalette(CRGBPalette16 colorPalette, byte stepSize = 3);
-    qpPattern &setColorSet(CRGB *colorSet, int numElements);
 
 };
 
