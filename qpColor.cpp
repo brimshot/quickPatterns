@@ -1,5 +1,14 @@
 #include <qpColor.h>
 
+qpColor::qpColor(qpPattern *parentPattern) {
+
+  this->parent = parentPattern;
+
+  this->_currentColor = CRGB::Black;
+
+  this->updateColorFunction = (&qpColor::doNothing);
+  this->loadNextColorFunction = (&qpColor::doNothing);
+}
 
 void qpColor::_loadNextColor() {
 
@@ -20,7 +29,7 @@ void qpColor::_loadNextColor() {
 qpColor &qpColor::singleColor(CRGB color) {
 
   this->_currentColor = color;
-//  this->updateColorFunction = (&qpColor::doNothing);
+  this->updateColorFunction = (&qpColor::doNothing);
 
   return *this;
 }

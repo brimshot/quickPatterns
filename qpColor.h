@@ -45,9 +45,12 @@ class qpColor {
 
     void (qpColor::*loadNextColorFunction)(); // random or sequential
 
-    void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per config */ }
 
   public:
+
+    qpColor(qpPattern *parentPattern);
+
+    void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per config */ }
 
     /*
     qpColor &color(int index) {
