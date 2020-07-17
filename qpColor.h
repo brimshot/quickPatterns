@@ -52,14 +52,9 @@ class qpColor {
 
     void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per config */ }
 
-    /*
-    qpColor &color(int index) {
-      return this->parent->color(index);
-    }
-    */
+    qpColor &color(byte index);
 
     CRGB getColor() {
-
       return this->_currentColor;
     }
 

@@ -10,6 +10,7 @@ qpColor::qpColor(qpPattern *parentPattern) {
   this->loadNextColorFunction = (&qpColor::doNothing);
 }
 
+
 void qpColor::_loadNextColor() {
 
   if(this->maxColorDuration)
@@ -187,4 +188,10 @@ void qpColor::loadNextColorFromSetSequentially() {
 void qpColor::loadNextColorFromSetRandomly() {
 
   this->_currentColor = this->_colorSet[random16(0, this->numColorsInSet)];
+}
+
+// Fluent
+
+qpColor &qpColor::color(byte index) {
+    return this->parent->color(index);
 }
