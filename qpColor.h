@@ -76,10 +76,6 @@ class qpColor {
     qpColor &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
     qpColor &withChanceToChangeColor(byte percentage);
 
-    // Fluent hook for chaining pattern colors config
-
-    qpColor &color(byte index);
-
 };
 
 #endif
