@@ -25,8 +25,6 @@ void quickPatterns::draw() {
     this->lightStrand->clearMain();
 
     this->currentScene->draw(this->lightStrand->leds, this->lightStrand->numLeds);
-    //TODO: double write fixes Teensy 3.2, investigate
-//    this->currentScene->draw(this->lightStrand->leds, this->lightStrand->numLeds);
   }
 
 }

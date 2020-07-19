@@ -703,4 +703,4 @@ A section of lights of length *size* that move back and forth randomly along the
 ---
 Copyright (c) 2020 Chris Brim
 
-Tested on: ESP8266, Arduino Mega
+Tested platforms: ESP8266, Arduino Mega, Teensy 3.2

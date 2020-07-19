@@ -25,11 +25,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *****************************************************/
 
+#include <Arduino.h>
+
+#ifdef CORE_TEENSY
+#define FASTLED_ALLOW_INTERRUPTS 0
+#endif
+
 #include <quickPatterns.h>
 #include <qpSamplePatterns.h>
 
 #define CHIPSET     WS2812
-#define DATA_PIN    8          // pin 11 is hardware SPI on Teensy 3.x and ATMega328P based Arduino
+#define DATA_PIN    8          
 #define NUM_LEDS    100
 #define BRIGHTNESS  32
 #define COLOR_ORDER GRB         //GRB for WS2812, RGB for WS2811
@@ -40,7 +46,7 @@ SOFTWARE.
 CRGB leds[NUM_LEDS];
 
 //Declare quickPatterns controller and pass in led data
-quickPatterns quickPatterns(leds, NUM_LEDS); //NUM_STRIPS*NUM_LEDS_PER_STRIP);
+quickPatterns quickPatterns(leds, NUM_LEDS);
 
 
 void setup() {
@@ -90,7 +96,6 @@ void setup() {
     .drawEveryNTicks(3); //move at a slower speed
   quickPatterns.sameLayer().setLayerBrush(COMBINE);
 
-
   // ~ Scene 1 - demonstrates a use of state machine patterns
 
   // "popupDroid" is a little state machine that flashes a few times then moves randomly up and down the strand before disappearing
@@ -113,7 +118,7 @@ void setup() {
     .activatePeriodicallyEveryNTicks(20, 70)
     .stayActiveForNCycles(1);
   quickPatterns.sameLayer().setLayerBrush(ADD);
-
+  
 
   // ~ Scene 2
 

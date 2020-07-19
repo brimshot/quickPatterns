@@ -9,7 +9,7 @@ class qpColor {
 
   private:
 
-    qpPattern *parent;
+    qpPattern *parentPattern;
 
     CRGB currentColor;
 
@@ -23,7 +23,7 @@ class qpColor {
     byte numColorsInSet = 0;
     byte colorSetIndex = 0;
 
-    // Periodic change
+    // Change timing
 
     int *colorPeriodsCounter = nullptr;
     unsigned int periodCountAtLastColorChange = 0;
@@ -35,7 +35,7 @@ class qpColor {
     void setColorDuration(int minPeriods, int maxPeriods);
     void updateColorPeriodically();
 
-    // Choosing
+    // Loaders
 
     void loadNextPaletteColorRandomly();
     void loadNextPaletteColorSequentially();
@@ -50,15 +50,15 @@ class qpColor {
 
     qpColor(qpPattern *parentPattern);
 
-    qpColor &color(byte index);
+    void (qpColor::*updateColorFunction)(); // periodic or constant
+
+    void _loadNextColor(); //calls appropriate load routine
 
     CRGB getColor() {
       return this->currentColor;
     }
 
-    void (qpColor::*updateColorFunction)(); // periodic or constant
-
-    // Color sequence
+    // Color config interface
 
     qpColor &singleColor(CRGB color);
     qpColor &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize);
@@ -68,7 +68,7 @@ class qpColor {
     qpColor &setColorSet(CRGB *colorSet, byte numElements);
     qpColor &setPalette(CRGBPalette16 colorPalette, byte stepSize);
 
-    // Periodic changes
+    // Timing config interface
 
     qpColor &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
     qpColor &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
@@ -76,8 +76,9 @@ class qpColor {
     qpColor &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
     qpColor &withChanceToChangeColor(byte percentage);
 
-    void _loadNextColor();
+    // Fluent hook for chaining pattern colors config
 
+    qpColor &color(byte index);
 
 };
 
