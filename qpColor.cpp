@@ -189,9 +189,3 @@ void qpColor::loadNextColorFromSetRandomly() {
 
   this->currentColor = this->colorSet[random8(0, this->numColorsInSet)];
 }
-
-// Fluent interface hook
-
-qpColor &qpColor::color(byte index) {
-    return this->parentPattern->color(index);
-}

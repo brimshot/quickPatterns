@@ -120,8 +120,7 @@ class qpPattern {
 
     // Colors
 
-    qpColor &newColor();
-    qpColor &color(byte index);
+    qpPattern &color(byte index);
     qpColor &sameColor() { return *this->lastReferencedColor; }
 
     qpPattern &singleColor(CRGB color);

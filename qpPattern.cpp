@@ -6,7 +6,7 @@ qpPattern::qpPattern() {
   this->updateActiveStatus = (&qpPattern::doNothing);
   this->deactivateCheck = (&qpPattern::doNothing);
 
-  this->newColor();  //initialize color 0
+  this->lastReferencedColor = this->colors.append(new qpColor(this));
 }
 
 
@@ -178,22 +178,16 @@ CRGB qpPattern::_getColor(byte index) {
 }
 
 
-qpColor &qpPattern::color(byte index) {
+qpPattern &qpPattern::color(byte index) {
 
   if(index > (this->colors.numElements - 1))
-    return this->newColor();
+    this->lastReferencedColor = this->colors.append(new qpColor(this));
+  else  
+    this->lastReferencedColor = this->colors.getItem(index);
 
-  this->lastReferencedColor = this->colors.getItem(index);
-
-  return *this->lastReferencedColor;
+  return *this; 
 }
 
-qpColor &qpPattern::newColor() {
-
-  this->lastReferencedColor = this->colors.append(new qpColor(this));
-
-  return *this->lastReferencedColor;
-}
 
 qpPattern &qpPattern::singleColor(CRGB color) {
 
