@@ -14,7 +14,7 @@ class qpPattern {
 
   private:
 
-    bool currentlyActive = true;
+    bool isActive = true;
 
     // Period counters
 
@@ -22,6 +22,8 @@ class qpPattern {
     int updates = 0;
     int cycles = 0;
     int activations = 0;
+
+    int nextRenderTick = 0;
 
     // Colors
 
@@ -45,13 +47,14 @@ class qpPattern {
     unsigned int currentPeriodsToStayActive = 0;
     byte chanceToActivatePattern = 0;
 
-    void setActivePeriodRange(int minPeriods, int maxPeriods);
-    void activatePeriodically();
-    void resetActivationTimer();
-    void (qpPattern::*deactiveWhenAppropriate)();
+    void setActivePeriod(int minPeriods, int maxPeriods);
 
     void (qpPattern::*updateActiveStatus)();
-    void deactivatePeriodically();
+    void activatePeriodically();
+    void resetActivationTimer();
+
+    void (qpPattern::*deactivateCheck)();
+    void deactivateWhenActivePeriodOver();
 
     void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per pattern config */ }
 
@@ -70,11 +73,9 @@ class qpPattern {
 
     // Color values
 
-    CRGB _getColor(int index = 0);
+    CRGB _getColor(byte index = 0);
 
-    // These are the core animation functions to be implemented by the sub-classes
-
-    virtual void draw() { /* called at each update interval */ }
+    // Animation util
 
     inline bool _inBounds(int pos) {
       return ((pos >= 0) && (pos < _numLeds));
@@ -94,9 +95,12 @@ class qpPattern {
 
     void assignTargetLeds(CRGB *leds, int numLeds); // Called when pattern is added to layer
 
-    virtual void initialize() { /* called once when pattern is created, after LEDs are assigned */ }
+    // These are the core animation functions to be implemented by the child classes
 
-    // Layer rendering
+    virtual void draw() = 0; //called at each update interval
+    virtual void initialize() { } // called once when pattern is created, after LEDs are assigned
+    
+    // Render hook for layer
 
     bool render();
 
@@ -112,12 +116,12 @@ class qpPattern {
     qpPattern &stayActiveForNFrames(int minUpdates, int maxUpdates = 0);
     qpPattern &stayActiveForNCycles(int minCycles, int maxCycles = 0);
 
-    qpPattern &withChanceOfActivation(int percentage);
+    qpPattern &withChanceOfActivation(byte percentage);
 
     // Colors
 
     qpColor &newColor();
-    qpColor &color(int index);
+    qpColor &color(byte index);
     qpColor &sameColor() { return *this->lastReferencedColor; }
 
     qpPattern &singleColor(CRGB color);
@@ -132,7 +136,7 @@ class qpPattern {
     qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
     qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
 
-    qpPattern &withChanceToChangeColor(int percentage);
+    qpPattern &withChanceToChangeColor(byte percentage);
 
     // Status control
 

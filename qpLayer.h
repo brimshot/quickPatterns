@@ -27,7 +27,7 @@ class qpLayer {
     void combineWithLeds(CRGB *targetLeds, int numLeds);
     void maskLeds(CRGB *targetLeds, int numLeds);
 
-    void (qpLayer::*applyToLedsFunction)(CRGB *leds, int numLeds);
+    void (qpLayer::*applyToLeds)(CRGB *leds, int numLeds);
 
   public:
 
@@ -58,9 +58,9 @@ class qpLayer {
 
     qpPattern &addPattern(qpPattern *pattern);
 
-    qpPattern &pattern(int patternIndex);
+    qpPattern &pattern(byte patternIndex);
 
-    qpPattern &operator()(int patternIndex) {
+    qpPattern &operator()(byte patternIndex) {
 
       return this->pattern(patternIndex);
     }

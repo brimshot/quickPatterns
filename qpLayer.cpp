@@ -17,14 +17,14 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
   bool patternsRendered = false;
 
-  if(this->continualFadeAmount)
+  if(this->continualFadeAmount) //conceivably we prevent a loop applying 0 to each led with this check
     fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
 
   while(qpPattern *currentPattern = this->patterns.fetch())
         patternsRendered &= currentPattern->render();
 
   if(patternsRendered || this->bPersistWhenPatternsInactive)
-    (this->*applyToLedsFunction)(targetLeds, numLeds);
+    (this->*applyToLeds)(targetLeds, numLeds);
 
 }
 
@@ -35,22 +35,22 @@ qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
 
   switch(brushType) {
     case ADD:
-      this->applyToLedsFunction = &qpLayer::addToLeds;
+      this->applyToLeds = &qpLayer::addToLeds;
       break;
     case SUBTRACT:
-      this->applyToLedsFunction = &qpLayer::subtractFromLeds;
+      this->applyToLeds = &qpLayer::subtractFromLeds;
       break;
     case OVERWRITE:
-      this->applyToLedsFunction = &qpLayer::overwriteLeds;
+      this->applyToLeds = &qpLayer::overwriteLeds;
       break;
     case OVERLAY:
-      this->applyToLedsFunction = &qpLayer::overlayOnLeds;
+      this->applyToLeds = &qpLayer::overlayOnLeds;
       break;
     case COMBINE:
-      this->applyToLedsFunction = &qpLayer::combineWithLeds;
+      this->applyToLeds = &qpLayer::combineWithLeds;
       break;
     case MASK:
-      this->applyToLedsFunction = &qpLayer::maskLeds;
+      this->applyToLeds = &qpLayer::maskLeds;
       break;
   }
 
@@ -71,7 +71,7 @@ void qpLayer::subtractFromLeds(CRGB *targetLeds, int numLeds) {
 
 void qpLayer::overlayOnLeds(CRGB *targetLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++) {
-    if(this->leds[i] != CRGB(0, 0, 0))
+    if(this->leds[i] != CRGB(0, 0, 0)) //how costly is this.. ?
       targetLeds[i] = this->leds[i];
   }
 }
@@ -82,7 +82,7 @@ void qpLayer::overwriteLeds(CRGB *targetLeds, int numLeds) {
 
 void qpLayer::combineWithLeds(CRGB *targetLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++)
-    targetLeds[i] = blend(targetLeds[i], this->leds[i], 128);
+    targetLeds[i] = blend(targetLeds[i], this->leds[i], 128); //TODO: make this better
 }
 
 void qpLayer::maskLeds(CRGB *targetLeds, int numLeds) {
@@ -94,7 +94,7 @@ void qpLayer::maskLeds(CRGB *targetLeds, int numLeds) {
 
 // Access
 
-qpPattern &qpLayer::pattern(int patternIndex) {
+qpPattern &qpLayer::pattern(byte patternIndex) {
 
   this->lastReferencedPattern = this->patterns.getItem(patternIndex);
 

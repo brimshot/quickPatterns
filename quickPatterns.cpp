@@ -30,7 +30,7 @@ void quickPatterns::draw() {
 }
 
 
-// Quick add
+// Quick add pattern
 
 qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 
@@ -39,7 +39,7 @@ qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 
 
 // Returns requested scene or automatically adds and returns a new scene if index does not yet exist
-qpScene &quickPatterns::scene(int index) {
+qpScene &quickPatterns::scene(byte index) {
 
   if(index > (this->scenes.numElements - 1))
     return this->newScene();
@@ -63,7 +63,7 @@ qpScene &quickPatterns::newScene() {
 
 // ~ Access
 
-qpLayer &quickPatterns::layer(int layerIndex) {
+qpLayer &quickPatterns::layer(byte layerIndex) {
 
   return this->scene(0).layer(layerIndex);
 }
@@ -80,7 +80,7 @@ void quickPatterns::nextScene() {
 }
 
 
-void quickPatterns::playScene(int index) {
+void quickPatterns::playScene(byte index) {
 
   if(index >= this->scenes.numElements)
     return;
@@ -95,7 +95,7 @@ void quickPatterns::playScene(int index) {
 
 void quickPatterns::playRandomScene() {
 
-  int index;
+  byte index;
   do {
     index = random8(0, (this->scenes.numElements));
   } while(index == this->sceneIndex);
@@ -106,17 +106,17 @@ void quickPatterns::playRandomScene() {
 
 // Quick access operators
 
-qpPattern&quickPatterns::operator()(int layerIndex) {
+qpPattern&quickPatterns::operator()(byte layerIndex) {
 
   return this->scene(0).layer(layerIndex).pattern(0);
 }
 
-qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex) {
+qpPattern&quickPatterns::operator()(byte sceneIndex, byte layerIndex) {
 
   return this->scene(sceneIndex).layer(layerIndex).pattern(0);
 }
 
-qpPattern&quickPatterns::operator()(int sceneIndex, int layerIndex, int patternIndex) {
+qpPattern&quickPatterns::operator()(byte sceneIndex, byte layerIndex, byte patternIndex) {
 
   return this->scene(sceneIndex).layer(layerIndex).pattern(patternIndex);
 }

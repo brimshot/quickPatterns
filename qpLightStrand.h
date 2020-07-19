@@ -19,7 +19,7 @@ class qpLightStrand {
     int getNumLeds() { return this->numLeds; }
 
 
-    CRGB *getLedArray(int index) {
+    CRGB *getLedArray(byte index) {
 
       if(index > (this->ledArrays.numElements-1))
         return this->ledArrays.append(new CRGB[this->numLeds]);

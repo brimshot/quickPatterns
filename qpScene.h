@@ -20,13 +20,13 @@ class qpScene {
 
     qpScene(qpLightStrand *lightStrand) : lightStrand(lightStrand) {}
 
-    qpLayer &layer(int index);
+    qpLayer &layer(byte index);
     qpLayer &newLayer();
     qpLayer &sameLayer() { return *this->lastReferencedLayer; }
 
     qpPattern &addPattern(qpPattern *pattern);
 
-    qpPattern &operator()(int layerIndex) { return this->layer(layerIndex).pattern(0); }
+    qpPattern &operator()(byte layerIndex) { return this->layer(layerIndex).pattern(0); }
 
     void draw(CRGB *targetLeds, int numLeds);
 };

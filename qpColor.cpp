@@ -2,35 +2,48 @@
 
 qpColor::qpColor(qpPattern *parentPattern) {
 
-  this->parent = parentPattern;
+  this->parentPattern = parentPattern;
 
-  this->_currentColor = CRGB::Black;
+  this->currentColor = CRGB::Black;
 
   this->updateColorFunction = (&qpColor::doNothing);
   this->loadNextColorFunction = (&qpColor::doNothing);
 }
 
 
+void qpColor::updateColorPeriodically() {
+
+  if((*this->colorPeriodsCounter - this->periodCountAtLastColorChange) >= this->currentColorDuration) {
+
+    this->_loadNextColor();
+
+    this->periodCountAtLastColorChange = *this->colorPeriodsCounter;
+  }
+
+}
+
+
 void qpColor::_loadNextColor() {
+
+  if(this->chanceToChangeColor > 0) {
+    if(random8(100) > this->chanceToChangeColor)
+      return;
+  }
 
   if(this->maxColorDuration)
     this->currentColorDuration = random16(this->minColorDuration, this->maxColorDuration);
-
-  if(this->chanceToChangeColor > 0) {
-    if(random16(100) > this->chanceToChangeColor)
-      return;
-  }
 
   (this->*loadNextColorFunction)();
 
 }
 
-// Choosing
+// Color config
 
 qpColor &qpColor::singleColor(CRGB color) {
 
-  this->_currentColor = color;
+  this->currentColor = color;
   this->updateColorFunction = (&qpColor::doNothing);
+  this->loadNextColorFunction = (&qpColor::doNothing);
 
   return *this;
 }
@@ -78,41 +91,7 @@ qpColor &qpColor::chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet
 
 
 
-// Direct color configuration
-
-qpColor &qpColor::setPalette(CRGBPalette16 colorPalette, byte stepSize) {
-
-  this->_colorPalette = colorPalette;
-  this->_paletteStep = stepSize;
-  this->_currentColor = ColorFromPalette(colorPalette, 0);
-
-  return *this;
-}
-
-qpColor &qpColor::setColorSet(CRGB *colorSet, int numElements) {
-
-  this->_colorSet = colorSet;
-  this->numColorsInSet = numElements;
-  this->colorSetIndex = 0;
-
-  return *this;
-}
-
-
-
-
-// Periodic change
-
-void qpColor::updateColorPeriodically() {
-
-  if((*this->colorPeriodsCounter - this->periodCountAtLastColorChange) >= this->currentColorDuration) {
-
-    this->periodCountAtLastColorChange = *this->colorPeriodsCounter;
-
-    this->_loadNextColor();
-  }
-
-}
+// Timing config
 
 void qpColor::setColorDuration(int minPeriods, int maxPeriods) {
 
@@ -125,40 +104,61 @@ void qpColor::setColorDuration(int minPeriods, int maxPeriods) {
 
 qpColor &qpColor::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
+  this->colorPeriodsCounter = &this->parentPattern->ticks;
   this->setColorDuration(minTicks, maxTicks);
-  this->colorPeriodsCounter = &this->parent->ticks;
 
   return *this;
 }
 
 qpColor &qpColor::changeColorEveryNCycles(int minCycles, int maxCycles) {
 
+  this->colorPeriodsCounter = &this->parentPattern->cycles;
   this->setColorDuration(minCycles, maxCycles);
-  this->colorPeriodsCounter = &this->parent->cycles;
 
   return *this;
 }
 
 qpColor &qpColor::changeColorEveryNFrames(int minFrames, int maxFrames) {
 
+  this->colorPeriodsCounter = &this->parentPattern->updates;
   this->setColorDuration(minFrames, maxFrames);
-  this->colorPeriodsCounter = &this->parent->updates;
 
   return *this;
 }
 
 qpColor &qpColor::changeColorEveryNActivations(int minActivations, int maxActivations) {
 
+  this->colorPeriodsCounter = &this->parentPattern->activations;
   this->setColorDuration(minActivations, maxActivations);
-  this->colorPeriodsCounter = &this->parent->activations;
 
   return *this;
 }
 
 
-qpColor &qpColor::withChanceToChangeColor(int percentage) {
+qpColor &qpColor::withChanceToChangeColor(byte percentage) {
 
   this->chanceToChangeColor = constrain(percentage, 0, 100);
+
+  return *this;
+}
+
+
+// Direct config
+
+qpColor &qpColor::setPalette(CRGBPalette16 colorPalette, byte stepSize) {
+
+  this->colorPalette = colorPalette;
+  this->paletteStep = stepSize;
+  this->currentColor = ColorFromPalette(colorPalette, 0);
+
+  return *this;
+}
+
+qpColor &qpColor::setColorSet(CRGB *colorSet, byte numElements) {
+
+  this->colorSet = colorSet;
+  this->numColorsInSet = numElements;
+  this->colorSetIndex = 0;
 
   return *this;
 }
@@ -169,29 +169,29 @@ qpColor &qpColor::withChanceToChangeColor(int percentage) {
 
 void qpColor::loadNextPaletteColorSequentially() {
 
-  this->_currentColor =  ColorFromPalette(this->_colorPalette, this->_paletteIndex);
-  this->_paletteIndex += this->_paletteStep;
+  this->currentColor =  ColorFromPalette(this->colorPalette, this->paletteIndex);
+  this->paletteIndex += this->paletteStep;
 }
 
 
 void qpColor::loadNextPaletteColorRandomly() {
 
-  this->_currentColor =  ColorFromPalette(this->_colorPalette, random16(0, 255));
+  this->currentColor =  ColorFromPalette(this->colorPalette, random8(0, 255));
 }
 
 void qpColor::loadNextColorFromSetSequentially() {
 
-  this->_currentColor = this->_colorSet[this->colorSetIndex];
+  this->currentColor = this->colorSet[this->colorSetIndex];
   this->colorSetIndex = (++this->colorSetIndex % this->numColorsInSet);
 }
 
 void qpColor::loadNextColorFromSetRandomly() {
 
-  this->_currentColor = this->_colorSet[random16(0, this->numColorsInSet)];
+  this->currentColor = this->colorSet[random8(0, this->numColorsInSet)];
 }
 
-// Fluent
+// Fluent interface hook
 
 qpColor &qpColor::color(byte index) {
-    return this->parent->color(index);
+    return this->parentPattern->color(index);
 }
