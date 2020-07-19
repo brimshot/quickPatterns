@@ -1,6 +1,8 @@
 #ifndef QUICK_PATTERNS_LIST_H
 #define QUICK_PATTERNS_LIST_H
 
+#include <Arduino.h>
+
 /** A minimalist linked list implementation */
 
 template <typename T>
@@ -16,6 +18,7 @@ private:
 
     qpListNode <T> *firstElement = nullptr;
     qpListNode <T> *lastElement = nullptr;
+
     qpListNode <T> *currentElement = nullptr;
 
     void increaseByOneElement() {
@@ -35,21 +38,16 @@ private:
 
 public:
 
-    int numElements = 0;
+    byte numElements = 0;
 
     T *getItem(int index) {
 
       qpListNode <T> *tmp = this->firstElement;
 
-      int i = 0;
-      while(tmp) {
-        if(i == index)
-          return tmp->item;
+      for(byte i = 0; i < index; i++)
         tmp = tmp->next;
-        i++;
-      } 
 
-      return nullptr;
+      return tmp->item;
     }
 
 
@@ -80,6 +78,7 @@ public:
         this->currentElement = this->firstElement;
 
       return itemToReturn;
+
     }
 
 };

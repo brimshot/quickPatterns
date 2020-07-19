@@ -24,7 +24,7 @@ qpLayer &qpScene::newLayer() {
 }
 
 
-qpLayer &qpScene::layer(int index) {
+qpLayer &qpScene::layer(byte index) {
 
   if(index > (this->layers.numElements - 1))
     return this->newLayer();

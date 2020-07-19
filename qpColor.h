@@ -11,15 +11,15 @@ class qpColor {
 
     qpPattern *parent;
 
-    CRGB _currentColor;
+    CRGB currentColor;
 
     // Color values
 
-    CRGBPalette16 _colorPalette;
-    byte _paletteIndex = 0;
-    byte _paletteStep = 0;
+    CRGBPalette16 colorPalette;
+    byte paletteIndex = 0;
+    byte paletteStep = 0;
 
-    CRGB *_colorSet;
+    CRGB *colorSet;
     byte numColorsInSet = 0;
     byte colorSetIndex = 0;
 
@@ -42,33 +42,31 @@ class qpColor {
     void loadNextColorFromSetRandomly();
     void loadNextColorFromSetSequentially();
 
-    void (qpColor::*loadNextColorFunction)(); // random or sequential
+    void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per config */ }
 
+    void (qpColor::*loadNextColorFunction)(); // random or sequential
 
   public:
 
     qpColor(qpPattern *parentPattern);
 
-    void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per config */ }
-
     qpColor &color(byte index);
 
     CRGB getColor() {
-      return this->_currentColor;
+      return this->currentColor;
     }
 
     void (qpColor::*updateColorFunction)(); // periodic or constant
 
-    // Color choosing
+    // Color sequence
 
     qpColor &singleColor(CRGB color);
     qpColor &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize);
     qpColor &chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette);
     qpColor &chooseColorSequentiallyFromSet(CRGB *colorSet, byte numColorsInSet);
     qpColor &chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet);
-    qpColor &setColorSet(CRGB *colorSet, int numElements);
+    qpColor &setColorSet(CRGB *colorSet, byte numElements);
     qpColor &setPalette(CRGBPalette16 colorPalette, byte stepSize);
-
 
     // Periodic changes
 
@@ -76,7 +74,7 @@ class qpColor {
     qpColor &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
     qpColor &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
     qpColor &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
-    qpColor &withChanceToChangeColor(int percentage);
+    qpColor &withChanceToChangeColor(byte percentage);
 
     void _loadNextColor();
 
