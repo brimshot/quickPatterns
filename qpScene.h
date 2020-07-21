@@ -6,6 +6,7 @@
 #include <qpLightStrand.h>
 #include <qpLayer.h>
 
+
 class qpScene {
 
   private:
@@ -20,15 +21,27 @@ class qpScene {
 
     qpScene(qpLightStrand *lightStrand) : lightStrand(lightStrand) {}
 
-    qpLayer &layer(byte index);
-    qpLayer &newLayer();
-    qpLayer &sameLayer() { return *this->lastReferencedLayer; }
+    // ~ Rendering
+
+    void draw(CRGB *targetLeds, int numLeds);
+
+
+    // ~ Config
 
     qpPattern &addPattern(qpPattern *pattern);
 
+    qpLayer &newLayer();
+
+
+    // ~ Access
+
+    // Layers
+    qpLayer &layer(byte index);
+    qpLayer &sameLayer() { return *this->lastReferencedLayer; }
+
+    // Quick access operators
     qpPattern &operator()(byte layerIndex) { return this->layer(layerIndex).pattern(0); }
 
-    void draw(CRGB *targetLeds, int numLeds);
 };
 
 #endif

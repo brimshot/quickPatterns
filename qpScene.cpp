@@ -1,13 +1,10 @@
 #include <qpScene.h>
 
-
-//TODO: just go on the light strand?! why pass the leds? is there a reason?
 void qpScene::draw(CRGB *targetLeds, int numLeds) {
 
   while(qpLayer *currentLayer = this->layers.fetch())
     currentLayer->draw(targetLeds, numLeds);
 }
-
 
 
 qpPattern &qpScene::addPattern(qpPattern *pattern) {

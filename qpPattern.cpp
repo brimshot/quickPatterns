@@ -1,18 +1,20 @@
 #include <qpPattern.h>
+#include <qpColor.h>
 
 
 qpPattern::qpPattern() {
 
-  this->updateActiveStatus = (&qpPattern::doNothing);
-  this->deactivateCheck = (&qpPattern::doNothing);
+  this->activateIfConditionsMet = (&qpPattern::doNothing);
+  this->deactivateIfConditionsMet = (&qpPattern::doNothing);
 
   this->lastReferencedColor = this->colors.append(new qpColor(this));
 }
 
+// ~ Render
 
 bool qpPattern::render() {
 
-  (this->*updateActiveStatus)();
+  (this->*activateIfConditionsMet)();
 
   if(this->isActive) {
 
@@ -29,12 +31,12 @@ bool qpPattern::render() {
 
     this->ticks++;
     
-    (this->*deactivateCheck)();
+    (this->*deactivateIfConditionsMet)();
 
-    return true; //something was written
+    return true; //something was rendered
   }
 
-    return false;
+    return false; //nothing rendered
 }
 
 
@@ -49,8 +51,9 @@ void qpPattern::activatePeriodically() {
   }
 
   this->activate();
-  this->resetActivationTimer(); //TODO: this is called in both activate and deactivate
+  this->resetActivationTimer(); 
 }
+
 
 bool qpPattern::activate() {
 
@@ -61,15 +64,15 @@ bool qpPattern::activate() {
     }
   }
 
-  // If we are staying active for a random period count, do that here
+  // If we are staying active for a random period count, set it here
   if(this->maxPeriodsToStayActive)
     this->currentPeriodsToStayActive = random16(this->minPeriodsToStayActive, this->maxPeriodsToStayActive);
 
   this->periodCountAtLastActivation = *this->activePeriodsCounter;
 
-  this->isActive = true;
-
   this->activations++;
+
+  this->isActive = true;
 
   return true;
 }
@@ -77,30 +80,30 @@ bool qpPattern::activate() {
 
 void qpPattern::resetActivationTimer() {
 
-  // If we are activating at a random internval, calculate the next interval
+  // If we are activating at a random interval, calculate the next interval
   if(this->maxTicksBetweenActivations)
     this->ticksUntilActive = random16(this->minTicksBetweenActivations, this->maxTicksBetweenActivations);
   else
     this->ticksUntilActive = this->minTicksBetweenActivations;
 }
 
-void qpPattern::deactivateWhenActivePeriodOver() {
+void qpPattern::deactivateIfActivePeriodComplete() {
 
-  if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive) // {
-    this->deactivate();
-//    this->resetActivationTimer();
-//  }
+  if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive)
+      this->deactivate();
 
 }
 
+//direct external control
 void qpPattern::deactivate() {
 
   this->isActive = false;
 }
 
 
-// Pattern speed
+// ~ Animation
 
+// Pattern speed
 qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 
   this->ticksBetweenFrames = ticks;
@@ -108,8 +111,14 @@ qpPattern &qpPattern::drawEveryNTicks(int ticks) {
   return *this;
 }
 
+// Color to draw
+CRGB qpPattern::_getColor(byte index) {
 
-// Periodic pattern activation
+   return this->colors.getItem(index)->getColor();
+}
+
+
+// ~ Periodic activation config
 
 qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
 
@@ -117,13 +126,14 @@ qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks
 
   this->minTicksBetweenActivations = minTicks;
   this->maxTicksBetweenActivations = maxTicks;
-  this->resetActivationTimer();
+  this->activateIfConditionsMet = (&qpPattern::activatePeriodically);
 
-  this->updateActiveStatus = (&qpPattern::activatePeriodically);
+  this->resetActivationTimer();
 
   return *this;
 }
 
+// Active period duration
 
 qpPattern &qpPattern::stayActiveForNTicks(int minTicks, int maxTicks) {
 
@@ -165,19 +175,14 @@ void qpPattern::setActivePeriod(int minPeriods, int maxPeriods) {
   this->currentPeriodsToStayActive = this->minPeriodsToStayActive = max(1, minPeriods);
   this->maxPeriodsToStayActive = max(0, maxPeriods);
 
-  this->deactivateCheck = (&qpPattern::deactivateWhenActivePeriodOver);
+  this->deactivateIfConditionsMet = (&qpPattern::deactivateIfActivePeriodComplete);
 }
 
 
 
-// Color settings
+// ~ Color config
 
-CRGB qpPattern::_getColor(byte index) {
-
-   return this->colors.getItem(index)->getColor();
-}
-
-
+//sets lastreferenced ptr so fluent chain can continue
 qpPattern &qpPattern::color(byte index) {
 
   if(index > (this->colors.numElements - 1))
@@ -266,7 +271,7 @@ qpPattern &qpPattern::withChanceToChangeColor(byte percentage) {
 
 
 
-// Basic config - called by Layer
+// Setup - called by Layer
 
 void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
   this->_targetLeds = leds;

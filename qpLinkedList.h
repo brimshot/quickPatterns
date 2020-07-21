@@ -21,21 +21,6 @@ private:
 
     qpListNode <T> *currentElement = nullptr;
 
-    void increaseByOneElement() {
-
-        if(! this->firstElement) {
-          this->firstElement = this->lastElement = new qpListNode<T>();
-          this->currentElement = this->firstElement;
-        } else {
-          this->lastElement->next = new qpListNode<T>();
-          this->lastElement = this->lastElement->next;
-        }
-
-        this->numElements++;
-
-    }
-
-
 public:
 
     byte numElements = 0;
@@ -57,8 +42,16 @@ public:
 
 
     T *append(T *item) {
+      
+      if(! this->firstElement) {
+        this->firstElement = this->lastElement = new qpListNode<T>();
+        this->currentElement = this->firstElement;
+      } else {
+        this->lastElement->next = new qpListNode<T>();
+        this->lastElement = this->lastElement->next;
+      }
 
-      this->increaseByOneElement();
+      this->numElements++;
 
       this->lastElement->item = item;
 

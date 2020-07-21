@@ -1,15 +1,11 @@
 #include <qpLayer.h>
 
-qpPattern &qpLayer::addPattern(qpPattern *pattern) {
+qpLayer::qpLayer(CRGB *leds, int numLeds) {
+  
+  this->leds = leds;
+  this->numLeds = numLeds;
 
-  this->lastReferencedPattern = this->patterns.append(pattern);
-
-  if(this->leds) { //TODO: do we ever NOT have leds.. ?
-    pattern->assignTargetLeds(this->leds, this->numLeds);
-    pattern->initialize();
-  }
-
-  return *pattern;
+  this->setLayerBrush(OVERLAY);
 }
 
 
@@ -17,7 +13,7 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
   bool patternsRendered = false;
 
-  if(this->continualFadeAmount) //conceivably we prevent a loop applying 0 to each led with this check
+  if(this->continualFadeAmount) //conceivably we prevent a loop that applies 0 to each led with this check
     fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
 
   while(qpPattern *currentPattern = this->patterns.fetch())
@@ -28,6 +24,31 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
 }
 
+// Config
+
+qpPattern &qpLayer::addPattern(qpPattern *pattern) {
+
+  pattern->assignTargetLeds(this->leds, this->numLeds);
+  pattern->initialize();
+
+  this->lastReferencedPattern = this->patterns.append(pattern);
+
+  return *pattern;
+}
+
+qpLayer &qpLayer::continuallyFadeLayerBy(int fadeAmount) {
+
+  this->continualFadeAmount = constrain(fadeAmount, 0, 255);
+
+  return *this;
+}
+
+qpLayer &qpLayer::hideWhenNoActivePatterns(bool trueOrFalse) {
+
+  this->bPersistWhenPatternsInactive = (! trueOrFalse);
+
+  return *this;
+}
 
 // Brushes
 
@@ -99,4 +120,9 @@ qpPattern &qpLayer::pattern(byte patternIndex) {
   this->lastReferencedPattern = this->patterns.getItem(patternIndex);
 
   return *this->lastReferencedPattern;
+}
+
+qpPattern &qpLayer::operator()(byte patternIndex) {
+
+  return this->pattern(patternIndex);
 }

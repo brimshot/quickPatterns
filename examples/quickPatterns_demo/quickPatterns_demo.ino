@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *****************************************************/
 
-#include <Arduino.h>
+//#include <Arduino.h>
 
 #ifdef CORE_TEENSY
 #define FASTLED_ALLOW_INTERRUPTS 0
