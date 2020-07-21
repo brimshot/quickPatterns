@@ -20,8 +20,6 @@ void quickPatterns::draw() {
 
     this->nextTickMillis = (currentMillis + this->tickLengthInMillis);
 
-    this->currentTick++;
-
     this->lightStrand->clearMain();
 
     this->currentScene->draw(this->lightStrand->leds, this->lightStrand->numLeds);

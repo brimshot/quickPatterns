@@ -1,16 +1,21 @@
 #ifndef QUICK_PATTERNS_H
 #define QUICK_PATTERNS_H
 
-#define DIR_FORWARD 1
-#define DIR_REVERSE -1
-
 #include <Arduino.h>
 #include <qpLinkedList.h>
+#include <qpColor.h>
 #include <qpPattern.h>
 #include <qpLayer.h>
 #include <qpScene.h>
 #include <qpLightStrand.h>
-#include <qpColor.h>
+
+/**
+ *TODO:
+ * - ESP8266 flicker
+ * - Teensy 3.2 speed optimizations
+ * - Teensy 4.0 support
+ * - Shows
+ */
 
 class quickPatterns {
 
@@ -18,8 +23,6 @@ class quickPatterns {
 
     short tickLengthInMillis = 25;
     uint32_t nextTickMillis = 0;
-    uint32_t currentTick = 0;
-    uint32_t previousTick = 0;
 
     qpLightStrand *lightStrand;
 
@@ -34,7 +37,7 @@ class quickPatterns {
 
     quickPatterns(CRGB *leds, int numLeds);
 
-    // Rendering
+    // ~ Rendering
 
     void draw();
 
@@ -42,24 +45,36 @@ class quickPatterns {
       this->tickLengthInMillis = tickLengthMillis;
     }
 
-    // Access
 
-    qpPattern &pattern(byte patternIndex); //returns specified patter on layer 0
+    // ~ Config
+
     qpPattern &addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0
+
+
+    // ~ Access
+
+    // Patterns
+    qpPattern &pattern(byte patternIndex); //returns specified pattern on layer 0
+
+    // Layers
+    qpLayer &layer(byte layerIndex);
+
+    // Scenes
+    qpScene &newScene();
+    qpScene &scene(byte sceneIndex);
+
+    // Prev reference
+    qpScene &sameScene() { return *this->lastReferencedScene; }
+    qpLayer &sameLayer() { return this->sameScene().sameLayer(); }
     qpPattern &samePattern() { return this->sameScene().sameLayer().samePattern(); }
 
-    qpLayer &layer(byte layerIndex);
-    qpLayer &sameLayer() { return this->sameScene().sameLayer(); }
-
-    qpScene &scene(byte sceneIndex);
-    qpScene &newScene();
-    qpScene &sameScene() { return *this->lastReferencedScene; }
-
+    // Quick access operators
     qpPattern &operator()(byte layerIndex); //returns pattern 0 from the specified layer in scene 0
     qpPattern &operator()(byte sceneIndex, byte layerIndex); //returns pattern 0 from the specified layer in the specified scene
     qpPattern &operator()(byte sceneIndex, byte layerIndex, byte patternIndex);
 
-    // Scene navigation
+
+    // ~ Scene navigation
 
     void playScene(byte index);
     void nextScene();

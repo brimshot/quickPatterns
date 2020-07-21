@@ -35,40 +35,47 @@ class qpColor {
     void setColorDuration(int minPeriods, int maxPeriods);
     void updateColorPeriodically();
 
-    // Loaders
+    // Load routines
 
     void loadNextPaletteColorRandomly();
     void loadNextPaletteColorSequentially();
     void loadNextColorFromSetRandomly();
     void loadNextColorFromSetSequentially();
 
-    void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per config */ }
-
     void (qpColor::*loadNextColorFunction)(); // random or sequential
+
+    void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per config */ }
 
   public:
 
     qpColor(qpPattern *parentPattern);
 
-    void (qpColor::*updateColorFunction)(); // periodic or constant
+
+    // ~ Rendering
+
+    void (qpColor::*updateColorFunction)(); // periodic or nothing
 
     void _loadNextColor(); //calls appropriate load routine
 
-    CRGB getColor() {
-      return this->currentColor;
-    }
+    CRGB getColor() { return this->currentColor; }
 
-    // Color config interface
+
+    // ~ Config
+
+    // Direct config
+    
+    qpColor &setColorSet(CRGB *colorSet, byte numElements);
+    qpColor &setPalette(CRGBPalette16 colorPalette, byte stepSize);
+
+    // Color sequence
 
     qpColor &singleColor(CRGB color);
     qpColor &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize);
     qpColor &chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette);
     qpColor &chooseColorSequentiallyFromSet(CRGB *colorSet, byte numColorsInSet);
     qpColor &chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet);
-    qpColor &setColorSet(CRGB *colorSet, byte numElements);
-    qpColor &setPalette(CRGBPalette16 colorPalette, byte stepSize);
 
-    // Timing config interface
+    // Timing
 
     qpColor &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
     qpColor &changeColorEveryNCycles(int minCycles, int maxCycles = 0);

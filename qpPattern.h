@@ -3,8 +3,9 @@
 
 #include <FastLED.h>
 #include <qpLinkedList.h>
-#include <qpColor.h>
 
+#define DIR_FORWARD 1
+#define DIR_REVERSE -1
 
 class qpColor;
 
@@ -25,16 +26,16 @@ class qpPattern {
 
     int nextRenderTick = 0;
 
-    // Colors
+    // ~ Colors
 
-    qpLinkedList<qpColor> colors;
+    qpLinkedList <qpColor> colors;
     qpColor *lastReferencedColor;
 
     // Animation
 
     int ticksBetweenFrames = 1;
 
-    // Periodic activation
+    // ~ Periodic activation
 
     unsigned int minTicksBetweenActivations = 0;
     unsigned int maxTicksBetweenActivations = 0;
@@ -49,66 +50,63 @@ class qpPattern {
 
     void setActivePeriod(int minPeriods, int maxPeriods);
 
-    void (qpPattern::*updateActiveStatus)();
+    void (qpPattern::*activateIfConditionsMet)(); //periodically or nothing
     void activatePeriodically();
     void resetActivationTimer();
 
-    void (qpPattern::*deactivateCheck)();
-    void deactivateWhenActivePeriodOver();
+    void (qpPattern::*deactivateIfConditionsMet)(); //active period check or nothing
+    void deactivateIfActivePeriodComplete();
 
     void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per pattern config */ }
 
 
   protected:
 
-    // Members and methods to be used in pattern animation code
-
-    /*-->!! Note:
-    * _numLeds and _targetLeds are undefined (empty pointers) when the pattern constructors are called.
-    * Any pre-rendering calculations that require the number of LEDs to be known should be put in the initialize() function
-    */
+    // Members and methods used in pattern animation code
 
     CRGB *_targetLeds;
     int _numLeds = 0;
 
-    // Color values
+    virtual void draw() = 0; //called at each update interval, must be implemented by child classes
+
+    // ~ Color
 
     CRGB _getColor(byte index = 0);
 
-    // Animation util
 
-    inline bool _inBounds(int pos) {
-      return ((pos >= 0) && (pos < _numLeds));
-    }
+    //  ~ Animation util
 
-    inline void _countCycle() {
-      this->cycles++;
-    }
+    inline bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
 
-    inline void _clearLeds() {
-      fill_solid(_targetLeds, _numLeds, CRGB::Black);
-    }
+    inline void _countCycle() { this->cycles++; }
+
+    inline void _clearLeds() { fill_solid(_targetLeds, _numLeds, CRGB::Black); }
 
   public:
 
     qpPattern();
 
+    // ~ Setup
+
     void assignTargetLeds(CRGB *leds, int numLeds); // Called when pattern is added to layer
 
-    // These are the core animation functions to be implemented by the child classes
-
-    virtual void draw() = 0; //called at each update interval
+    /*-->!! Note:
+    * _numLeds and _targetLeds are undefined (empty pointers) when the pattern constructors are called.
+    * Any pre-rendering calculations that require the number of LEDs to be known should be put in the initialize() function
+    */
     virtual void initialize() { } // called once when pattern is created, after LEDs are assigned
-    
-    // Render hook for layer
 
+
+    // ~ Render
+
+    // Public render hook
     bool render();
 
     // Pattern speed
-
     qpPattern &drawEveryNTicks(int ticks);
 
-    // Periodic activation
+
+    // ~ Periodic activation
 
     qpPattern &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
 
@@ -118,11 +116,13 @@ class qpPattern {
 
     qpPattern &withChanceOfActivation(byte percentage);
 
-    // Colors
 
-    qpPattern &color(byte index);
+    // ~ Colors
+
+    qpPattern &color(byte index); //sets last referenced color ptr for continuing fluent config calls
     qpColor &sameColor() { return *this->lastReferencedColor; }
 
+    // Fluent config of last referenced color
     qpPattern &singleColor(CRGB color);
     qpPattern &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize = 3);
     qpPattern &chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette);
@@ -137,7 +137,8 @@ class qpPattern {
 
     qpPattern &withChanceToChangeColor(byte percentage);
 
-    // Status control
+
+    // ~ Status control
 
     bool activate();
     void deactivate();

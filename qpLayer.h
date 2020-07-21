@@ -1,25 +1,25 @@
 #ifndef QP_LAYER_H
 #define QP_LAYER_H
 
-enum QP_BRUSH_TYPE {ADD, SUBTRACT, COMBINE, OVERLAY, OVERWRITE, MASK};
-
 #include <qpLinkedList.h>
 #include <qpPattern.h>
+
+enum QP_BRUSH_TYPE {ADD, SUBTRACT, COMBINE, OVERLAY, OVERWRITE, MASK};
 
 class qpLayer {
 
   private:
 
-    qpLinkedList <qpPattern> patterns;
-
     CRGB *leds;
     int numLeds;
+
+    qpLinkedList <qpPattern> patterns;
+    qpPattern *lastReferencedPattern;
 
     int continualFadeAmount = 0;
     bool bPersistWhenPatternsInactive = true;
 
-    qpPattern *lastReferencedPattern;
-
+    // Brushes
     void addToLeds(CRGB *targetLeds, int numLeds);
     void subtractFromLeds(CRGB *targetLeds, int numLeds);
     void overlayOnLeds(CRGB *targetLeds, int numLeds);
@@ -27,49 +27,39 @@ class qpLayer {
     void combineWithLeds(CRGB *targetLeds, int numLeds);
     void maskLeds(CRGB *targetLeds, int numLeds);
 
-    void (qpLayer::*applyToLeds)(CRGB *leds, int numLeds);
+    void (qpLayer::*applyToLeds)(CRGB *leds, int numLeds); //pointer to selected brush function
 
   public:
 
-    qpLayer(CRGB *leds, int numLeds) : leds(leds), numLeds(numLeds) {
-      this->setLayerBrush(OVERLAY);
-      fill_solid(this->leds, this->numLeds, CRGB::Black);
-    }
+    qpLayer(CRGB *leds, int numLeds);
+
+    // ~ Setup
 
     void assignTargetLeds(CRGB *leds, int numLeds);
 
-    // Config
 
-    qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
+    // ~ Rendering
 
-    qpLayer &continuallyFadeLayerBy(int fadeAmount) {
-      this->continualFadeAmount = constrain(fadeAmount, 0, 255);
+    void draw(CRGB *targetLeds, int numLeds);
 
-      return *this;
-    }
 
-    qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true) {
-      this->bPersistWhenPatternsInactive = (! trueOrFalse);
-
-      return *this;
-    }
-
-    // Patterns
+    // ~ Config
 
     qpPattern &addPattern(qpPattern *pattern);
 
+    qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
+    qpLayer &continuallyFadeLayerBy(int fadeAmount);
+    qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true);
+
+
+    // ~ Access
+
+    // Patterns
     qpPattern &pattern(byte patternIndex);
-
-    qpPattern &operator()(byte patternIndex) {
-
-      return this->pattern(patternIndex);
-    }
-
     qpPattern &samePattern() { return *this->lastReferencedPattern; }
 
-    // Render
-
-    void draw(CRGB *targetLeds, int numLeds);
+    // Quick access operators
+    qpPattern &operator()(byte patternIndex);
 
 };
 
