@@ -189,4 +189,6 @@ qpColor &qpColor::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MO
 
 qpColor &qpColor::setPaletteStep(byte stepSize) {
       this->paletteStep = stepSize;
+
+      return *this;
 }     

@@ -141,7 +141,7 @@ void loop()
 
 ### Adding the patterns
 
-Once the quickPatterns controller has been instantiated you can use the addPattern() method and pass in a new instance of any class that inherits from the qpPattern class ([write your own](#writing-new-patterns) or use one of the [included patterns](#included-patterns))
+Once the quickPatterns controller has been instantiated you can use the addPattern() method and pass in a new instance of any class that inherits from the qpPattern class ([write your own](#writing-new-patterns) or use one of the [sample patterns](#sample-patterns))
 
 For example, a simple pulse of eight pixels that moves back and forth a string of lights:
 ```
@@ -256,24 +256,20 @@ Patterns are drawn using either a palette of colors or a single color per frame.
 
 ### Palettes
 
-For patterns that use a complete palette to render frames, the *usePalette()* method sets the palette to be used.
+For patterns that use a complete palette to render frames, the *usePalette()* method sets the palette to be used. Pass in any FastLED CRGBPalette16 object.
 
 ```
 quickPatterns.newScene().addPattern(new qpPaletteWave(5))
   .usePalette(RainbowColors_p);
 ```
 
-In the *draw()* step of any pattern, the function *_getPalette()* returns the configured palette for use in rendering, see [writing new patterns](#writing-new-patterns) for more details.
-
 ### One color per frame
 
-For patterns that draw one color per frame, the color drawn can be chosen one of three ways: retrieved from a color palette,  retrieved from a set of colors or set as a constant.
-
-The function *_getColor()* returns the current color value at the time of rendering, which can be configured
+For patterns that draw one color per frame, the color used can be configured to update one of three ways: retrieved from a color palette each frame, retrieved from a set of colors or set as a constant.
 
 #### Constant color
 
-To show a pattern using a single color, use the *singleColor()* method in the configuration chain
+To show a pattern using a single color, use the *singleColor()* method
 ```
 quickPatterns.addPattern(new qpComet(8))
   .singleColor(CRGB::Yellow); // Will always be yellow
@@ -281,15 +277,15 @@ quickPatterns.addPattern(new qpComet(8))
 
 #### Color from a palette
 
-Frame colors can chosen from palettes, either sequentially or randomly.
+Frame colors can be updated each frame from palettes, either sequentially or randomly.
 
-To configure a pattern to cycle through palette colors sequentially, use the *chooseColorFromPalette()* method. Pass in any CRGBPalette16 and the constnat *SEQUENTIAL* as the second argument.
+To configure a pattern to cycle through palette colors sequentially, use the *chooseColorFromPalette()* method. Pass in any CRGBPalette16 and the constant *SEQUENTIAL* as the second argument.
 ```
 quickPatterns.addPattern(new qpBouncingBars(10))
   .chooseColorFromPalette(RainbowColors_p, SEQUENTIAL);
 ```
 
-Each time the pattern is rendered, the next color from the palette will automatically be loaded into the value returned by *_getColor()*
+Each time the pattern is rendered, the next color from the palette will automatically be loaded for use in the pattern code (see [writing new patterns](#writing-new-patterns) for more details)
 
 Use the *setPaletteStep()* method to set the number of hues to jump when moving through the palette.
 
@@ -298,7 +294,8 @@ quickPatterns.addPattern(new qpComet(8))
   .chooseColorFromPalette(RainbowColors_p, SEQUENTIAL)
   .setPaletteStep(15); //jump 15 hues each color change
 ```
-If none provided, hue step will default to 3 which, giving a smooth gradient across the palette.
+
+Hue step defaults to 3 if no value specifically configured.
 
 For colors to be chosen randomly from the supplied palette, pass *RANDOM* as the second parameter to *chooseColorFromPalette*
 ```
@@ -319,7 +316,8 @@ myColorSet[0] = CRGB::Red;
 myColorSet[1] = CRGB::Yellow;
 myColorSet[2] = CRGB::Pink;
 ```
-You can now configure the pattern to use colors from the set using *chooseColorFromSet*
+
+You can now configure the pattern to use colors from the set using *chooseColorFromSet()*
 ```
 quickPatterns.addPattern(new qpComet(8))
   .chooseColorFromSet(myColorSet, 3, SEQUENTIAL);
