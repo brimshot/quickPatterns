@@ -716,17 +716,17 @@ qpPaletteBreathe(int speed)
 ```
 Fills strand with a moving gradient using palette set via *usePalette()* that fades in and out as per *speed* parameter
 
-**qpPaletteGradient**
-```
-qpPaletteGradient(int deltaX = 3, int deltaY = 1)
-```
-Fills the strand with a gradient using the palette set via *usePalette()*. deltaX is the change between hues each pixel. deltaY is the change in the initial hue each frame.
-
 **qpPaletteDissolve.h**
 ```
 qpPaletteBreathe(int speed)
 ```
 Waves of palette colors that move in and out as per *speed* parameter
+
+**qpPaletteGradient**
+```
+qpPaletteGradient(int deltaX = 3, int deltaY = 1)
+```
+Fills the strand with a gradient using the palette set via *usePalette()*. deltaX is the change between hues each pixel. deltaY is the change in the initial hue each frame.
 
 **qpPaletteTwinkle**
 ```
