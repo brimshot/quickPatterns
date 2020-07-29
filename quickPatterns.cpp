@@ -22,7 +22,18 @@ void quickPatterns::draw() {
 
     this->lightStrand->clearMain();
 
-    this->currentScene->draw(this->lightStrand->leds, this->lightStrand->numLeds);
+    this->currentScene->draw(this->lightStrand->getLeds(), this->lightStrand->getNumLeds());
+
+    //double render will be slooow and also overwrite any fades.....
+    /*
+    if(transitioning) {
+      this->nextScene->draw(this->sceneBuffer, this->numLeds());
+      if((*transitionFunction)()) {
+        transitioning = false;
+        this->currentScene = this->nextScene;
+      }
+    }
+    */
   }
 
 }

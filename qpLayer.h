@@ -19,7 +19,7 @@ class qpLayer {
     int continualFadeAmount = 0;
     bool bPersistWhenPatternsInactive = true;
 
-    // Brush functions
+    // Brushes
     void addToLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
     void subtractFromLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
     void overlayOnLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);

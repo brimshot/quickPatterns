@@ -1,4 +1,4 @@
-
+//rename to Chase ? or make Chase
 class qpTheaterChase : public qpPattern {
 
   private:

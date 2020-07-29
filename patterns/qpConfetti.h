@@ -5,7 +5,7 @@ class qpConfetti : public qpPattern {
     int spread;
 
   public:
-    qpConfetti(int spread = 30) {
+    qpConfetti(int spread) {
       this->spread = spread;
     }
 

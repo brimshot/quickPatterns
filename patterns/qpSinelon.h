@@ -8,7 +8,8 @@ class qpSinelon : public qpPattern {
     qpSinelon(byte speed) : speed(speed) {}
     
     void draw() {
-      int pos = beatsin16(this->speed, 0, _numLeds-1 );
+      
+      int pos = beatsin16(this->speed, 0, _numLeds-1);
       _targetLeds[pos] = _getColor();
     }
 

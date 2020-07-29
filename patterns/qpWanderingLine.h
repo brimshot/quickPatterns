@@ -1,4 +1,3 @@
-
 class qpWanderingLine : public qpPattern {
 
   private:
@@ -12,18 +11,18 @@ class qpWanderingLine : public qpPattern {
     }
 
     void chooseRandomDirection() {
-      this->dir = random8(100) > 50? 1:-1;
+      if(random8(100) > 50)
+        this->changeDirection();
     }
 
-    bool canMove() {
-      return _inBounds(this->pos) && _inBounds(this->pos + this->length);
+    void changeDirection() {
+      this->dir *= -1;
+      this->pos += (this->dir * this->length);
     }
 
   public:
 
-    qpWanderingLine(byte length) {
-      this->length = length;
-    }
+    qpWanderingLine(byte length) : length(length) {}
 
     void initialize() {
       // get an initial starting position
@@ -33,22 +32,15 @@ class qpWanderingLine : public qpPattern {
     }
 
     void draw() {
-
-      _clearLeds();
-
-      for(int i = 0; i < this->length; i++) {
-        if(_inBounds(this->pos + i))
-          _targetLeds[this->pos + i] = _getColor();
-      }
-
+  
       this->pos += this->dir;
 
-      this->dist--;
-
-      if(! this->canMove()) {
+       _targetLeds[this->pos] = _getColor();
+  
+      if(! _inBounds(this->pos)) {
         // We hit a boundary - reverse direction, calculate a new distance to roam and count a cycle
+        this->changeDirection();
         this->getNewDistance();
-        this->dir *= -1; // change direction
 
         _countCycle();
 
@@ -61,6 +53,10 @@ class qpWanderingLine : public qpPattern {
 
       }
 
+      if(_inBounds(this->pos - (this->length*this->dir)))
+          _targetLeds[(this->pos - (this->length*this->dir))] = CRGB::Black;
+
+      this->dist--;
 
     }
 

@@ -1,4 +1,4 @@
-
+//rename Cylon
 class qpBouncingBars : public qpPattern {
 
   private:

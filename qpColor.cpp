@@ -1,10 +1,13 @@
 #include <qpColor.h>
 
+DEFINE_GRADIENT_PALETTE( emptyPalette ) {0, 0, 0, 0};
+
 qpColor::qpColor(qpPattern *parentPattern) {
 
   this->parentPattern = parentPattern;
 
   this->currentColor = CRGB::Black;
+  this->colorPalette = emptyPalette;
 
   this->updateColorFunction = (&qpColor::doNothing);
   this->loadNextColorFunction = (&qpColor::doNothing);
@@ -44,47 +47,6 @@ qpColor &qpColor::singleColor(CRGB color) {
   this->currentColor = color;
   this->updateColorFunction = (&qpColor::doNothing);
   this->loadNextColorFunction = (&qpColor::doNothing);
-
-  return *this;
-}
-
-
-qpColor &qpColor::chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize) {
-
-  this->setPalette(colorPalette, stepSize);
-  this->loadNextColorFunction = (&qpColor::loadNextPaletteColorSequentially);
-
-  return *this;
-}
-
-
-qpColor &qpColor::chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette) {
-
-  this->setPalette(colorPalette, 0);
-  this->loadNextColorFunction = (&qpColor::loadNextPaletteColorRandomly);
-
-  // Initialize to a random color
-  this->loadNextPaletteColorRandomly();
-
-  return *this;
-}
-
-qpColor &qpColor::chooseColorSequentiallyFromSet(CRGB *colorSet, byte numColorsInSet) {
-
-  this->setColorSet(colorSet, numColorsInSet);
-  this->loadNextColorFunction = (&qpColor::loadNextColorFromSetSequentially);
-  this->loadNextColorFromSetSequentially();
-
-  return *this;
-}
-
-qpColor &qpColor::chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet) {
-
-  this->setColorSet(colorSet, numColorsInSet);
-  this->loadNextColorFunction = (&qpColor::loadNextColorFromSetRandomly);
-
-  // Initialize to a random color
-  this->loadNextColorFromSetRandomly();
 
   return *this;
 }
@@ -143,26 +105,6 @@ qpColor &qpColor::withChanceToChangeColor(byte percentage) {
 }
 
 
-// Direct config
-
-qpColor &qpColor::setPalette(CRGBPalette16 colorPalette, byte stepSize) {
-
-  this->colorPalette = colorPalette;
-  this->paletteStep = stepSize;
-  this->currentColor = ColorFromPalette(colorPalette, 0);
-
-  return *this;
-}
-
-qpColor &qpColor::setColorSet(CRGB *colorSet, byte numElements) {
-
-  this->colorSet = colorSet;
-  this->numColorsInSet = numElements;
-  this->colorSetIndex = 0;
-
-  return *this;
-}
-
 
 
 // Load color functions
@@ -189,3 +131,62 @@ void qpColor::loadNextColorFromSetRandomly() {
 
   this->currentColor = this->colorSet[random8(0, this->numColorsInSet)];
 }
+
+
+// Color set config TODO: finish
+
+
+qpColor &qpColor::useColorSet(CRGB *colorSet, byte numElements) {
+
+  this->colorSet = colorSet;
+  this->numColorsInSet = numElements;
+  this->colorSetIndex = 0;
+
+  return *this;
+}
+
+qpColor &qpColor::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
+
+  this->useColorSet(colorSet, numElements);
+
+  if(mode == RANDOM)
+    this->loadNextColorFunction = (&qpColor::loadNextColorFromSetRandomly);
+  else
+    this->loadNextColorFunction = (&qpColor::loadNextColorFromSetSequentially);
+
+  (this->*loadNextColorFunction)();
+
+  return *this;
+}
+
+
+// Palette config
+
+
+qpColor &qpColor::usePalette(CRGBPalette16 colorPalette) {
+
+  this->colorPalette = colorPalette;
+  this->currentColor = ColorFromPalette(colorPalette, 0);
+
+  return *this;
+}
+
+
+
+qpColor &qpColor::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
+
+  this->usePalette(colorPalette);
+
+  if(mode == RANDOM)
+    this->loadNextColorFunction = (&qpColor::loadNextPaletteColorRandomly);
+  else
+    this->loadNextColorFunction = (&qpColor::loadNextPaletteColorSequentially);
+
+  this->changeColorEveryNTicks(1);
+
+  return *this;
+}
+
+qpColor &qpColor::setPaletteStep(byte stepSize) {
+      this->paletteStep = stepSize;
+}     
