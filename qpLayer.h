@@ -20,23 +20,18 @@ class qpLayer {
     bool bPersistWhenPatternsInactive = true;
 
     // Brushes
-    void addToLeds(CRGB *targetLeds, int numLeds);
-    void subtractFromLeds(CRGB *targetLeds, int numLeds);
-    void overlayOnLeds(CRGB *targetLeds, int numLeds);
-    void overwriteLeds(CRGB *targetLeds, int numLeds);
-    void combineWithLeds(CRGB *targetLeds, int numLeds);
-    void maskLeds(CRGB *targetLeds, int numLeds);
+    void addToLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
+    void subtractFromLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
+    void overlayOnLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
+    void overwriteLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
+    void combineWithLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
+    void maskLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
 
-    void (qpLayer::*applyToLeds)(CRGB *leds, int numLeds); //pointer to selected brush function
+    void (qpLayer::*applyLeds)(CRGB *toLeds, CRGB *sourceLeds, int numLeds); //pointer to brush function
 
   public:
 
     qpLayer(CRGB *leds, int numLeds);
-
-    // ~ Setup
-
-    void assignTargetLeds(CRGB *leds, int numLeds);
-
 
     // ~ Rendering
 
@@ -47,10 +42,11 @@ class qpLayer {
 
     qpPattern &addPattern(qpPattern *pattern);
 
-    qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
     qpLayer &continuallyFadeLayerBy(int fadeAmount);
     qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true);
 
+    qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
+//    qpLayer &setLayerBrush(void (*brushFunc)(CRGB *toLeds, CRGB *sourceLeds, int numLeds));
 
     // ~ Access
 

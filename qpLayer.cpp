@@ -13,15 +13,14 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
   bool patternsRendered = false;
 
-  if(this->continualFadeAmount) //conceivably we prevent a loop that applies 0 to each led with this check
+  if(this->continualFadeAmount) //conceivably we prevent a loop applying 0 to each led with this check
     fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
 
   while(qpPattern *currentPattern = this->patterns.fetch())
         patternsRendered |= currentPattern->render();
 
   if(patternsRendered || this->bPersistWhenPatternsInactive)
-    (this->*applyToLeds)(targetLeds, numLeds);
-
+    (this->*applyLeds)(targetLeds, this->leds, numLeds);
 }
 
 // Config
@@ -50,65 +49,79 @@ qpLayer &qpLayer::hideWhenNoActivePatterns(bool trueOrFalse) {
   return *this;
 }
 
-// Brushes
+// Brush config
 
+//preset
 qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
 
   switch(brushType) {
     case ADD:
-      this->applyToLeds = &qpLayer::addToLeds;
+      this->applyLeds = &qpLayer::addToLeds;
       break;
     case SUBTRACT:
-      this->applyToLeds = &qpLayer::subtractFromLeds;
+      this->applyLeds = &qpLayer::subtractFromLeds;
       break;
     case OVERWRITE:
-      this->applyToLeds = &qpLayer::overwriteLeds;
+      this->applyLeds = &qpLayer::overwriteLeds;
       break;
     case OVERLAY:
-      this->applyToLeds = &qpLayer::overlayOnLeds;
+      this->applyLeds = &qpLayer::overlayOnLeds;
       break;
     case COMBINE:
-      this->applyToLeds = &qpLayer::combineWithLeds;
+      this->applyLeds = &qpLayer::combineWithLeds;
       break;
     case MASK:
-      this->applyToLeds = &qpLayer::maskLeds;
+      this->applyLeds = &qpLayer::maskLeds;
       break;
   }
 
   return *this;
 }
 
+//external brush assignment - TODO: would all brushes moved to external functions to implement
+/*
+qpLayer &qpLayer::setLayerBrush(void (*brushFunc)(CRGB *toLeds, CRGB *sourceLeds, int numLeds)) {
 
-void qpLayer::addToLeds(CRGB *targetLeds, int numLeds) {
+  this->applyLeds = brushFunc;
+
+  return *this;
+}
+*/
+
+
+// Brushes
+
+void qpLayer::addToLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++)
-    targetLeds[i] += this->leds[i];
+    targetLeds[i] += sourceLeds[i];
 }
 
 
-void qpLayer::subtractFromLeds(CRGB *targetLeds, int numLeds) {
+void qpLayer::subtractFromLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++)
-    targetLeds[i] -= this->leds[i];
+    targetLeds[i] -= sourceLeds[i];
 }
 
-void qpLayer::overlayOnLeds(CRGB *targetLeds, int numLeds) {
+void qpLayer::overlayOnLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++) {
-    if(this->leds[i] != CRGB(0, 0, 0)) //how costly is this.. ?
-      targetLeds[i] = this->leds[i];
+    if(sourceLeds[i] != CRGB(0, 0, 0)) 
+      targetLeds[i] = sourceLeds[i];
   }
 }
 
-void qpLayer::overwriteLeds(CRGB *targetLeds, int numLeds) {
-  memcpy(targetLeds, this->leds, (sizeof(CRGB)*numLeds));
+void qpLayer::overwriteLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
+  memcpy(targetLeds, sourceLeds, (sizeof(CRGB)*numLeds));
 }
 
-void qpLayer::combineWithLeds(CRGB *targetLeds, int numLeds) {
+void qpLayer::combineWithLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++)
-    targetLeds[i] = blend(targetLeds[i], this->leds[i], 128); //TODO: make this better
+    targetLeds[i] |= this->leds[i];
+//    targetLeds[i] = blend(targetLeds[i], sourceLeds[i], 128); //TODO: implement true rgb blend
 }
 
-void qpLayer::maskLeds(CRGB *targetLeds, int numLeds) {
+void qpLayer::maskLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++) {
-    targetLeds[i] -= -this->leds[i];
+    targetLeds[i] -= -sourceLeds[i];
   }
 }
 

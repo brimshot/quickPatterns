@@ -1,6 +1,10 @@
 #ifndef QUICK_PATTERNS_H
 #define QUICK_PATTERNS_H
 
+#ifndef QP_INCLUDE_PATTERNS
+#define QP_INCLUDE_PATTERNS 1
+#endif
+
 #include <Arduino.h>
 #include <qpLinkedList.h>
 #include <qpColor.h>
@@ -9,12 +13,20 @@
 #include <qpScene.h>
 #include <qpLightStrand.h>
 
+#if QP_INCLUDE_PATTERNS == 1
+#include <qpPatternFiles.h>
+#endif
+
 /**
  *TODO:
- * - ESP8266 flicker
- * - Teensy 3.2 speed optimizations
- * - Teensy 4.0 support
  * - Shows
+ * - Scene framerates
+ * - Fix blend / combine brush
+ * - Transitions 
+ * - Teensy 3.2 not working with single pattern?
+ * - Teensy 4.0 support
+ * - Linked colors
+ * - Linker fixes
  */
 
 class quickPatterns {
@@ -41,9 +53,7 @@ class quickPatterns {
 
     void draw();
 
-    void setTickMillis(int tickLengthMillis) {
-      this->tickLengthInMillis = tickLengthMillis;
-    }
+    void setTickMillis(int tickLengthMillis) { this->tickLengthInMillis = tickLengthMillis; }
 
 
     // ~ Config

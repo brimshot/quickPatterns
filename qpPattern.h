@@ -3,17 +3,21 @@
 
 #include <FastLED.h>
 #include <qpLinkedList.h>
+#include <qpColor.h>
 
 #define DIR_FORWARD 1
 #define DIR_REVERSE -1
 
 class qpColor;
+class qpLayer;
 
 class qpPattern {
 
   friend class qpColor;
 
   private:
+
+  qpLayer *parentLayer;
 
     bool isActive = true;
 
@@ -72,6 +76,7 @@ class qpPattern {
     // ~ Color
 
     CRGB _getColor(byte index = 0);
+    CRGBPalette16 _getPalette(byte index = 0);
 
 
     //  ~ Animation util
@@ -122,21 +127,22 @@ class qpPattern {
     qpPattern &color(byte index); //sets last referenced color ptr for continuing fluent config calls
     qpColor &sameColor() { return *this->lastReferencedColor; }
 
-    // Fluent config of last referenced color
     qpPattern &singleColor(CRGB color);
-    qpPattern &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize = 3);
-    qpPattern &chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette);
 
-    qpPattern &chooseColorSequentiallyFromSet(CRGB *colorSet, byte numColorsInSet);
-    qpPattern &chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet);
+    qpPattern &usePalette(CRGBPalette16 colorPalette);
+    qpPattern &chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
 
+    qpPattern &useColorSet(CRGB *colorSet, byte numColorsInSet);
+    qpPattern &chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
+
+
+    // Timing
     qpPattern &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
     qpPattern &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
     qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
     qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
 
     qpPattern &withChanceToChangeColor(byte percentage);
-
 
     // ~ Status control
 

@@ -21,7 +21,7 @@ class qpFeathers : public qpPattern {
           _targetLeds[this->startPos + (this->direction*i)] = _getColor();
       }
 
-      this->startPos += (this->size*this->direction);
+      this->startPos += ((this->size*0.75)*this->direction);
       if(! _inBounds(this->startPos)) {
         _countCycle();
         this->startPos = (this->direction == DIR_FORWARD? 0:_numLeds);

@@ -1,4 +1,3 @@
-
 class qpJuggle : public qpPattern {
 
   public:
@@ -6,7 +5,7 @@ class qpJuggle : public qpPattern {
     void draw() {
 
       for( int i = 0; i < 8; i++)
-        _targetLeds[beatsin16(i+7, 0, _numLeds - 1)] |= _getColor();
+        _targetLeds[beatsin16(i+7, 0, _numLeds - 1)] = _getColor();
     }
 
 };

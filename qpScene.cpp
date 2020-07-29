@@ -15,7 +15,7 @@ qpPattern &qpScene::addPattern(qpPattern *pattern) {
 
 qpLayer &qpScene::newLayer() {
 
-  this->lastReferencedLayer = this->layers.append(new qpLayer(this->lightStrand->getLedArray(this->layers.numElements), this->lightStrand->getNumLeds()));
+  this->lastReferencedLayer = this->layers.append(new qpLayer(this->lightStrand->getVirtualLeds(this->layers.numElements), this->lightStrand->getNumLeds()));
 
   return *this->lastReferencedLayer;
 }

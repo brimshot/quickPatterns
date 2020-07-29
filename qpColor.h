@@ -1,6 +1,8 @@
 #ifndef QP_COLOR_H
 #define QP_COLOR_H
 
+enum QP_COLOR_MODE {SEQUENTIAL, RANDOM};
+
 #include <qpPattern.h>
 
 class qpPattern;
@@ -16,8 +18,8 @@ class qpColor {
     // Color values
 
     CRGBPalette16 colorPalette;
+    byte paletteStep = 3; // amount to jump when using palette sequentially
     byte paletteIndex = 0;
-    byte paletteStep = 0;
 
     CRGB *colorSet;
     byte numColorsInSet = 0;
@@ -58,22 +60,21 @@ class qpColor {
     void _loadNextColor(); //calls appropriate load routine
 
     CRGB getColor() { return this->currentColor; }
+    CRGBPalette16 getPalette() { return this->colorPalette; }
 
 
     // ~ Config
 
-    // Direct config
-    
-    qpColor &setColorSet(CRGB *colorSet, byte numElements);
-    qpColor &setPalette(CRGBPalette16 colorPalette, byte stepSize);
-
     // Color sequence
 
     qpColor &singleColor(CRGB color);
-    qpColor &chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize);
-    qpColor &chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette);
-    qpColor &chooseColorSequentiallyFromSet(CRGB *colorSet, byte numColorsInSet);
-    qpColor &chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet);
+
+    qpColor &usePalette(CRGBPalette16 palette);
+    qpColor &chooseColorFromPalette(CRGBPalette16 palette, QP_COLOR_MODE mode);
+    qpColor &setPaletteStep(byte stepSize);
+    
+    qpColor &useColorSet(CRGB *colorSet, byte numElements);
+    qpColor &chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
 
     // Timing
 

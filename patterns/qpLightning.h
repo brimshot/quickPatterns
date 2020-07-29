@@ -1,5 +1,5 @@
 
-class qpFlashRandomSection : public qpPattern {
+class qpLightning : public qpPattern {
 
   private:
     int sectionSize;
@@ -12,7 +12,7 @@ class qpFlashRandomSection : public qpPattern {
     }
 
   public:
-    qpFlashRandomSection(int sectionSize, byte numFlashes = 8) {
+    qpLightning(int sectionSize, byte numFlashes = 8) {
       this->sectionSize = sectionSize;
       this->numFlashes = numFlashes;
       this->flashSteps = this->numFlashes*2;

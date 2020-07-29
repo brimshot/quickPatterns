@@ -13,6 +13,7 @@ qpPattern::qpPattern() {
 // ~ Render
 
 bool qpPattern::render() {
+//bool qpPattern::render(CRGB *targetLeds, int numLeds) {
 
   (this->*activateIfConditionsMet)();
 
@@ -36,7 +37,7 @@ bool qpPattern::render() {
     return true; //something was rendered
   }
 
-    return false; //nothing rendered
+  return false; //nothing rendered
 }
 
 
@@ -117,6 +118,10 @@ CRGB qpPattern::_getColor(byte index) {
    return this->colors.getItem(index)->getColor();
 }
 
+CRGBPalette16 qpPattern::_getPalette(byte index) {
+
+   return this->colors.getItem(index)->getPalette();
+}
 
 // ~ Periodic activation config
 
@@ -202,34 +207,21 @@ qpPattern &qpPattern::singleColor(CRGB color) {
 }
 
 
-qpPattern &qpPattern::chooseColorSequentiallyFromPalette(CRGBPalette16 colorPalette, byte stepSize) {
+qpPattern &qpPattern::usePalette(CRGBPalette16 colorPalette) {
 
-  this->sameColor().chooseColorSequentiallyFromPalette(colorPalette, stepSize);
-
-  return *this;
-}
-
-
-qpPattern &qpPattern::chooseColorRandomlyFromPalette(CRGBPalette16 colorPalette) {
-
-  this->sameColor().chooseColorRandomlyFromPalette(colorPalette);
+  this->sameColor().usePalette(colorPalette);
 
   return *this;
 }
 
-qpPattern &qpPattern::chooseColorSequentiallyFromSet(CRGB *colorSet, byte numColorsInSet) {
 
-  this->sameColor().chooseColorSequentiallyFromSet(colorSet, numColorsInSet);
+qpPattern &qpPattern::useColorSet(CRGB *colorSet, byte numColorsInSet){
 
-  return *this;
-}
-
-qpPattern &qpPattern::chooseColorRandomlyFromSet(CRGB *colorSet, byte numColorsInSet) {
-
-  this->sameColor().chooseColorRandomlyFromSet(colorSet, numColorsInSet);
+  this->sameColor().useColorSet(colorSet, numColorsInSet);
 
   return *this;
 }
+
 
 // Color timing
 
@@ -276,4 +268,23 @@ qpPattern &qpPattern::withChanceToChangeColor(byte percentage) {
 void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
   this->_targetLeds = leds;
   this->_numLeds = numLeds;
+}
+
+
+
+
+// ~ Palette config
+
+qpPattern &qpPattern::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
+
+  this->sameColor().chooseColorFromPalette(colorPalette, mode);
+
+  return *this;
+}
+
+qpPattern &qpPattern::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
+
+  this->sameColor().chooseColorFromSet(colorSet, numElements, mode);
+
+  return *this;
 }
