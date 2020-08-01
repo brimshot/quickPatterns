@@ -25,6 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *****************************************************/
 
+#ifdef CORE_TEENSY
+#define FASTLED_ALLOW_INTERRUPTS 0
+#endif
+
 #include <quickPatterns.h>
 
 #define CHIPSET     WS2812
@@ -48,7 +52,7 @@ void setup() {
 
   // ~ Configure FastLED
 
-  FastLED.addLeds<CHIPSET, 8, COLOR_ORDER>(leds, NUM_LEDS)
+  FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS)
     .setCorrection(TypicalLEDStrip)
     .setDither(BRIGHTNESS < 255);
 
@@ -60,15 +64,7 @@ void setup() {
 
   // ~ Configure quickPatterns
 
-  // Due to a potential latching issue when writing data, we use a hard delay for timing with the ESP8266
-  #ifdef ESP8266
-  quickPatterns.setTickMillis(0);
-  #endif
-
-  #ifndef ESP8266
   quickPatterns.setTickMillis(TICKLENGTH);
-  #endif
-
 
   // ~ Scene 0 - demonstrates running simultaneous patterns at differing speeds, the same bouncing bars pattern with 3 different configurations will weave in and out of sync
 
@@ -127,7 +123,7 @@ void setup() {
   CRGB *pulseColors = new CRGB[3];
   pulseColors[0] = CRGB::Blue;
   pulseColors[1] = CRGB::Yellow;
-  pulseColors[2] = CRGB::Pink;
+  pulseColors[2] = CRGB::DeepPink;
 
   // small line of pixels that bounces back and forth
   quickPatterns.sameScene().addPattern(new qpComet(8))
@@ -174,8 +170,8 @@ void setup() {
   quickPatterns.sameLayer().setLayerBrush(MASK).continuallyFadeLayerBy(10);
 
   // small pink runner on top
-  quickPatterns.sameScene().addPattern(new qpComet(5))
-    .singleColor(CRGB::HotPink);
+  quickPatterns.sameScene().addPattern(new qpComet(5, true))
+    .singleColor(CRGB::DeepPink);
 
 }
 
@@ -183,13 +179,9 @@ void setup() {
 void loop()
 {
 
-  quickPatterns.draw();
-  FastLED.show();
-
-  //On ESP8266 boards due to FastLED latching / write issue, we set our 'tick' length to 0 (see above) and manage the global update speed via hard delay
-  #ifdef ESP8266
-  FastLED.delay(TICKLENGTH);
-  #endif
+  // Refresh lights only when new frame data available, prevents issues with data timing on fast processors
+  if(quickPatterns.draw())
+      FastLED.show();
 
   EVERY_N_SECONDS(30) {
     quickPatterns.nextScene();

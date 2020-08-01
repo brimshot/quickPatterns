@@ -32,11 +32,11 @@ SOFTWARE.
 #include <quickPatterns.h>
 
 #define CHIPSET     WS2811
-#define PIN_A       8
+#define DATA_PIN    8
 #define NUM_LEDS    100
 #define BRIGHTNESS  32
 #define COLOR_ORDER RGB         //GRB for WS2812, RGB for WS2811
-#define TICKLENGTH  20
+#define TICKLENGTH  25
 
 CRGB leds[NUM_LEDS];
 
@@ -50,7 +50,7 @@ void setup() {
 
   // ~ Configure FastLED
 
-  FastLED.addLeds<CHIPSET, PIN_A, COLOR_ORDER>(leds, NUM_LEDS)
+  FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS)
     .setCorrection(TypicalLEDStrip)
     .setDither(BRIGHTNESS < 255);
 
@@ -62,11 +62,6 @@ void setup() {
   // ~ Configure quickPatterns
 
   quickPatterns.setTickMillis(TICKLENGTH);
-
-  // Due to a potential latching issue when writing data, we use a hard delay for timing with the ESP8266
-  #ifdef ESP8266
-  quickPatterns.setTickMillis(0);
-  #endif
 
   // ~
 
@@ -117,21 +112,15 @@ void setup() {
   quickPatterns.sameScene().addPattern(new qpWanderingLine(30))
     .singleColor(CRGB::White);
   quickPatterns.sameLayer().setLayerBrush(MASK);    
-  
-
-
 
 }
 
 void loop()
 {
 
-  quickPatterns.draw();
-  FastLED.show();
-
-  #ifdef ESP8266
-  FastLED.delay(25);
-  #endif
+  // Refresh lights only when new frame data available, prevents issues with data timing on fast processors
+  if(quickPatterns.draw())
+    FastLED.show();
 
   EVERY_N_SECONDS(30) {
     quickPatterns.nextScene();
