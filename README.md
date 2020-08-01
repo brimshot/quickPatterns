@@ -63,14 +63,7 @@ void setup() {
 
   // ~ Configure quickPatterns
 
-  // Due to a potential latching issue when writing data, we use a hard delay for timing with the ESP8266
-  #ifdef ESP8266
-  quickPatterns.setTickMillis(0);
-  #endif
-
-  #ifndef ESP8266
   quickPatterns.setTickMillis(TICKLENGTH);
-  #endif
 
   //cylon of 8 pixels that cycles through the rainbow
   quickPatterns.addPattern(new qpBouncingBars(8))
@@ -86,12 +79,9 @@ void setup() {
 
 void loop()
 {
-  quickPatterns.draw();
-  FastLED.show();
-
-  #ifdef ESP8266
-  FastLED.delay(TICKLENGTH);
-  #endif
+  // Refresh lights only when new frame data available, prevents issues with data timing on fast processors
+  if(quickPatterns.draw())
+    FastLED.show();
 }
 ```
 
@@ -130,12 +120,14 @@ void setup() {
 }
 ```
 
-Finally, in your *loop()* function, call the *draw()* method of the quickPatterns controller and then FastLED.show()
+Finally, in your *loop()* function, call the *draw()* method of the quickPatterns controller and then FastLED.show() when new frame data is available (*draw()* returns true).
+
 ```
 void loop()
 {
-  quickPatterns.draw();
-  FastLED.show();
+  // Refresh lights only when new frame data available, prevents issues with data timing on fast processors
+  if(quickPatterns.draw())
+    FastLED.show();
 }
 ```
 
@@ -765,4 +757,4 @@ Section of lights of length *size* that move back and forth randomly along the l
 ---
 Copyright (c) 2020 Chris Brim
 
-Tested platforms: ESP8266, ESP32, Teensy 3.2, Arduino Mega
+Tested platforms: ESP8266, ESP32, Teensy 3.2, Teensy 4.0, Arduino Mega

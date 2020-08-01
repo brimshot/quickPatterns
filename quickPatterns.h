@@ -51,7 +51,7 @@ class quickPatterns {
 
     // ~ Rendering
 
-    void draw();
+    bool draw();
 
     void setTickMillis(int tickLengthMillis) { this->tickLengthInMillis = tickLengthMillis; }
 

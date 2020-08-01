@@ -12,7 +12,7 @@ quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
 
 // Render
 
-void quickPatterns::draw() {
+bool quickPatterns::draw() {
 
   uint32_t currentMillis = millis();
 
@@ -24,17 +24,10 @@ void quickPatterns::draw() {
 
     this->currentScene->draw(this->lightStrand->getLeds(), this->lightStrand->getNumLeds());
 
-    //double render will be slooow and also overwrite any fades.....
-    /*
-    if(transitioning) {
-      this->nextScene->draw(this->sceneBuffer, this->numLeds());
-      if((*transitionFunction)()) {
-        transitioning = false;
-        this->currentScene = this->nextScene;
-      }
-    }
-    */
+    return true;
   }
+
+  return false;
 
 }
 
