@@ -48,7 +48,8 @@ class quickPatterns {
   public:
 
     quickPatterns(CRGB *leds, int numLeds);
-
+    ~quickPatterns();
+    
     // ~ Rendering
 
     bool draw();
