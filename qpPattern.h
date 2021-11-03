@@ -41,6 +41,7 @@ class qpPattern {
 
     // ~ Periodic activation
 
+    bool removeOnDeactivation = false;
     unsigned int minTicksBetweenActivations = 0;
     unsigned int maxTicksBetweenActivations = 0;
     unsigned int ticksUntilActive = 0;
@@ -112,7 +113,7 @@ class qpPattern {
 
 
     // ~ Periodic activation
-
+    qpPattern &removeWhenDeactivated(bool value);
     qpPattern &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
 
     qpPattern &stayActiveForNTicks(int minTicks, int maxTicks = 0);
@@ -148,7 +149,7 @@ class qpPattern {
 
     bool activate();
     void deactivate();
-
+    bool shouldRemoveWhenDecativated();
 };
 
 #endif

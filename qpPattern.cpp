@@ -95,6 +95,10 @@ void qpPattern::deactivateIfActivePeriodComplete() {
 
 }
 
+bool qpPattern::shouldRemoveWhenDecativated() {
+  return this->removeOnDeactivation;
+}
+
 //direct external control
 void qpPattern::deactivate() {
 
@@ -124,6 +128,10 @@ CRGBPalette16 qpPattern::_getPalette(byte index) {
 }
 
 // ~ Periodic activation config
+
+qpPattern &qpPattern::removeWhenDeactivated(bool value) {
+  this->removeOnDeactivation = value;
+}
 
 qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
 
