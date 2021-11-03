@@ -23,6 +23,16 @@ private:
 
 public:
 
+    ~qpLinkedList() {
+      qpListNode <T> *cur = firstElement;
+      while(cur) {
+        qpListNode <T> *next = cur->next;
+        delete cur->item;
+        delete cur;
+        cur = next;
+      }
+    }
+
     byte numElements = 0;
 
     T *getItem(int index) {
@@ -100,7 +110,7 @@ public:
             this->lastElement = current->next;
           }
 
-          // We are only deleting the node. The caller must delete the item appropriately.
+          delete current->item;
           delete current;
           return true;
         }

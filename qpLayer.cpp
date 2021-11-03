@@ -23,12 +23,11 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
     // If this pattern isn't active and it's configured to auto delete when finished,
     // then destroy and remove from the patterns linked list.
     if(!isActive && currentPattern->shouldRemoveWhenDecativated()) {
-        this->patterns.remove(currentPattern);
-        // If this is considered the lastReferencedPattern, updated it.
+      // If this is considered the lastReferencedPattern, updated it.
         if(currentPattern == this->lastReferencedPattern) {
           this->lastReferencedPattern = nullptr;
         }
-        delete currentPattern;
+        this->patterns.remove(currentPattern);
     }
   }
 
