@@ -131,6 +131,8 @@ CRGBPalette16 qpPattern::_getPalette(byte index) {
 
 qpPattern &qpPattern::removeWhenDeactivated(bool value) {
   this->removeOnDeactivation = value;
+  
+  return *this;
 }
 
 qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
