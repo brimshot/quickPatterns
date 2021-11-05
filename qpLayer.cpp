@@ -16,8 +16,20 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
   if(this->continualFadeAmount) //conceivably we prevent a loop applying 0 to each led with this check
     fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
 
-  while(qpPattern *currentPattern = this->patterns.fetch())
-        patternsRendered |= currentPattern->render();
+  while(qpPattern *currentPattern = this->patterns.fetch()) {
+    bool isActive = currentPattern->render();
+    patternsRendered |= isActive;
+
+    // If this pattern isn't active and it's configured to auto delete when finished,
+    // then destroy and remove from the patterns linked list.
+    if(!isActive && currentPattern->shouldRemoveWhenDecativated()) {
+      // If this is considered the lastReferencedPattern, updated it.
+        if(currentPattern == this->lastReferencedPattern) {
+          this->lastReferencedPattern = nullptr;
+        }
+        this->patterns.remove(currentPattern);
+    }
+  }
 
   if(patternsRendered || this->bPersistWhenPatternsInactive)
     (this->*applyLeds)(targetLeds, this->leds, numLeds);

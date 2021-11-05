@@ -9,6 +9,9 @@ quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
   random16_add_entropy(analogRead(0));
 }
 
+quickPatterns::~quickPatterns() {
+  delete this->lightStrand;
+}
 
 // Render
 

@@ -23,6 +23,16 @@ private:
 
 public:
 
+    ~qpLinkedList() {
+      qpListNode <T> *cur = firstElement;
+      while(cur) {
+        qpListNode <T> *next = cur->next;
+        delete cur->item;
+        delete cur;
+        cur = next;
+      }
+    }
+
     byte numElements = 0;
 
     T *getItem(int index) {
@@ -72,6 +82,44 @@ public:
 
       return itemToReturn;
 
+    }
+
+    // Removes an item from the linked list.
+    bool remove(T *itemToRemove) {
+      qpListNode <T> *current = this->firstElement;
+      qpListNode <T> *previous = nullptr;
+
+      while(current) {
+
+        if(current->item == itemToRemove) {
+          // If this node is currently marked as the "current node", update it.
+          if(this->currentElement == current) {
+            this->currentElement = current->next;
+          }
+
+          // update the previous node to point to the new item
+          if(previous) {
+            previous->next = current->next;
+          }
+
+          // Update the first/last items
+          if(current == this->firstElement) {
+            this->firstElement = previous;
+          }
+          if(current == this->lastElement) {
+            this->lastElement = current->next;
+          }
+
+          delete current->item;
+          delete current;
+          return true;
+        }
+
+        previous = current;
+        current = current->next;
+      }
+
+      return false;
     }
 
 };
