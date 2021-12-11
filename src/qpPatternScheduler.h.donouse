@@ -1,0 +1,135 @@
+#ifndef QP_SCHEDULER_H
+#define QP_SCHEDULER_H
+
+#include <Arduino.h>
+
+class qpPattern;
+
+class qpPatternController {
+
+    private:
+
+        qpPattern *pattern;
+
+        bool patternIsActive = true;
+
+        unsigned int ticks = 0;
+        unsigned int nextRenderTick = 0;
+        unsigned int ticksBetweenFrames = 1;
+
+        bool patternShouldActivatePeriodically = false;
+
+        unsigned int ticksUntilNextActivation = 0;
+        unsigned int minTicksBetweenActivations = 0;
+        unsigned int maxTicksBetweenActivations = 0;
+        byte chanceToActivatePattern = 0;
+        bool removeOnDeactivation = false;
+
+        int *activePeriodsCounter;
+        unsigned int periodsToStayActive = 0;
+        unsigned int periodCountAtLastActivation = 0;
+        unsigned int minPeriodsToStayActive = 1;
+        unsigned int maxPeriodsToStayActive = 0;
+
+        bool patternShouldActivate();
+        bool patternShouldDeactivate();
+
+        void setActivePeriod(int minPeriods, int maxPeriods);
+        void resetActivationTimer();
+
+    public:
+
+        qpPatternController(newQpPattern *p) {
+            this->pattern = p;
+        }
+
+        bool render() final;
+
+        qpPatternController &drawEveryNTicks(int ticks);
+
+        // ~ Scheduling
+        qpPattern &removeWhenDeactivated(bool value);
+        qpPattern &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
+        qpPattern &stayActiveForNTicks(int minTicks, int maxTicks = 0);
+        qpPattern &stayActiveForNFrames(int minUpdates, int maxUpdates = 0);
+        qpPattern &stayActiveForNCycles(int minCycles, int maxCycles = 0);
+        qpPattern &withChanceOfActivation(byte percentage);
+
+        // Color seems like it belongs back on the pattern - it only passes through to pattern
+        // But how to handle fluent interface
+        // ~ Colors
+
+        qpPattern &singleColor(CRGB color);
+        qpPattern &setPalette(CRGBPalette16 colorPalette);
+        qpPatternController &chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
+        qpPatternController &chooseColorFromPaletteSequentually(CRGBPalette16 *colorPalette);
+        qpPatternController &chooseColorFromPaletteRandomly(CRGBPalette16 *colorPalette);
+
+        qpPattern &useColorSet(CRGB *colorSet, byte numColorsInSet);
+        qpPattern &chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
+        qpPattern &chooseColorFromSetSequentially(CRGB *colorSet, byte numElements);
+        qpPattern &chooseColorFromSetRandomly(CRGB *colorSet, byte numElements);
+
+        // Timing
+        qpPattern &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
+        qpPattern &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
+        qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
+        qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
+
+        qpPattern &withChanceToChangeColor(byte percentage);
+
+        // ~ Status control
+
+        bool activate();
+        void deactivate();
+        bool shouldRemoveWhenDecativated();
+
+    /**
+     * @brief 
+     * 
+     * @return true 
+     * @return false 
+     */
+
+
+    qpPatternController &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
+
+        this->patternIsActive = false;
+        this->activatePatternPeriodically = true;
+
+        this->minTicksBetweenActivations = minTicks;
+        this->maxTicksBetweenActivations = maxTicks;
+
+        this->resetActivationTimer();
+
+        return *this;
+    }
+
+
+   qpPatternController &stayActiveForNFrames(int minUpdates, int maxUpdates) {
+
+//        this->getActivePeriodCount = &this->pattern->getFrames;
+        this->activePeriodCounter = &this->pattern->frames;
+        this->setActivePeriod(minUpdates, maxUpdates);
+
+        return *this;
+    }
+
+    /*
+
+        myShow.do(&quickPatterns.nextScene).whenFEquals(myPattern.getFrames, 3)
+    */
+
+    qpPatternController &changeColorEveryNTicks(int minTicks, int maxTicks) {
+
+        this->pattern->sameColor().changeColorEveryNTicks(minTicks, maxTicks);
+
+        return *this;
+    }
+
+};
+
+
+
+
+#endif

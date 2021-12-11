@@ -8,10 +8,10 @@ class qpFeathers : public qpPattern {
     int startPos = 0;
 
   public:
-    qpFeathers(int size, int direction = DIR_FORWARD) : size(size), direction(direction) {}
+    qpFeathers(int size, int direction = 1) : size(size), direction(direction) {}
 
     void initialize() {
-      this->startPos = (this->direction == DIR_FORWARD? 0:_numLeds);
+      this->startPos = (this->direction == 1? 0:_numLeds);
     }
 
     void draw() {
@@ -24,7 +24,7 @@ class qpFeathers : public qpPattern {
       this->startPos += ((this->size*0.75)*this->direction);
       if(! _inBounds(this->startPos)) {
         _countCycle();
-        this->startPos = (this->direction == DIR_FORWARD? 0:_numLeds);
+        this->startPos = (this->direction == 1? 0:_numLeds);
       }
     }
 

@@ -1,20 +1,41 @@
 #ifndef QP_LAYER_H
 #define QP_LAYER_H
 
-#include <qpLinkedList.h>
-#include <qpPattern.h>
+#include "qpEnums.h"
+#include "qpLinkedList.h"
+#include "qpPattern.h"
+#include "qpLayerEffect.h"
 
-enum QP_BRUSH_TYPE {ADD, SUBTRACT, COMBINE, OVERLAY, OVERWRITE, MASK};
+/*
+ * Layer events (messaging queue)
+ *
+ * Layer effects:
+ *
+ * - Breathe
+ * - Reverse (timing)
+ * 
+ */
+
 
 class qpLayer {
 
   private:
 
+//    (void *) cycleEvents[];
+//    qpPattern &addLayerEffect(qpLayerEffect *effect);
+
+    int layerId;
+
     CRGB *leds;
     int numLeds;
 
+//    qpLinkedList <qpPatternController> patternControllers;
+//    qpPatternController *lastReferencedPatternColor;
+
     qpLinkedList <qpPattern> patterns;
     qpPattern *lastReferencedPattern;
+
+    qpLinkedList <qpLayerEffect> effects;
 
     int continualFadeAmount = 0;
     bool bPersistWhenPatternsInactive = true;
@@ -31,7 +52,7 @@ class qpLayer {
 
   public:
 
-    qpLayer(CRGB *leds, int numLeds);
+    qpLayer(CRGB *leds, int numLeds, int layerId);
 
     // ~ Rendering
 
@@ -41,6 +62,9 @@ class qpLayer {
     // ~ Config
 
     qpPattern &addPattern(qpPattern *pattern);
+
+    // qpLayer &removePattern(qpPattern *pattern);
+    // qpLayer &removePatternAtIndex(int patternIndex);
 
     qpLayer &continuallyFadeLayerBy(int fadeAmount);
     qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true);

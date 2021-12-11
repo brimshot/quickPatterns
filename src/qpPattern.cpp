@@ -1,58 +1,42 @@
-#include <qpPattern.h>
-#include <qpColor.h>
+#include "qpPattern.h"
 
-
+//TODO: this gets called as well as the child constructor?
 qpPattern::qpPattern() {
-
-  this->activateIfConditionsMet = (&qpPattern::doNothing);
-  this->deactivateIfConditionsMet = (&qpPattern::doNothing);
-
-  this->lastReferencedColor = this->colors.append(new qpColor(this));
+  this->_color = new qpColor();
 }
 
 // ~ Render
 
 bool qpPattern::render() {
-//bool qpPattern::render(CRGB *targetLeds, int numLeds) {
 
-  (this->*activateIfConditionsMet)();
-
-  if(this->isActive) {
-
-    if(this->ticks == this->nextRenderTick) {
-      this->updates++;
-      this->nextRenderTick += this->ticksBetweenFrames;
-      
-      this->draw();
+    if(this->patternShouldActivatePeriodically) {
+        if(this->patternShouldActivate()) {
+            this->activate();
+            this->resetActivationTimer();
+        }
     }
 
-    //update colors after rendering frame so not to skip initial color
-    while(qpColor *currentColor = this->colors.fetch())
-      (currentColor->*(currentColor->updateColorFunction))();
-
-    this->ticks++;
+    if(this->isActive) {
+        if(this->ticks == this->nextRenderTick) {
+            this->frames++;
+            this->draw();
+            this->nextRenderTick += this->ticksBetweenFrames;                    
+        }
     
-    (this->*deactivateIfConditionsMet)();
+        this->_color->update();
 
-    return true; //something was rendered
-  }
+        this->ticks++;
 
-  return false; //nothing rendered
-}
+        if(this->patternShouldActivatePeriodically) {
+            if(this->patternShouldDeactivate()) {
+                this->deactivate();
+            }
+        }
 
+        return true;
+    }
 
-void qpPattern::activatePeriodically() {
-
-  if(this->isActive)
-    return;
-
-  if(this->ticksUntilActive > 0) {
-    this->ticksUntilActive--;
-    return;
-  }
-
-  this->activate();
-  this->resetActivationTimer(); 
+    return false;
 }
 
 
@@ -88,20 +72,12 @@ void qpPattern::resetActivationTimer() {
     this->ticksUntilActive = this->minTicksBetweenActivations;
 }
 
-void qpPattern::deactivateIfActivePeriodComplete() {
-
-  if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive)
-      this->deactivate();
-
-}
-
 bool qpPattern::shouldRemoveWhenDecativated() {
   return this->removeOnDeactivation;
 }
 
 //direct external control
 void qpPattern::deactivate() {
-
   this->isActive = false;
 }
 
@@ -113,18 +89,22 @@ qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 
   this->ticksBetweenFrames = ticks;
 
+  if(this->nextRenderTick == 0)
+      this->nextRenderTick += this->ticksBetweenFrames;
+
   return *this;
 }
 
 // Color to draw
 CRGB qpPattern::_getColor(byte index) {
 
-   return this->colors.getItem(index)->getColor();
+  return this->_color->getColor();
+//   return this->colors.getItem(index)->getColor();
 }
 
 CRGBPalette16 qpPattern::_getPalette(byte index) {
 
-   return this->colors.getItem(index)->getPalette();
+   return this->_color->getPalette();
 }
 
 // ~ Periodic activation config
@@ -139,9 +119,10 @@ qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks
 
   this->isActive = false;
 
+  this->patternShouldActivatePeriodically = true;
+
   this->minTicksBetweenActivations = minTicks;
   this->maxTicksBetweenActivations = maxTicks;
-  this->activateIfConditionsMet = (&qpPattern::activatePeriodically);
 
   this->resetActivationTimer();
 
@@ -161,7 +142,7 @@ qpPattern &qpPattern::stayActiveForNTicks(int minTicks, int maxTicks) {
 
 qpPattern &qpPattern::stayActiveForNFrames(int minUpdates, int maxUpdates) {
 
-  this->activePeriodsCounter = &this->updates;
+  this->activePeriodsCounter = &this->frames;
   this->setActivePeriod(minUpdates, maxUpdates);
 
   return *this;
@@ -189,29 +170,16 @@ void qpPattern::setActivePeriod(int minPeriods, int maxPeriods) {
 
   this->currentPeriodsToStayActive = this->minPeriodsToStayActive = max(1, minPeriods);
   this->maxPeriodsToStayActive = max(0, maxPeriods);
-
-  this->deactivateIfConditionsMet = (&qpPattern::deactivateIfActivePeriodComplete);
 }
 
 
 
 // ~ Color config
 
-//sets lastreferenced ptr so fluent chain can continue
-qpPattern &qpPattern::color(byte index) {
-
-  if(index > (this->colors.numElements - 1))
-    this->lastReferencedColor = this->colors.append(new qpColor(this));
-  else  
-    this->lastReferencedColor = this->colors.getItem(index);
-
-  return *this; 
-}
-
 
 qpPattern &qpPattern::singleColor(CRGB color) {
 
-  this->sameColor().singleColor(color);
+  this->_color->singleColor(color);
 
   return *this;
 }
@@ -219,7 +187,7 @@ qpPattern &qpPattern::singleColor(CRGB color) {
 
 qpPattern &qpPattern::usePalette(CRGBPalette16 colorPalette) {
 
-  this->sameColor().usePalette(colorPalette);
+  this->_color->usePalette(colorPalette);
 
   return *this;
 }
@@ -227,7 +195,7 @@ qpPattern &qpPattern::usePalette(CRGBPalette16 colorPalette) {
 
 qpPattern &qpPattern::useColorSet(CRGB *colorSet, byte numColorsInSet){
 
-  this->sameColor().useColorSet(colorSet, numColorsInSet);
+  this->_color->useColorSet(colorSet, numColorsInSet);
 
   return *this;
 }
@@ -237,7 +205,8 @@ qpPattern &qpPattern::useColorSet(CRGB *colorSet, byte numColorsInSet){
 
 qpPattern &qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
-  this->sameColor().changeColorEveryNTicks(minTicks, maxTicks);
+  this->_color->setPeriodCounter(&this->ticks);
+  this->_color->setColorDuration(minTicks, maxTicks);
 
   return *this;
 }
@@ -245,35 +214,38 @@ qpPattern &qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
 qpPattern &qpPattern::changeColorEveryNCycles(int minCycles, int maxCycles) {
 
-  this->sameColor().changeColorEveryNCycles(minCycles, maxCycles);
+  this->_color->setPeriodCounter(&this->cycles);
+  this->_color->setColorDuration(minCycles, maxCycles);
 
   return *this;
 }
 
 qpPattern &qpPattern::changeColorEveryNFrames(int minFrames, int maxFrames) {
 
-  this->sameColor().changeColorEveryNFrames(minFrames, maxFrames);
+  this->_color->setPeriodCounter(&this->frames);
+  this->_color->setColorDuration(minFrames, maxFrames);
 
   return *this;
 }
 
 qpPattern &qpPattern::changeColorEveryNActivations(int minActivations, int maxActivations) {
 
-  this->sameColor().changeColorEveryNActivations(minActivations, maxActivations);
+  this->_color->setPeriodCounter(&this->activations);
+  this->_color->setColorDuration(minActivations, maxActivations);
 
   return *this;
 }
 
 qpPattern &qpPattern::withChanceToChangeColor(byte percentage) {
 
-  this->sameColor().withChanceToChangeColor(percentage);
+  this->_color->withChanceToChangeColor(percentage);
 
   return *this;
 }
 
 
 
-// Setup - called by Layer
+// Setup - called by Layer. Separate injection method allows user defined constructor
 
 void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
   this->_targetLeds = leds;
@@ -287,14 +259,54 @@ void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
 
 qpPattern &qpPattern::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
 
-  this->sameColor().chooseColorFromPalette(colorPalette, mode);
+  this->_color->chooseColorFromPalette(colorPalette, mode);
 
   return *this;
 }
 
 qpPattern &qpPattern::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
 
-  this->sameColor().chooseColorFromSet(colorSet, numElements, mode);
+  this->_color->chooseColorFromSet(colorSet, numElements, mode);
 
   return *this;
+}
+
+
+/*
+// ~ Events
+
+void qpPattern::handleEvent(qpPatternEvents::Event e) {
+    while(qpPatternEvents::EventHook *h = this->eventHooks.fetch()) {
+      if((e.layerIndex == h->layerIndex) && (e.patternIndex == h->patternIndex) && (e.event == h->event)) {
+        (*h->action)();
+        break;
+      }
+    }
+
+}
+*/
+
+
+
+
+
+
+bool qpPattern::patternShouldActivate() {
+
+    if(this->isActive)
+        return false;
+
+    if(this->ticksUntilActive > 0) {
+        this->ticksUntilActive--;
+        return false;
+    }
+
+    return true;
+}
+
+bool qpPattern::patternShouldDeactivate() {
+    if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive)
+        return true;
+
+    return false;
 }

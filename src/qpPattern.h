@@ -2,51 +2,37 @@
 #define QP_PATTERN_H
 
 #include <FastLED.h>
-#include <qpLinkedList.h>
-#include <qpColor.h>
-
-#define DIR_FORWARD 1
-#define DIR_REVERSE -1
-
-class qpColor;
-class qpLayer;
+#include "qpLinkedList.h"
+#include "qpEnums.h"
+#include "qpColor.h"
 
 class qpPattern {
 
-  friend class qpColor;
-
   private:
 
-  qpLayer *parentLayer;
+    // ~ Color
 
-    bool isActive = true;
+    qpColor *_color;
 
-    // Period counters
-
-    int ticks = 0;
-    int updates = 0;
-    int cycles = 0;
-    int activations = 0;
-
-    int nextRenderTick = 0;
-
-    // ~ Colors
-
-    qpLinkedList <qpColor> colors;
-    qpColor *lastReferencedColor;
-
-    // Animation
+    // ~ Animation speed
 
     int ticksBetweenFrames = 1;
+    int nextRenderTick = 0;
 
     // ~ Periodic activation
 
+    bool isActive = true;
+    bool patternShouldActivatePeriodically = false;
+
+    bool patternShouldActivate();
+    bool patternShouldDeactivate();
     bool removeOnDeactivation = false;
+
     unsigned int minTicksBetweenActivations = 0;
     unsigned int maxTicksBetweenActivations = 0;
     unsigned int ticksUntilActive = 0;
 
-    int *activePeriodsCounter = NULL;
+    unsigned int *activePeriodsCounter = NULL;
     unsigned int periodCountAtLastActivation = 0;
     unsigned int minPeriodsToStayActive = 1;
     unsigned int maxPeriodsToStayActive = 0;
@@ -54,102 +40,97 @@ class qpPattern {
     byte chanceToActivatePattern = 0;
 
     void setActivePeriod(int minPeriods, int maxPeriods);
-
-    void (qpPattern::*activateIfConditionsMet)(); //periodically or nothing
-    void activatePeriodically();
     void resetActivationTimer();
-
-    void (qpPattern::*deactivateIfConditionsMet)(); //active period check or nothing
-    void deactivateIfActivePeriodComplete();
-
-    void doNothing() { /* empty function for pointers to pattern update steps that do nothing as per pattern config */ }
-
 
   protected:
 
-    // Members and methods used in pattern animation code
-
+    // ~ LEDs
     CRGB *_targetLeds;
     int _numLeds = 0;
 
-    virtual void draw() = 0; //called at each update interval, must be implemented by child classes
-
     // ~ Color
-
     CRGB _getColor(byte index = 0);
     CRGBPalette16 _getPalette(byte index = 0);
 
-
     //  ~ Animation util
-
     inline bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
-
-    inline void _countCycle() { this->cycles++; }
-
+    inline void _countCycle() { this->cycles++; frames = 0; }
     inline void _clearLeds() { fill_solid(_targetLeds, _numLeds, CRGB::Black); }
+
+    virtual void draw() = 0; //called at each update interval, must be implemented by child classes
 
   public:
 
     qpPattern();
 
-    // ~ Setup
+    // ~ Counters
+    unsigned int ticks = 0;
+    unsigned int frames = 0;
+    unsigned int cycles = 0;
+    unsigned int activations = 0;
 
-    void assignTargetLeds(CRGB *leds, int numLeds); // Called when pattern is added to layer
+    // ~ Setup
+    void assignTargetLeds(CRGB *leds, int numLeds); // Called by layer when pattern is added
 
     /*-->!! Note:
     * _numLeds and _targetLeds are undefined (empty pointers) when the pattern constructors are called.
     * Any pre-rendering calculations that require the number of LEDs to be known should be put in the initialize() function
     */
-    virtual void initialize() { } // called once when pattern is created, after LEDs are assigned
-
+    virtual void initialize() {} // called once when pattern is created, after LEDs are assigned
 
     // ~ Render
 
     // Public render hook
     bool render();
 
-    // Pattern speed
+    // ~ Fluent config
+
     qpPattern &drawEveryNTicks(int ticks);
 
 
-    // ~ Periodic activation
+    // Scheduling
     qpPattern &removeWhenDeactivated(bool value);
+
     qpPattern &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
 
     qpPattern &stayActiveForNTicks(int minTicks, int maxTicks = 0);
+
     qpPattern &stayActiveForNFrames(int minUpdates, int maxUpdates = 0);
+
     qpPattern &stayActiveForNCycles(int minCycles, int maxCycles = 0);
 
     qpPattern &withChanceOfActivation(byte percentage);
 
 
-    // ~ Colors
-
-    qpPattern &color(byte index); //sets last referenced color ptr for continuing fluent config calls
-    qpColor &sameColor() { return *this->lastReferencedColor; }
-
+    // Color values
     qpPattern &singleColor(CRGB color);
 
     qpPattern &usePalette(CRGBPalette16 colorPalette);
+
     qpPattern &chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
 
     qpPattern &useColorSet(CRGB *colorSet, byte numColorsInSet);
+
     qpPattern &chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
 
-
-    // Timing
+    // Color timing
     qpPattern &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
+
     qpPattern &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
+
     qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
+
     qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
 
     qpPattern &withChanceToChangeColor(byte percentage);
 
-    // ~ Status control
+
+    // ~ Direct control
 
     bool activate();
     void deactivate();
     bool shouldRemoveWhenDecativated();
+
 };
 
 #endif

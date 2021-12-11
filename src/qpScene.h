@@ -2,10 +2,9 @@
 #define QP_SCENE_H
 
 #include <FastLED.h>
-#include <qpLinkedList.h>
-#include <qpLightStrand.h>
-#include <qpLayer.h>
-
+#include "qpLinkedList.h"
+#include "qpLightStrand.h"
+#include "qpLayer.h"
 
 class qpScene {
 
@@ -14,6 +13,7 @@ class qpScene {
     qpLightStrand *lightStrand;
 
     qpLinkedList <qpLayer> layers;
+    int layerIndex = 0;
 
     qpLayer *lastReferencedLayer;
 

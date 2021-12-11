@@ -1,7 +1,7 @@
 #ifndef QP_LIGHT_STRAND_H
 #define QP_LIGHT_STRAND_H
 
-//#include <qpLinkedList.h>
+#include "qpLinkedList.h"
 
 class qpLightStrand {
 

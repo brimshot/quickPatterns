@@ -1,6 +1,13 @@
-#include <qpLayer.h>
+#include "qpLayer.h"
 
-qpLayer::qpLayer(CRGB *leds, int numLeds) {
+// set brush
+// whenPatternNCyclesSwapBrushBetweenB1B2(0, Brush::SUBTRACT, Brush::ADD)
+// swapBrushesWhenPatternNCyles
+// swapBrushesEveryNTicks
+// swapBrushesEveryNFramesOnPatternX
+// 
+
+qpLayer::qpLayer(CRGB *leds, int numLeds, int layerIndex) {
   
   this->leds = leds;
   this->numLeds = numLeds;
@@ -46,6 +53,18 @@ qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
   return *pattern;
 }
+
+// qpLayer &qpLayer::removePattern(qpPattern *pattern) {
+//   this->patterns.remove(pattern);
+
+//   return *this;
+// } 
+
+// qpLayer &qpLayer::removePatternAtIndex(int index) {
+//   this->patterns.removeAtIndex(index);
+
+//   return *this;
+// }
 
 qpLayer &qpLayer::continuallyFadeLayerBy(int fadeAmount) {
 

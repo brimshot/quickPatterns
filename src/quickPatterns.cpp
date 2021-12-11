@@ -1,6 +1,8 @@
-#include <quickPatterns.h>
+#include "quickPatterns.h"
 
 quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
+
+//  this->testBool = []() { return false; };
 
   this->lightStrand = new qpLightStrand(leds, numLeds);
 

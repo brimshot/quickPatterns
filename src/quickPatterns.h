@@ -5,16 +5,20 @@
 #define QP_INCLUDE_PATTERNS 1
 #endif
 
-#include <Arduino.h>
-#include <qpLinkedList.h>
-#include <qpColor.h>
-#include <qpPattern.h>
-#include <qpLayer.h>
-#include <qpScene.h>
-#include <qpLightStrand.h>
+#include "qpEnums.h"
+#include "qpLinkedList.h"
+#include "qpColor.h"
+#include "qpPattern.h"
+#include "qpLayer.h"
+#include "qpScene.h"
+#include "qpLightStrand.h"
 
 #if QP_INCLUDE_PATTERNS == 1
-#include <qpPatternFiles.h>
+#include "qpPatternFiles.h"
+#endif
+
+#ifdef DEBUG
+Serial.begin(9600);
 #endif
 
 /**
@@ -32,6 +36,8 @@
 class quickPatterns {
 
   private:
+
+//    bool (*testBool)();
 
     short tickLengthInMillis = 25;
     uint32_t nextTickMillis = 0;
@@ -56,6 +62,11 @@ class quickPatterns {
 
     void setTickMillis(int tickLengthMillis) { this->tickLengthInMillis = tickLengthMillis; }
 
+    void show() {
+      if(draw()) {
+        FastLED.show();
+      }
+    }
 
     // ~ Config
 

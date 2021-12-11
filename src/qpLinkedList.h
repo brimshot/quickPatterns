@@ -122,6 +122,21 @@ public:
       return false;
     }
 
+    /*
+    bool removeAtIndex(int index) {
+
+      qpListNode <T> *tmp = this->firstElement;
+
+      for(byte i = 0; i < index-1; i++)
+        tmp = tmp->next;
+
+      qpListNode <T> *tmp = this->firstElement;
+
+      return tmp->item;
+
+    }
+    */
+
 };
 
 #endif
