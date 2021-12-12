@@ -1,11 +1,5 @@
 #include "qpLayer.h"
-
-// set brush
-// whenPatternNCyclesSwapBrushBetweenB1B2(0, Brush::SUBTRACT, Brush::ADD)
-// swapBrushesWhenPatternNCyles
-// swapBrushesEveryNTicks
-// swapBrushesEveryNFramesOnPatternX
-// 
+#include "layer_effects/qpContinuallyFadeBy.h"
 
 qpLayer::qpLayer(CRGB *leds, int numLeds, int layerIndex) {
   
@@ -15,14 +9,22 @@ qpLayer::qpLayer(CRGB *leds, int numLeds, int layerIndex) {
   this->setLayerBrush(OVERLAY);
 }
 
-
 void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
   bool patternsRendered = false;
 
+  /*
+  // Pre-render fade of any previous values
   if(this->continualFadeAmount) //conceivably we prevent a loop applying 0 to each led with this check
     fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
+  */
 
+  // Apply pre-render effects
+  while(qpLayerEffect *effect = this->preRenderEffects.fetch()) {
+      effect->apply(this->leds, this->numLeds);
+  }
+
+  // Render patterns
   while(qpPattern *currentPattern = this->patterns.fetch()) {
     bool isActive = currentPattern->render();
     patternsRendered |= isActive;
@@ -38,11 +40,18 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
     }
   }
 
+  // Apply post render effects
+  while(qpLayerEffect *effect = this->postRenderEffects.fetch()) {
+      effect->apply(this->leds, this->numLeds);
+  }
+
   if(patternsRendered || this->bPersistWhenPatternsInactive)
     (this->*applyLeds)(targetLeds, this->leds, numLeds);
+
+
 }
 
-// Config
+// ~ Config
 
 qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
@@ -52,6 +61,20 @@ qpPattern &qpLayer::addPattern(qpPattern *pattern) {
   this->lastReferencedPattern = this->patterns.append(pattern);
 
   return *pattern;
+}
+
+// ~ Effects
+
+qpLayer &qpLayer::addAfterRenderEffect(qpLayerEffect *effect) {
+  this->postRenderEffects.append(effect);
+
+  return *this;
+}
+
+qpLayer &qpLayer::addPreRenderEffect(qpLayerEffect *effect) {
+  this->preRenderEffects.append(effect);
+
+  return *this;
 }
 
 // qpLayer &qpLayer::removePattern(qpPattern *pattern) {
@@ -68,7 +91,7 @@ qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
 qpLayer &qpLayer::continuallyFadeLayerBy(int fadeAmount) {
 
-  this->continualFadeAmount = constrain(fadeAmount, 0, 255);
+  this->addPreRenderEffect(new qpContinuallyFadeBy(constrain(fadeAmount, 0, 255)));
 
   return *this;
 }
@@ -80,7 +103,7 @@ qpLayer &qpLayer::hideWhenNoActivePatterns(bool trueOrFalse) {
   return *this;
 }
 
-// Brush config
+// ~ Brush config
 
 //preset
 qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
@@ -120,7 +143,7 @@ qpLayer &qpLayer::setLayerBrush(void (*brushFunc)(CRGB *toLeds, CRGB *sourceLeds
 */
 
 
-// Brushes
+// ~ Brushes
 
 void qpLayer::addToLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++)
@@ -157,7 +180,7 @@ void qpLayer::maskLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
 }
 
 
-// Access
+// ~ Access
 
 qpPattern &qpLayer::pattern(byte patternIndex) {
 

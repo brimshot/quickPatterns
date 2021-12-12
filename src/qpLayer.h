@@ -6,38 +6,24 @@
 #include "qpPattern.h"
 #include "qpLayerEffect.h"
 
-/*
- * Layer events (messaging queue)
- *
- * Layer effects:
- *
- * - Breathe
- * - Reverse (timing)
- * 
- */
-
+typedef void (*effectMethod)(CRGB *, int);
 
 class qpLayer {
 
   private:
 
-//    (void *) cycleEvents[];
-//    qpPattern &addLayerEffect(qpLayerEffect *effect);
-
-    int layerId;
-
     CRGB *leds;
     int numLeds;
-
-//    qpLinkedList <qpPatternController> patternControllers;
-//    qpPatternController *lastReferencedPatternColor;
 
     qpLinkedList <qpPattern> patterns;
     qpPattern *lastReferencedPattern;
 
-    qpLinkedList <qpLayerEffect> effects;
+    qpLinkedList <qpLayerEffect> preRenderEffects;
+    qpLinkedList <qpLayerEffect> postRenderEffects;
 
-    int continualFadeAmount = 0;
+    // qpLinkedList <effectMethod> preRenderEffects;
+    // qpLinkedList <effectMethod> afterRenderEffects;
+
     bool bPersistWhenPatternsInactive = true;
 
     // Brushes
@@ -58,19 +44,28 @@ class qpLayer {
 
     void draw(CRGB *targetLeds, int numLeds);
 
-
-    // ~ Config
+    // ~ Patterns
 
     qpPattern &addPattern(qpPattern *pattern);
+
+    // ~ Config
 
     // qpLayer &removePattern(qpPattern *pattern);
     // qpLayer &removePatternAtIndex(int patternIndex);
 
-    qpLayer &continuallyFadeLayerBy(int fadeAmount);
-    qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true);
 
+    // Brush
     qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
 //    qpLayer &setLayerBrush(void (*brushFunc)(CRGB *toLeds, CRGB *sourceLeds, int numLeds));
+
+    // Effects
+    qpLayer &addPreRenderEffect(qpLayerEffect *effect);
+    qpLayer &addAfterRenderEffect(qpLayerEffect *effect);
+
+//    qpLayer &addPreRenderMethod()
+
+    qpLayer &continuallyFadeLayerBy(int fadeAmount);
+    qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true);
 
     // ~ Access
 

@@ -34,7 +34,7 @@ SOFTWARE.
 #define CHIPSET     WS2811
 #define DATA_PIN    8
 #define NUM_LEDS    100
-#define BRIGHTNESS  32
+#define BRIGHTNESS  64
 #define COLOR_ORDER RGB         //GRB for WS2812, RGB for WS2811
 #define TICKLENGTH  25
 
@@ -64,7 +64,7 @@ void setup() {
   quickPatterns.setTickMillis(TICKLENGTH);
 
   // ~
-
+  
   quickPatterns.addPattern(new qpPaletteDissolve(5))
     .usePalette(ForestColors_p);
 
@@ -74,16 +74,15 @@ void setup() {
     .stayActiveForNTicks(80, 140);
   quickPatterns.sameLayer().setLayerBrush(COMBINE).continuallyFadeLayerBy(30);  
 
-
  // ~ 
 
  quickPatterns.newScene().addPattern(new qpPaletteWave(5))
   .usePalette(CRGBPalette16(CRGB::Yellow, CRGB::Orange, CRGB::Goldenrod, CRGB::Red));
 
   quickPatterns.sameScene().addPattern(new qpSparkles(6))
-    .chooseColorFromPalette(CRGBPalette16(CRGB::Red, CRGB(120, 0, 255)), SEQUENTIAL);
+    .chooseColorFromPalette(CRGBPalette16(CRGB::Red, CRGB(120, 0, 255)), SEQUENTIAL)
+    .changeColorEveryNTicks(2);
   quickPatterns.sameLayer().continuallyFadeLayerBy(20);  
-
 
  // ~
 
@@ -118,9 +117,7 @@ void setup() {
 void loop()
 {
 
-  // Refresh lights only when new frame data available, prevents issues with data timing on fast processors
-  if(quickPatterns.draw())
-    FastLED.show();
+  quickPatterns.show();
 
   EVERY_N_SECONDS(30) {
     quickPatterns.nextScene();

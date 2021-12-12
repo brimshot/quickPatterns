@@ -5,39 +5,47 @@
 #define QP_INCLUDE_PATTERNS 1
 #endif
 
+#ifndef QP_INCLUDE_EFFECTS
+#define QP_INCLUDE_EFFECTS 1
+#endif
+
+#include <FastLED.h>
 #include "qpEnums.h"
 #include "qpLinkedList.h"
-#include "qpColor.h"
-#include "qpPattern.h"
-#include "qpLayer.h"
 #include "qpScene.h"
 #include "qpLightStrand.h"
 
+// Patterns
 #if QP_INCLUDE_PATTERNS == 1
-#include "qpPatternFiles.h"
+#include "patterns/AllPatterns.h"
 #endif
 
+// Effects
+#if QP_INCLUDE_EFFECTS == 1
+#include "layer_effects/AllEffects.h"
+#endif
+
+/*
 #ifdef DEBUG
 Serial.begin(9600);
 #endif
+*/
 
 /**
  *TODO:
+ * - Reverse effect
+ * - Split strips
+ * - Shapes -> array of pixel positions
+ * - Events
  * - Shows
- * - Scene framerates
- * - Fix blend / combine brush
  * - Transitions 
- * - Teensy 3.2 not working with single pattern?
- * - Teensy 4.0 support
- * - Linked colors
- * - Linker fixes
+ * - More Teensy testing
+ * - Sound reactive helpers
  */
 
 class quickPatterns {
 
   private:
-
-//    bool (*testBool)();
 
     short tickLengthInMillis = 25;
     uint32_t nextTickMillis = 0;
@@ -97,7 +105,6 @@ class quickPatterns {
 
 
     // ~ Scene navigation
-
     void playScene(byte index);
     void nextScene();
     void playRandomScene();

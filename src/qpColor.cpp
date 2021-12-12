@@ -44,6 +44,8 @@ Timing config
 
 void qpColor::setPeriodCounter(unsigned int *periodCounter) {
 
+  this->colorShouldChangePeriodically = true;
+
   this->colorPeriodsCounter = periodCounter;
 }
 
@@ -103,8 +105,6 @@ qpColor &qpColor::useColorSet(CRGB *colorSet, byte numElements) {
 
 qpColor &qpColor::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
 
-  this->colorShouldChangePeriodically = true;
-
   this->useColorSet(colorSet, numElements);
 
   if(mode == RANDOM)
@@ -132,8 +132,6 @@ qpColor &qpColor::usePalette(CRGBPalette16 colorPalette) {
 
 
 qpColor &qpColor::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode, byte stepSize) {
-
-  this->colorShouldChangePeriodically = true;
 
   this->usePalette(colorPalette);
   this->setPaletteStep(stepSize);

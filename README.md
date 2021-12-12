@@ -16,9 +16,9 @@ A FastLED based patterns manager for addressable LEDs (WS2812B, NeoPixels, etc.)
 
 [Periodic pattern activation](#periodic-pattern-activation)
 
-[Creating scenes](#creating-scenes)
+[Layer effects](#layer-effects)
 
-[Additional options](#additional-options)
+[Creating scenes](#creating-scenes)
 
 [Writing new patterns](#writing-new-patterns)
 
@@ -439,6 +439,38 @@ quickPatterns.addPattern(new qpComet(8))
 ```
 
 
+
+## Layer effects
+
+Layer effects are
+that apply to the entire layer.
+
+Layer effects can be applied before or after patterns are rendered.
+
+Use layer pre-effects to, for example, gradually fade away pixels illuminated when a pattern is drawn
+
+```
+quickPatterns.sameLayer().addPreRenderEffect(new qpContinuallyFadeLayerBy(20)); //layer 1 will fade to black by 20/255 once per tick
+```
+
+### Layer fading
+
+Frequently, a pattern benefits from having older pixels fade out slowly while new pixels are written, such that pixels that aren't refreshed eventually disappear.
+Layers can be configured to fade a set amount each tick before pattern rendering by using the *continuallyFadeLayerBy()* method
+```
+quickPatterns.layer(1).continuallyFadeLayerBy(20); //layer 1 will fade to black by 20/255 once per tick
+```
+
+### Layer persistence
+
+By default, to facilitate fading and blending effects, layers stay visible and the last written information continues to be rendered even when the layer contains no active patterns.
+To stop a layer from being rendered when none of it's patterns are active, use *hideWhenNoActivePatterns()*
+```
+quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be rendered if none of it's patterns are active
+```
+
+
+
 ## Creating scenes
 
 Scenes are collections of layers that can be referenced as a unit. By default, calls to *addPattern()* and *layer()*, as used in our first examples,  reference scene 0 and scene 0 will be rendered when *quickPatterns.draw()* is called unless otherwise specified.
@@ -488,23 +520,7 @@ quickPatterns.playRandomScene();
 ```
 
 
-## Additional options
-
-### Layer fading
-
-Frequently, a pattern benefits from having older pixels fade out slowly while new pixels are written, such that pixels that aren't refreshed eventually disappear.
-Layers can be configured to fade a set amount each tick before pattern rendering by using the *continuallyFadeLayerBy()* method
-```
-quickPatterns.layer(1).continuallyFadeLayerBy(20); //layer 1 will fade to black by 20/255 once per tick
-```
-
-### Layer persistence
-
-By default, to facilitate fading and blending effects, layers stay visible and the last written information continues to be rendered even when the layer contains no active patterns.
-To stop a layer from being rendered when none of it's patterns are active, use *hideWhenNoActivePatterns()*
-```
-quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be rendered if none of it's patterns are active
-```
+## Fluent interface: quick access
 
 ### sameLayer(), sameScene(), samePattern()
 
@@ -757,4 +773,4 @@ Section of lights of length *size* that move back and forth randomly along the l
 ---
 Copyright (c) 2020 Chris Brim
 
-Tested platforms: ESP8266, ESP32, Teensy 3.2, Teensy 4.0, Arduino Mega
+Tested platforms: ESP8266 12E, ESP32, Teensy 3.2, Teensy 4.0, Arduino Mega, Arduino UNO

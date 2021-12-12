@@ -1,17 +1,12 @@
 #ifndef QP_LAYER_EFFECT_H
 #define QP_LAYER_EFFECT_H
 
-
-#include <FastLED.h>
+class CRGB;
 
 class qpLayerEffect {
 
-    private:
-        int ticks;
-    
     public:
-        virtual void render(CRGB *targetLeds);
-
+        virtual void apply(CRGB *targetLeds, int numLeds) = 0;
 };
 
 #endif

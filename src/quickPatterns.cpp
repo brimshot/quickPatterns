@@ -2,13 +2,7 @@
 
 quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
 
-//  this->testBool = []() { return false; };
-
   this->lightStrand = new qpLightStrand(leds, numLeds);
-
-  random16_add_entropy(random(0, 1000));
-  random16_add_entropy(random(0, 1000));
-  random16_add_entropy(analogRead(0));
 }
 
 quickPatterns::~quickPatterns() {

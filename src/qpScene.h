@@ -1,7 +1,6 @@
 #ifndef QP_SCENE_H
 #define QP_SCENE_H
 
-#include <FastLED.h>
 #include "qpLinkedList.h"
 #include "qpLightStrand.h"
 #include "qpLayer.h"

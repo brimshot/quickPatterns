@@ -3,6 +3,8 @@
 
 #include "qpLinkedList.h"
 
+class CRGB;
+
 class qpLightStrand {
 
   private:
