@@ -25,22 +25,18 @@
 #include "layer_effects/AllEffects.h"
 #endif
 
-/*
-#ifdef DEBUG
-Serial.begin(9600);
-#endif
-*/
-
 /**
  *TODO:
- * - Reverse effect
+ * - Replace byte with uint8_t
  * - Split strips
+ * - nscale8 fade
+ * - Reverse effect
  * - Shapes -> array of pixel positions
  * - Events
  * - Shows
  * - Transitions 
  * - More Teensy testing
- * - Sound reactive helpers
+ * - Sound reactive plugins + other plugins
  */
 
 class quickPatterns {

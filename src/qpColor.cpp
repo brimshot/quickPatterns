@@ -44,6 +44,8 @@ void qpColor::loadNextColor() {
 Timing config
 */
 
+//void qpColor::bindColorDurationTimer(unsigned long *periodCounter, int minPeriods, int maxPeriods);
+
 void qpColor::setPeriodCounter(unsigned long *periodCounter) {
 
   this->colorShouldChangePeriodically = true;

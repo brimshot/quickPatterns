@@ -620,6 +620,18 @@ quickPattern.scene(1).layer(0).pattern(2)
 
 ## Writing custom patterns
 
+As long as you are familiar some basic programming and FastLED, writing custom patterns for quickPatterns is simple and straightforward
+
+quickPatterns uses FastLED to accomplish it's rendering, so if you are not familiar with FastLED you should begin with the [FastLED documentation](https://github.com/FastLED/FastLED/wiki/)
+
+### Testing your patterns
+
+You can test your pattern code using Wokwi FastLED simulator
+
+You can directly copy and paste the `draw(CRGB *leds, int numLeds)` method from your pattern class into the simulator
+
+
+
 To write a custom pattern simply create a class that inherits from *qpPattern* and write a *draw()* method for the class
 
 ```

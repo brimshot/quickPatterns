@@ -21,46 +21,52 @@ class qpPattern {
 
     // ~ Periodic activation
 
-    bool isActive = true;
+    bool _isActive = true;
+    bool removeOnDeactivation = false;
+
     bool patternShouldActivatePeriodically = false;
+    unsigned long *periodCounterActivationsAreBoundTo = nullptr;
+    int minPeriodsBetweenActivations = 0;
+    int maxPeriodsBetweenActivations = 0;
+    unsigned long nextPeriodToActivateAt = 0;
+    int chanceToActivatePattern = 0;
+
+    bool patternShouldDeactivatePeriodically = false;
+    unsigned long *activePeriodsCounter = nullptr;
+    unsigned int periodCountAtLastActivation = 0;
+    int minPeriodsToStayActive = 1;
+    int maxPeriodsToStayActive = 0;
+    int currentPeriodsToStayActive = 0;
+
+    void bindPeriodicActivationTimer(unsigned long *periodCounter, int minPeriodsBetweenActivations, int maxPeriodsBetweenActivations = 0);
+    void bindDeactivationTimer(unsigned long *periodCounter, int minPeriodsToStayActive, int maxPeriodsToStayActive = 0);
 
     bool patternShouldActivate();
     bool patternShouldDeactivate();
-    bool removeOnDeactivation = false;
-
-    unsigned long *periodCounterActivationsAreBoundTo = nullptr;
-//    unsigned long *boundPeriodCounter = nullptr;
-    unsigned long nextPeriodToActivateAt = 0;
-    unsigned int minPeriodsBetweenActivations = 0;
-    unsigned int maxPeriodsBetweenActivations = 0;
-
-    unsigned int ticksUntilActive = 0;
-
-    unsigned long *activePeriodsCounter = nullptr;
-    unsigned int periodCountAtLastActivation = 0;
-    unsigned int minPeriodsToStayActive = 1;
-    unsigned int maxPeriodsToStayActive = 0;
-    unsigned int currentPeriodsToStayActive = 0;
-    byte chanceToActivatePattern = 0;
-
-    void setActivePeriod(int minPeriods, int maxPeriods);
     void resetActivationTimer();
-
-    qpPattern &activatePeridically(unsigned int *periodCounter, int periodsBetweenActivations);
 
   protected:
 
-    // ~ LEDs -- can this be removed altogether.... !?
+    // ~ LEDs
     CRGB *_targetLeds;
     int _numLeds = 0;
 
     // ~ Color
-    CRGB _getColor(byte index = 0);
-    CRGBPalette16 _getPalette(byte index = 0);
+    CRGB _getColor();
+    CRGBPalette16 _getPalette();
+
+    /** @deprecated*/
+    inline void _clearLeds() { fill_solid(_targetLeds, _numLeds, CRGB::Black); }
+
+    /** @deprecated*/
+    bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
 
     inline void _countCycle() { this->cycles++; frames = 0; }
-
-    virtual void draw() = 0; //called at each update interval, must be implemented by child classes
+    
+    /**
+     * Called at each update interval, must be implemented by child classes
+     */
+    virtual void draw() = 0;
     virtual void onActivate() {}
     virtual void onDeactivate() {}
 
@@ -88,33 +94,34 @@ class qpPattern {
     // ~ Render
 
     // Public render hook
-    bool render();
+    void render(CRGB *leds, int numLeds);
+    //TODO: renderOnTheseLeds
 
-    // ~ Fluent config
+    // ~ Status
+    bool isActive() { return _isActive; }
+
+
+    /*--------
+    Fluent interface
+    */
 
     qpPattern *drawEveryNTicks(int ticks);
 
-
     // Scheduling
-    qpPattern &removeWhenDeactivated(bool value);
+    qpPattern *removeWhenDeactivated(bool value);
 
     qpPattern *activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
 
-    qpPattern &activateAfterPatternPHasRunForNTicks(qpPattern &P, int ticks);
-
-    qpPattern &stayActiveForNTicks(int minTicks, int maxTicks = 0);
-
-    qpPattern &stayActiveForNFrames(int minFrames, int maxFrames = 0);
-
+    qpPattern *stayActiveForNTicks(int minTicks, int maxTicks = 0);
+    qpPattern *stayActiveForNFrames(int minFrames, int maxFrames = 0);
     qpPattern *stayActiveForNCycles(int minCycles, int maxCycles = 0);
-
-    qpPattern &withChanceOfActivation(byte percentage);
+    qpPattern *withChanceOfActivation(uint8_t percentage);
 
 
     // Color values
     qpPattern *singleColor(CRGB color);
 
-    qpPattern &usePalette(CRGBPalette16 colorPalette);
+    qpPattern *usePalette(CRGBPalette16 colorPalette);
 
     //TODO: can this be a pointer..... ?
     qpPattern *chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
@@ -122,31 +129,37 @@ class qpPattern {
     //TODO: gooooo back
     qpPattern *chooseColorFromPaletteSequentially(CRGBPalette16 colorPalette, int paletteStepSize = 3);
 //    qpPattern *setPaletteStepSize(int size);
-
-    qpPattern &useColorSet(CRGB *colorSet, byte numColorsInSet);
-
-    qpPattern &chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
+    qpPattern *useColorSet(CRGB *colorSet, uint8_t numColorsInSet);
+    qpPattern *chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode);
 
     // Color timing
-    qpPattern &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
+    qpPattern *changeColorEveryNTicks(int minTicks, int maxTicks = 0);
+    qpPattern *changeColorEveryNCycles(int minCycles, int maxCycles = 0);
+    qpPattern *changeColorEveryNFrames(int minFrames, int maxFrames = 0);
+    qpPattern *changeColorEveryNActivations(int minActivations, int maxActivations = 0);
+    qpPattern *withChanceToChangeColor(byte percentage);
 
-    qpPattern &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
+    // ~ Linked pattern activations
 
-    qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
-
-    qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
-
-    qpPattern &withChanceToChangeColor(byte percentage);
-
-    // ~ State management
-
+    qpPattern *activateWhenPatternPActivates(qpPattern *P);
     qpPattern *activateWhenPatternPDeactivates(qpPattern *P);
+    qpPattern *activateWhenPatternPHasCompletedNCycles(qpPattern *P, int minCycles, int maxCycles = 0);
+    qpPattern *activateWhenPatternPHasRenderedNFrames(qpPattern *P, int minFrames, int maxFrames = 0);
+    qpPattern *activateWhenPatternPHasActivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
+    qpPattern *activateWhenPatternPHasDeactivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
+
+    qpPattern *deactivateWhenPatternPActivates(qpPattern *P);
+    qpPattern *deactivateWhenPatternPDeactivates(qpPattern *P);
+    qpPattern *deactivateWhenPatternPHasCompletedNCycles(qpPattern *P, int minCycles, int maxCycles = 0);
+    qpPattern *deactivateWhenPatternPHasRenderedNFrames(qpPattern *P, int minFrames, int maxFrames = 0);
+    qpPattern *deactivateWhenPatternPHasActivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
+    qpPattern *deactivateWhenPatternPHasDeactivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
 
     qpPattern *beginInActiveState();
 
     bool activate();
     void deactivate();
-    bool shouldRemoveWhenDecativated();
+    bool shouldRemoveWhenDeactivated();
 
 };
 

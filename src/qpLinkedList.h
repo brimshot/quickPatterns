@@ -33,13 +33,13 @@ public:
       }
     }
 
-    byte numElements = 0;
+    uint8_t numElements = 0;
 
     T *getItem(int index) {
 
       qpListNode <T> *tmp = this->firstElement;
 
-      for(byte i = 0; i < index; i++)
+      for(uint8_t i = 0; i < index; i++)
         tmp = tmp->next;
 
       return tmp->item;
@@ -127,7 +127,7 @@ public:
 
       qpListNode <T> *tmp = this->firstElement;
 
-      for(byte i = 0; i < index-1; i++)
+      for(uint8_t i = 0; i < index-1; i++)
         tmp = tmp->next;
 
       qpListNode <T> *tmp = this->firstElement;

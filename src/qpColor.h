@@ -71,6 +71,9 @@ class qpColor {
 
     // Timing
 
+    // TODO: do it this way instead, for consistency
+    //void qpColor::bindColorDurationTimer(unsigned long *periodCounter, int minPeriods, int maxPeriods);
+
     void setPeriodCounter(unsigned long *periodCounter);
     void setColorDuration(int minPeriods, int maxPeriods);
 
