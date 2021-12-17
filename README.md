@@ -1,12 +1,29 @@
 # quickPatterns
 
-A FastLED based patterns manager for addressable LEDs (WS2812B, NeoPixels, etc.) that allows multiple animations to run simultaneously on the same strand of lights with configurable colors and timings.
+A pattern and animation manager for individually addressable LEDs (WS2811, WS2812, NeoPixels, etc.) using FastLED.
+
+The goal of quickPatterns is to provide makers a simple interface in code for creating advanced light pattern configurations.
+
+**Features**
+- Easily layer multiple animations on top of each other, with multiple options for how overlapping pixels interact
+- Time patterns to activate and deactivate either at specific intervals or in relation to other patterns
+- Configure colors to change in relation to pattern variables including updates, frames, "cycles" or activations
+- Create multiple "scenes" of one or more patterns running simultaneously and quickly change between them
+- Easily write custom light patterns that are immediately usable with all configuration options
+
+> **NOTE:** Since the originally released version 0.1, the return type for configuration methods has changed from reference to pointer.
+> 
+> To make code running on 0.1 compatible with the latest release, replace the . operator with the pointer operator -> when chaining pattern configuration calls
+
+ # Documentation
+
+[Installation](#installation)
 
 [Example sketch](#example-sketch)
 
 [Adding patterns](#adding-patterns)
 
-[Using layers](#using-layers)
+[Layers](#layers)
 
 [Layer brushes](#layer-brushes)
 
@@ -18,17 +35,33 @@ A FastLED based patterns manager for addressable LEDs (WS2812B, NeoPixels, etc.)
 
 [Layer effects](#layer-effects)
 
-[Creating scenes](#creating-scenes)
+[Scenes](#scenes)
 
-[Writing new patterns](#writing-new-patterns)
+[Writing custom patterns](#writing-custom-patterns)
 
-[Sample patterns](#sample-patterns)
+[Writing custom layer effects](#writing-layer-effects)
 
+[Sample pattern library](#sample-pattern-library)
+
+## Installation
+
+quickPatterns uses the [FastLED](link) library which must be installed on your system first, and this document assumes you are familiar with the basics of using FastLED
+
+### From the command line
+
+Navigate to your Arduino/libraries directory and clone via the following command:
+```
+git clone https://github.com/brimshot/quickPatterns.git
+```
+
+### ZIP archive
+
+Choose "Download ZIP" from the Code menu when viewing the source on github and extract the archive inside your Arduino/libraries directory
 
 ## Example sketch
 A simple example that can be run right away
 
-```
+```c++
 #include <quickPatterns.h>
 
 #define CHIPSET     WS2812B
@@ -38,16 +71,17 @@ A simple example that can be run right away
 #define COLOR_ORDER GRB         //GRB for WS2812, RGB for WS2811
 #define TICKLENGTH  25
 
+// declare array of CRGB objects, used by FastLED
 CRGB leds[NUM_LEDS];
 
 //declare quickPatterns controller and pass in main led array
-quickPatterns quickPatterns(leds, 100);
+quickPatterns quickPatterns(leds, NUM_LEDS);
 
 void setup() {
 
   delay(3000); // Recovery delay
 
-  randomSeed(analogRead(1));
+  random16_add_entropy(analogRead(0)); // seed random number generator
 
   // ~ Configure FastLED
 
@@ -65,23 +99,21 @@ void setup() {
 
   quickPatterns.setTickMillis(TICKLENGTH);
 
-  //cylon of 8 pixels that cycles through the rainbow
-  quickPatterns.addPattern(new qpBouncingBars(8))
-    .chooseColorFromPalette(RainbowColors_p, SEQUENTIAL)
-    .changeColorEveryNTicks(2);
+  // Cylon of 8 pixels that cycles through the rainbow (layer 0)
+  quickPatterns.newScene().addPattern(new qpBouncingBars(8))
+    ->chooseColorFromPalette(RainbowColors_p, SEQUENTIAL)
+    ->changeColorEveryNTicks(2);
 
-  //Periodically toss in some lightning flashes at random places along the strand. Flash for 10x
-  quickPatterns.addPattern(new qpLightning(10))
-      .singleColor(CRGB::White)
-      .activatePeriodicallyEveryNTicks(100, 200)
-      .stayActiveForNCycles(2, 4);
+  // Periodically toss in some lightning flashes at random places along the strand, 10 pixels wide (layer 1)
+  quickPatterns.sameScene().addPattern(new qpLightning(10))
+      ->singleColor(CRGB::White)
+      ->activatePeriodicallyEveryNTicks(100, 200) // activate at random intervals between 100 and 200 ticks
+      ->stayActiveForNCycles(2, 4); // each activation will trigger 2 to 4 lightning flashes
 }
 
 void loop()
 {
-  // Refresh lights only when new frame data available, prevents issues with data timing on fast processors
-  if(quickPatterns.draw())
-    FastLED.show();
+  quickPatterns.show();
 }
 ```
 
@@ -90,8 +122,6 @@ void loop()
 ## Adding patterns
 
 ### Basic setup
-
-quickPatterns uses the [FastLED](link) library which must be installed on your system first, and this document assumes you are familiar with the basics of using FastLED
 
 At the top of your file declare an array of LEDs as you would in any FastLED based sketch
 
@@ -120,27 +150,31 @@ void setup() {
 }
 ```
 
-Finally, in your *loop()* function, call the *draw()* method of the quickPatterns controller and then FastLED.show() when new frame data is available (*draw()* returns true).
+Finally, in your *loop()* function, call the *show()* method of the quickPatterns controller (this will call FastLED.show() in turn).
 
 ```
 void loop()
 {
-  // Refresh lights only when new frame data available, prevents issues with data timing on fast processors
-  if(quickPatterns.draw())
-    FastLED.show();
+  quickPatterns.show();
 }
 ```
 
 ### Adding the patterns
 
+Adding a pattern always begins with the Scene[#scenes]
+
+```
+quickPatterns.newScene().addPattern()
+```
+
 Once the quickPatterns controller has been instantiated you can use the addPattern() method and pass in a new instance of any class that inherits from the qpPattern class ([write your own](#writing-new-patterns) or use one of the [sample patterns](#sample-patterns))
 
 For example, a simple pulse of eight pixels that moves back and forth a string of lights:
 ```
-quickPatterns.addPattern(new qpComet(8))
-  .singleColor(CRGB::Red);
+quickPatterns.newScene().addPattern(new qpComet(8))
+  ->singleColor(CRGB::Red);
 ```
-addPattern() returns a reference to the pattern object passed as a parameter which can be used to continue to chain configuration methods.
+addPattern() returns a pointer to the pattern object passed as a parameter which can be used to continue to chain configuration methods.
 In this case we are chaining the singleColor() method which sets our pulse pattern to a constant red.
 
 
@@ -166,7 +200,7 @@ By adding drawEveryNTicks(2) to the configuration chain, our pulse pattern will 
 Ticks are also used to calculate pattern activation and duration timings (see [periodic pattern activation](#periodic-pattern-activation)).
 
 
-## Using layers
+## Layers
 
 Patterns are pre-rendered on separate arrays of leds in memory which are then combined to make the final image displayed i.e. 'layers'.
 
@@ -229,7 +263,7 @@ The light value of pixels in this layer will be added to the light values of pix
 
 ### SUBTRACT
 The light value of pixels in this layer are subtracted from those below. Using this brush, we can turn 'off' pixels on underlying layers and render patterns using negative space.
-Set a pattern color to full white (CRGB::White) and the layer brush to SUBTRACT and any pixels the pattern fills in will be removed from below layers.
+For example: set a pattern color to full white (CRGB::White) and set the layer brush to SUBTRACT and any pixels the pattern fills in will be removed from below layers.
 
 ### OVERWRITE
 Completely overwrite below layers with this layers pixels, including pixels that are 'off' (CRGB::Black).
@@ -471,9 +505,12 @@ quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be r
 
 
 
-## Creating scenes
+## Scenes
 
-Scenes are collections of layers that can be referenced as a unit. By default, calls to *addPattern()* and *layer()*, as used in our first examples,  reference scene 0 and scene 0 will be rendered when *quickPatterns.draw()* is called unless otherwise specified.
+Scenes are collections of Layers[#layers] containing Patterns[#patterns]. 
+
+NO:
+By default, calls to *addPattern()* and *layer()*, as used in our first examples, reference scene 0 and scene 0 will be rendered when *quickPatterns.draw()* is called unless otherwise specified.
 
 Creating multiple scenes, each with their own layers, allows us to switch between various combinations of patterns on the same strand of lights as desired.
 
@@ -581,7 +618,7 @@ quickPattern.scene(1).layer(0).pattern(2)
 ```
 
 
-## Writing new patterns
+## Writing custom patterns
 
 To write a custom pattern simply create a class that inherits from *qpPattern* and write a *draw()* method for the class
 
@@ -670,7 +707,19 @@ void initialize() {
 ```
 
 
-## Sample patterns
+## Writing custom layer effects
+
+In comparison to patterns, Layer Effects are much simpler creations.
+
+To write a custom Layer Effect, simply create class that inherits from qpLayerEffect like so:
+
+It is only necessary to implement a single method *draw(CRGB *targetLeds, int numLeds)*
+
+This layer effect can now be queued to be applied either before or after the next pattern frames are drawn onto the layer using either *addPreRenderEffect* or *addPostRenderEffect*
+
+Effects are called each time the layer is rendered i.e. once per tick
+
+## Sample pattern library
 
 The following patterns are included with the library. 
 

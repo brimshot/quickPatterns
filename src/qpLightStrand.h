@@ -2,8 +2,7 @@
 #define QP_LIGHT_STRAND_H
 
 #include "qpLinkedList.h"
-
-class CRGB;
+#include <FastLED.h>
 
 class qpLightStrand {
 

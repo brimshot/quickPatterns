@@ -27,7 +27,7 @@ class qpScene {
 
     // ~ Config
 
-    qpPattern &addPattern(qpPattern *pattern);
+    qpPattern *addPattern(qpPattern *pattern);
 
     qpLayer &newLayer();
 

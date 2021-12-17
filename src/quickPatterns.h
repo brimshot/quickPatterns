@@ -78,7 +78,7 @@ class quickPatterns {
 
     // ~ Config
 
-    qpPattern &addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0
+    qpPattern *addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0
 
 
     // ~ Access
@@ -98,6 +98,7 @@ class quickPatterns {
     qpLayer &sameLayer() { return this->sameScene().sameLayer(); }
     qpPattern &samePattern() { return this->sameScene().sameLayer().samePattern(); }
 
+    // TODO: replace with int to make Vscode play nicer?
     // Quick access operators
     qpPattern &operator()(byte layerIndex); //returns pattern 0 from the specified layer in scene 0
     qpPattern &operator()(byte sceneIndex, byte layerIndex); //returns pattern 0 from the specified layer in the specified scene

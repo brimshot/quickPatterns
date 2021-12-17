@@ -33,7 +33,7 @@ bool quickPatterns::draw() {
 
 // Quick add pattern
 
-qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
+qpPattern *quickPatterns::addPattern(qpPattern *pattern) {
 
   return this->scene(0).newLayer().addPattern(pattern);
 }

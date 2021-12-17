@@ -24,6 +24,13 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
       effect->apply(this->leds, this->numLeds);
   }
 
+  // Activation management - still relies on the order in which patterns were added to the stack - force this in the fluent interface.... ?
+  /*
+  while(qpPattern *currentPattern = this->patterns.fetch()) {
+    currentPattern->activateIfConditionsMet();
+  }
+  */
+
   // Render patterns
   while(qpPattern *currentPattern = this->patterns.fetch()) {
     bool isActive = currentPattern->render();
@@ -45,22 +52,21 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
       effect->apply(this->leds, this->numLeds);
   }
 
+  // Write values into main LED array via selected brush method
   if(patternsRendered || this->bPersistWhenPatternsInactive)
     (this->*applyLeds)(targetLeds, this->leds, numLeds);
-
-
 }
 
 // ~ Config
 
-qpPattern &qpLayer::addPattern(qpPattern *pattern) {
+qpPattern *qpLayer::addPattern(qpPattern *pattern) {
 
   pattern->assignTargetLeds(this->leds, this->numLeds);
   pattern->initialize();
 
   this->lastReferencedPattern = this->patterns.append(pattern);
 
-  return *pattern;
+  return pattern;
 }
 
 // ~ Effects

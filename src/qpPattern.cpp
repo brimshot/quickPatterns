@@ -9,28 +9,24 @@ qpPattern::qpPattern() {
 
 bool qpPattern::render() {
 
-    if(this->patternShouldActivatePeriodically) {
-        if(this->patternShouldActivate()) {
-            this->activate();
-            this->resetActivationTimer();
-        }
+    this->ticks++;
+
+    if(this->patternShouldActivate()) {
+        this->activate();
     }
 
     if(this->isActive) {
         if(this->ticks == this->nextRenderTick) {
             this->frames++;
-            this->draw();
             this->nextRenderTick += this->ticksBetweenFrames;                    
+            this->draw();
         }
     
         this->_color->update();
 
-        this->ticks++;
-
-        if(this->patternShouldActivatePeriodically) {
-            if(this->patternShouldDeactivate()) {
-                this->deactivate();
-            }
+        if(this->patternShouldDeactivate()) {
+            this->deactivate();
+            this->resetActivationTimer();
         }
 
         return true;
@@ -40,59 +36,42 @@ bool qpPattern::render() {
 }
 
 
-bool qpPattern::activate() {
-
-  // If we are only activating with a chance, check that here
-  if(this->chanceToActivatePattern > 0) {
-    if(random16(100) > this->chanceToActivatePattern) {
-      return false;
-    }
-  }
-
-  // If we are staying active for a random period count, set it here
-  if(this->maxPeriodsToStayActive)
-    this->currentPeriodsToStayActive = random16(this->minPeriodsToStayActive, this->maxPeriodsToStayActive);
-
-  this->periodCountAtLastActivation = *this->activePeriodsCounter;
-
-  this->activations++;
-
-  this->isActive = true;
-
-  return true;
-}
-
-
 void qpPattern::resetActivationTimer() {
 
-  // If we are activating at a random interval, calculate the next interval
-  if(this->maxTicksBetweenActivations)
-    this->ticksUntilActive = random16(this->minTicksBetweenActivations, this->maxTicksBetweenActivations);
-  else
-    this->ticksUntilActive = this->minTicksBetweenActivations;
+  if(this->periodCounterActivationsAreBoundTo == nullptr) // TODO: there's a nicer way to do this
+    return;
+
+  //TODO: add this back
+  /*
+  int nextActivationOffset = 0;
+  if(this->maxPeriodsBetweenActivations) {
+    nextActivationOffset = random16(this->minPeriodsBetweenActivations, this->maxPeriodsBetweenActivations);
+  } else {
+    nextActivationOffset = this->minPeriodsBetweenActivations;
+  }
+  */
+
+  int nextActivationOffset = this->minPeriodsBetweenActivations;
+
+  this->nextPeriodToActivateAt = (*this->periodCounterActivationsAreBoundTo + nextActivationOffset);
 }
 
 bool qpPattern::shouldRemoveWhenDecativated() {
   return this->removeOnDeactivation;
 }
 
-//direct external control
-void qpPattern::deactivate() {
-  this->isActive = false;
-}
-
 
 // ~ Animation
 
 // Pattern speed
-qpPattern &qpPattern::drawEveryNTicks(int ticks) {
+qpPattern *qpPattern::drawEveryNTicks(int ticks) {
 
   this->ticksBetweenFrames = ticks;
 
   if(this->nextRenderTick == 0)
       this->nextRenderTick += this->ticksBetweenFrames;
 
-  return *this;
+  return this;
 }
 
 // Color to draw
@@ -115,19 +94,25 @@ qpPattern &qpPattern::removeWhenDeactivated(bool value) {
   return *this;
 }
 
-qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
+qpPattern *qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
+
+  // TODO: make generic
 
   this->isActive = false;
 
   this->patternShouldActivatePeriodically = true;
 
-  this->minTicksBetweenActivations = minTicks;
-  this->maxTicksBetweenActivations = maxTicks;
+  // TODO: make this a method
+  this->minPeriodsBetweenActivations = minTicks;
+  this->maxPeriodsBetweenActivations = maxTicks;
+  this->periodCounterActivationsAreBoundTo = &this->ticks;
 
   this->resetActivationTimer();
 
-  return *this;
+  return this;
 }
+
+
 
 // Active period duration
 
@@ -149,12 +134,12 @@ qpPattern &qpPattern::stayActiveForNFrames(int minUpdates, int maxUpdates) {
 }
 
 
-qpPattern &qpPattern::stayActiveForNCycles(int minCycles, int maxCycles) {
+qpPattern *qpPattern::stayActiveForNCycles(int minCycles, int maxCycles) {
 
   this->activePeriodsCounter = &this->cycles;
   this->setActivePeriod(minCycles, maxCycles);
 
-  return *this;
+  return this;
 }
 
 
@@ -165,10 +150,10 @@ qpPattern &qpPattern::withChanceOfActivation(byte percentage) {
   return *this;
 }
 
-
+// TODO: make chainable? it's private right
 void qpPattern::setActivePeriod(int minPeriods, int maxPeriods) {
-
-  this->currentPeriodsToStayActive = this->minPeriodsToStayActive = max(1, minPeriods);
+  // TODO: can't remove currentperiods yet
+  this->minPeriodsToStayActive = this->currentPeriodsToStayActive = (1, minPeriods);
   this->maxPeriodsToStayActive = max(0, maxPeriods);
 }
 
@@ -177,11 +162,11 @@ void qpPattern::setActivePeriod(int minPeriods, int maxPeriods) {
 // ~ Color config
 
 
-qpPattern &qpPattern::singleColor(CRGB color) {
+qpPattern *qpPattern::singleColor(CRGB color) {
 
   this->_color->singleColor(color);
 
-  return *this;
+  return this;
 }
 
 
@@ -257,11 +242,12 @@ void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
 
 // ~ Palette config
 
-qpPattern &qpPattern::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
+//TODO: add step size in here!
+qpPattern *qpPattern::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
 
   this->_color->chooseColorFromPalette(colorPalette, mode);
 
-  return *this;
+  return this;
 }
 
 qpPattern &qpPattern::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
@@ -290,23 +276,97 @@ void qpPattern::handleEvent(qpPatternEvents::Event e) {
 
 
 
+// ~ State management
 
 bool qpPattern::patternShouldActivate() {
 
-    if(this->isActive)
-        return false;
-
-    if(this->ticksUntilActive > 0) {
-        this->ticksUntilActive--;
+    if(this->isActive) {
         return false;
     }
 
-    return true;
+    if(! this->patternShouldActivatePeriodically) {
+      return false;
+    }
+
+    if(*this->periodCounterActivationsAreBoundTo >= this->nextPeriodToActivateAt) {
+      return true;
+    }
+
+    return false;
+}
+
+qpPattern *qpPattern::activateWhenPatternPDeactivates(qpPattern *P) {
+
+  this->isActive = false;
+
+  this->patternShouldActivatePeriodically = true;
+
+  this->minPeriodsBetweenActivations = 1;
+  this->periodCounterActivationsAreBoundTo = &P->deactivations;
+
+  // TODO: it's something in here
+  // Serial.println("P deactivations");
+  // Serial.println(P->deactivations);
+  // Serial.println("*this->periodActivations");
+  // Serial.println(*this->periodCounterActivationsAreBoundTo);
+
+  this->resetActivationTimer();
+
+  return this;
+}
+
+
+bool qpPattern::activate() {
+
+  // If we are only activating with a chance, check that here
+  if(this->chanceToActivatePattern > 0) {
+    if(random16(100) > this->chanceToActivatePattern) {
+      return false;
+    }
+  }
+
+  // If we are staying active for a random period count, set it here
+  if(this->maxPeriodsToStayActive) {
+    this->currentPeriodsToStayActive = random16(this->minPeriodsToStayActive, this->maxPeriodsToStayActive);
+  } else {
+    this->currentPeriodsToStayActive = this->minPeriodsToStayActive;
+  }
+
+  //TODO: this is the problem!!!!
+  if(this->activePeriodsCounter != nullptr)
+    this->periodCountAtLastActivation = *this->activePeriodsCounter; //TODO: this might not be initialized
+
+  this->activations++;
+
+  this->nextRenderTick = this->ticks;
+
+  this->isActive = true;
+
+  this->onActivate();
+
+  return true;
 }
 
 bool qpPattern::patternShouldDeactivate() {
-    if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive)
+
+    if(this->activePeriodsCounter == nullptr)
+      return false;
+
+    if((*this->activePeriodsCounter - this->periodCountAtLastActivation) >= this->currentPeriodsToStayActive) {
         return true;
+    }
 
     return false;
+}
+
+void qpPattern::deactivate() {
+  this->isActive = false;
+  this->deactivations++;
+  this->onDeactivate();
+}
+
+qpPattern *qpPattern::beginInActiveState() {
+  this->activate();
+
+  return this;
 }

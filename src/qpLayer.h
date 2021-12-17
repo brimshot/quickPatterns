@@ -6,8 +6,6 @@
 #include "qpPattern.h"
 #include "qpLayerEffect.h"
 
-typedef void (*effectMethod)(CRGB *, int);
-
 class qpLayer {
 
   private:
@@ -20,9 +18,6 @@ class qpLayer {
 
     qpLinkedList <qpLayerEffect> preRenderEffects;
     qpLinkedList <qpLayerEffect> postRenderEffects;
-
-    // qpLinkedList <effectMethod> preRenderEffects;
-    // qpLinkedList <effectMethod> afterRenderEffects;
 
     bool bPersistWhenPatternsInactive = true;
 
@@ -46,7 +41,7 @@ class qpLayer {
 
     // ~ Patterns
 
-    qpPattern &addPattern(qpPattern *pattern);
+    qpPattern *addPattern(qpPattern *pattern);
 
     // ~ Config
 
@@ -61,8 +56,6 @@ class qpLayer {
     // Effects
     qpLayer &addPreRenderEffect(qpLayerEffect *effect);
     qpLayer &addAfterRenderEffect(qpLayerEffect *effect);
-
-//    qpLayer &addPreRenderMethod()
 
     qpLayer &continuallyFadeLayerBy(int fadeAmount);
     qpLayer &hideWhenNoActivePatterns(bool trueOrFalse = true);

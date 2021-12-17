@@ -27,7 +27,7 @@ class qpColor {
     bool colorShouldChangePeriodically = false;
     bool nextColorShouldLoad();
 
-    unsigned int *colorPeriodsCounter = nullptr;
+    unsigned long *colorPeriodsCounter = nullptr;
     unsigned int periodCountAtLastColorChange = 0;
     unsigned int currentColorDuration = 0;
     unsigned int minColorDuration = 1;
@@ -58,20 +58,20 @@ class qpColor {
 
     // Color sequence
 
-    qpColor &singleColor(CRGB color);
+    qpColor *singleColor(CRGB color);
 
-    qpColor &usePalette(CRGBPalette16 palette);
-    qpColor &chooseColorFromPalette(CRGBPalette16 palette, QP_COLOR_MODE mode, byte stepSize = 3);
-    qpColor &setPaletteStep(byte stepSize);
+    qpColor *usePalette(CRGBPalette16 palette);
+    qpColor *chooseColorFromPalette(CRGBPalette16 palette, QP_COLOR_MODE mode, byte stepSize = 3);
+    qpColor *setPaletteStep(byte stepSize);
     
-    qpColor &useColorSet(CRGB *colorSet, byte numElements);
-    qpColor &chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
+    qpColor *useColorSet(CRGB *colorSet, byte numElements);
+    qpColor *chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
 
-    qpColor &withChanceToChangeColor(byte percentage);
+    qpColor *withChanceToChangeColor(byte percentage);
 
     // Timing
 
-    void setPeriodCounter(unsigned int *periodCounter);
+    void setPeriodCounter(unsigned long *periodCounter);
     void setColorDuration(int minPeriods, int maxPeriods);
 
 

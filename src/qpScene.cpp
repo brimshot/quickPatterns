@@ -7,7 +7,7 @@ void qpScene::draw(CRGB *targetLeds, int numLeds) {
 }
 
 
-qpPattern &qpScene::addPattern(qpPattern *pattern) {
+qpPattern *qpScene::addPattern(qpPattern *pattern) {
 
   return this->newLayer().addPattern(pattern);
 }

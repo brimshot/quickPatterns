@@ -17,7 +17,7 @@ class qpPattern {
     // ~ Animation speed
 
     int ticksBetweenFrames = 1;
-    int nextRenderTick = 0;
+    int nextRenderTick = 1;
 
     // ~ Periodic activation
 
@@ -28,11 +28,15 @@ class qpPattern {
     bool patternShouldDeactivate();
     bool removeOnDeactivation = false;
 
-    unsigned int minTicksBetweenActivations = 0;
-    unsigned int maxTicksBetweenActivations = 0;
+    unsigned long *periodCounterActivationsAreBoundTo = nullptr;
+//    unsigned long *boundPeriodCounter = nullptr;
+    unsigned long nextPeriodToActivateAt = 0;
+    unsigned int minPeriodsBetweenActivations = 0;
+    unsigned int maxPeriodsBetweenActivations = 0;
+
     unsigned int ticksUntilActive = 0;
 
-    unsigned int *activePeriodsCounter = NULL;
+    unsigned long *activePeriodsCounter = nullptr;
     unsigned int periodCountAtLastActivation = 0;
     unsigned int minPeriodsToStayActive = 1;
     unsigned int maxPeriodsToStayActive = 0;
@@ -41,6 +45,8 @@ class qpPattern {
 
     void setActivePeriod(int minPeriods, int maxPeriods);
     void resetActivationTimer();
+
+    qpPattern &activatePeridically(unsigned int *periodCounter, int periodsBetweenActivations);
 
   protected:
 
@@ -53,21 +59,28 @@ class qpPattern {
     CRGBPalette16 _getPalette(byte index = 0);
 
     //  ~ Animation util
+    // TODO: also remove...? probably leave
     inline bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
     inline void _countCycle() { this->cycles++; frames = 0; }
+    // TODO: remove!!
     inline void _clearLeds() { fill_solid(_targetLeds, _numLeds, CRGB::Black); }
 
     virtual void draw() = 0; //called at each update interval, must be implemented by child classes
+
+    virtual void onActivate() {}
+    virtual void onDeactivate() {}
 
   public:
 
     qpPattern();
 
     // ~ Counters
-    unsigned int ticks = 0;
-    unsigned int frames = 0;
-    unsigned int cycles = 0;
-    unsigned int activations = 0;
+    //TODO: only ticks should need to be long. learn about pointer casting.
+    unsigned long ticks = 0;
+    unsigned long frames = 0;
+    unsigned long cycles = 0;
+    unsigned long activations = 0;
+    unsigned long deactivations = 0;
 
     // ~ Setup
     void assignTargetLeds(CRGB *leds, int numLeds); // Called by layer when pattern is added
@@ -85,29 +98,36 @@ class qpPattern {
 
     // ~ Fluent config
 
-    qpPattern &drawEveryNTicks(int ticks);
+    qpPattern *drawEveryNTicks(int ticks);
 
 
     // Scheduling
     qpPattern &removeWhenDeactivated(bool value);
 
-    qpPattern &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
+    qpPattern *activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
+
+    qpPattern &activateAfterPatternPHasRunForNTicks(qpPattern &P, int ticks);
 
     qpPattern &stayActiveForNTicks(int minTicks, int maxTicks = 0);
 
-    qpPattern &stayActiveForNFrames(int minUpdates, int maxUpdates = 0);
+    qpPattern &stayActiveForNFrames(int minFrames, int maxFrames = 0);
 
-    qpPattern &stayActiveForNCycles(int minCycles, int maxCycles = 0);
+    qpPattern *stayActiveForNCycles(int minCycles, int maxCycles = 0);
 
     qpPattern &withChanceOfActivation(byte percentage);
 
 
     // Color values
-    qpPattern &singleColor(CRGB color);
+    qpPattern *singleColor(CRGB color);
 
     qpPattern &usePalette(CRGBPalette16 colorPalette);
 
-    qpPattern &chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
+    //TODO: can this be a pointer..... ?
+    qpPattern *chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
+
+    //TODO: gooooo back
+    qpPattern *chooseColorFromPaletteSequentially(CRGBPalette16 colorPalette, int paletteStepSize = 3);
+//    qpPattern *setPaletteStepSize(int size);
 
     qpPattern &useColorSet(CRGB *colorSet, byte numColorsInSet);
 
@@ -124,8 +144,11 @@ class qpPattern {
 
     qpPattern &withChanceToChangeColor(byte percentage);
 
+    // ~ State management
 
-    // ~ Direct control
+    qpPattern *activateWhenPatternPDeactivates(qpPattern *P);
+
+    qpPattern *beginInActiveState();
 
     bool activate();
     void deactivate();
