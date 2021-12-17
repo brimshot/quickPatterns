@@ -50,7 +50,7 @@ class qpPattern {
 
   protected:
 
-    // ~ LEDs
+    // ~ LEDs -- can this be removed altogether.... !?
     CRGB *_targetLeds;
     int _numLeds = 0;
 
@@ -58,15 +58,9 @@ class qpPattern {
     CRGB _getColor(byte index = 0);
     CRGBPalette16 _getPalette(byte index = 0);
 
-    //  ~ Animation util
-    // TODO: also remove...? probably leave
-    inline bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
     inline void _countCycle() { this->cycles++; frames = 0; }
-    // TODO: remove!!
-    inline void _clearLeds() { fill_solid(_targetLeds, _numLeds, CRGB::Black); }
 
     virtual void draw() = 0; //called at each update interval, must be implemented by child classes
-
     virtual void onActivate() {}
     virtual void onDeactivate() {}
 

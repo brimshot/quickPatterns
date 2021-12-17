@@ -629,16 +629,18 @@ class myCustomPattern : public qpPattern {
   int pos = 0;
 
   //draw() is called whenever the pattern is rendered, default is once per tick
-  void draw() {
+  void draw(CRGB *leds, int numLeds) {
 
     //clears all pixels on the layer
-    _clearLeds();
+    fill_solid(leds, numLeds, CRGB::Black);
 
     //move a single pixel along the strand step by step
-    _targetLeds[pos++] = _getColor();
+    leds[pos++] = _getColor();
+    //TODO: this is better.... ?
+//    leds[pos++] = this->getColor();
 
     //start over at first led once we hit last
-    if(pos >= _numLeds)
+    if(pos >= numLeds)
       pos = 0;
   }
 
@@ -674,17 +676,9 @@ Returns a CRGB object with the current frame color as per this patterns [color c
 
 Returns the palette that was configured on this pattern via the *usePalette()* method
 
-**_clearLeds()**
-
-Clears the leds on this pattern's layer - be aware that this will clear data written by other patterns on the same layer as well
-
 **_countCycle()**
 
 Count one *cycle* - used for timing activations and color changes via cycles
-
-**_inBounds(int index)**
-
-Returns true / false if *index* is between 0 and the number of leds in this pattern's layer
 
 
 ### Initialize

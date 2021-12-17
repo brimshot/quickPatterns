@@ -7,6 +7,9 @@ class qpFeathers : public qpPattern {
     int direction;
     int startPos = 0;
 
+    bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
+
+
   public:
     qpFeathers(int size, int direction = 1) : size(size), direction(direction) {}
 

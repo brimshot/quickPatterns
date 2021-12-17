@@ -19,6 +19,8 @@ bool qpPattern::render() {
         if(this->ticks == this->nextRenderTick) {
             this->frames++;
             this->nextRenderTick += this->ticksBetweenFrames;                    
+            
+            //TODO: pass in leds / numLeds here and think about testing!!!!! colors!!!
             this->draw();
         }
     
@@ -41,17 +43,12 @@ void qpPattern::resetActivationTimer() {
   if(this->periodCounterActivationsAreBoundTo == nullptr) // TODO: there's a nicer way to do this
     return;
 
-  //TODO: add this back
-  /*
   int nextActivationOffset = 0;
   if(this->maxPeriodsBetweenActivations) {
     nextActivationOffset = random16(this->minPeriodsBetweenActivations, this->maxPeriodsBetweenActivations);
   } else {
     nextActivationOffset = this->minPeriodsBetweenActivations;
   }
-  */
-
-  int nextActivationOffset = this->minPeriodsBetweenActivations;
 
   this->nextPeriodToActivateAt = (*this->periodCounterActivationsAreBoundTo + nextActivationOffset);
 }

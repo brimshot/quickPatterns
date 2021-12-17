@@ -24,13 +24,6 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
       effect->apply(this->leds, this->numLeds);
   }
 
-  // Activation management - still relies on the order in which patterns were added to the stack - force this in the fluent interface.... ?
-  /*
-  while(qpPattern *currentPattern = this->patterns.fetch()) {
-    currentPattern->activateIfConditionsMet();
-  }
-  */
-
   // Render patterns
   while(qpPattern *currentPattern = this->patterns.fetch()) {
     bool isActive = currentPattern->render();

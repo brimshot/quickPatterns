@@ -29,6 +29,8 @@ class popupDroid : public qpPattern {
       this->dir *= -1;
     }
 
+    bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
+
   public:
 
     popupDroid(int size = 6, bool clearEachCycle = true) {
@@ -44,7 +46,7 @@ class popupDroid : public qpPattern {
 
     void draw() {
 
-      _clearLeds();
+      fill_solid(_targetLeds, _numLeds, CRGB::Black);
 
       switch(this->state) {
         case POPUP:
@@ -86,9 +88,10 @@ class popupDroid : public qpPattern {
       if(!_inBounds(this->startPos+this->size) || (--this->goDist <= 0)) {
         if(--this->goMoves <= 0) {
           this->reset();
-          if(this->clearEachCycle)
-            _clearLeds();
-
+          if(this->clearEachCycle) {
+            fill_solid(_targetLeds, _numLeds, CRGB::Black);
+          }
+          
           _countCycle();
         }
         this->goDist = random(this->size, (_numLeds / 2));
