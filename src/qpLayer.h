@@ -22,18 +22,18 @@ class qpLayer {
     bool bPersistWhenPatternsInactive = true;
 
     // Brushes
-    void addToLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
-    void subtractFromLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
-    void overlayOnLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
-    void overwriteLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
-    void combineWithLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
-    void maskLeds(CRGB *toLeds, CRGB *sourceLeds, int numLeds);
+    void addToLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds);
+    void subtractFromLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds);
+    void overlayOnLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds);
+    void overwriteWithLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds);
+    void combineWithLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds);
+    void maskLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds);
 
-    void (qpLayer::*applyLeds)(CRGB *toLeds, CRGB *sourceLeds, int numLeds); //pointer to brush function
+    void (qpLayer::*applyLeds)(CRGB *targetLeds, CRGB *sourceLeds, int numLeds); //pointer to brush function
 
   public:
 
-    qpLayer(CRGB *leds, int numLeds, int layerId);
+    qpLayer(CRGB *leds, int numLeds);
 
     // ~ Rendering
 
@@ -41,7 +41,7 @@ class qpLayer {
 
     // ~ Patterns
 
-    qpPattern *addPattern(qpPattern *pattern);
+    qpPattern &addPattern(qpPattern *pattern);
 
     // ~ Config
 
@@ -51,7 +51,7 @@ class qpLayer {
 
     // Brush
     qpLayer &setLayerBrush(QP_BRUSH_TYPE brush);
-//    qpLayer &setLayerBrush(void (*brushFunc)(CRGB *toLeds, CRGB *sourceLeds, int numLeds));
+//    qpLayer &setLayerBrush(void (*brushFunc)(CRGB *targetLeds, CRGB *sourceLeds, int numLeds));
 
     // Effects
     qpLayer &addPreRenderEffect(qpLayerEffect *effect);

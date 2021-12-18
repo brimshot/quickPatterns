@@ -2,8 +2,8 @@
 #define QP_PATTERN_H
 
 #include <FastLED.h>
-#include "qpLinkedList.h"
 #include "qpEnums.h"
+#include "qpLinkedList.h"
 #include "qpColor.h"
 
 class qpPattern {
@@ -105,57 +105,57 @@ class qpPattern {
     Fluent interface
     */
 
-    qpPattern *drawEveryNTicks(int ticks);
+    qpPattern &drawEveryNTicks(int ticks);
 
     // Scheduling
-    qpPattern *removeWhenDeactivated(bool value);
+    qpPattern &removeWhenDeactivated(bool value);
 
-    qpPattern *activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
+    qpPattern &activatePeriodicallyEveryNTicks(int minTicks, int maxTicks = 0);
 
-    qpPattern *stayActiveForNTicks(int minTicks, int maxTicks = 0);
-    qpPattern *stayActiveForNFrames(int minFrames, int maxFrames = 0);
-    qpPattern *stayActiveForNCycles(int minCycles, int maxCycles = 0);
-    qpPattern *withChanceOfActivation(uint8_t percentage);
+    qpPattern &stayActiveForNTicks(int minTicks, int maxTicks = 0);
+    qpPattern &stayActiveForNFrames(int minFrames, int maxFrames = 0);
+    qpPattern &stayActiveForNCycles(int minCycles, int maxCycles = 0);
+    qpPattern &withChanceOfActivation(uint8_t percentage);
 
 
     // Color values
-    qpPattern *singleColor(CRGB color);
+    qpPattern &singleColor(CRGB color);
 
-    qpPattern *usePalette(CRGBPalette16 colorPalette);
+    qpPattern &usePalette(CRGBPalette16 colorPalette);
 
     //TODO: can this be a pointer..... ?
-    qpPattern *chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
+    qpPattern &chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
 
     //TODO: gooooo back
-    qpPattern *chooseColorFromPaletteSequentially(CRGBPalette16 colorPalette, int paletteStepSize = 3);
-//    qpPattern *setPaletteStepSize(int size);
-    qpPattern *useColorSet(CRGB *colorSet, uint8_t numColorsInSet);
-    qpPattern *chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode);
+    qpPattern &chooseColorFromPaletteSequentially(CRGBPalette16 colorPalette, int paletteStepSize = 3);
+//    qpPattern &setPaletteStepSize(int size);
+    qpPattern &useColorSet(CRGB *colorSet, uint8_t numColorsInSet);
+    qpPattern &chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode);
 
     // Color timing
-    qpPattern *changeColorEveryNTicks(int minTicks, int maxTicks = 0);
-    qpPattern *changeColorEveryNCycles(int minCycles, int maxCycles = 0);
-    qpPattern *changeColorEveryNFrames(int minFrames, int maxFrames = 0);
-    qpPattern *changeColorEveryNActivations(int minActivations, int maxActivations = 0);
-    qpPattern *withChanceToChangeColor(byte percentage);
+    qpPattern &changeColorEveryNTicks(int minTicks, int maxTicks = 0);
+    qpPattern &changeColorEveryNCycles(int minCycles, int maxCycles = 0);
+    qpPattern &changeColorEveryNFrames(int minFrames, int maxFrames = 0);
+    qpPattern &changeColorEveryNActivations(int minActivations, int maxActivations = 0);
+    qpPattern &withChanceToChangeColor(byte percentage);
 
     // ~ Linked pattern activations
 
-    qpPattern *activateWhenPatternPActivates(qpPattern *P);
-    qpPattern *activateWhenPatternPDeactivates(qpPattern *P);
-    qpPattern *activateWhenPatternPHasCompletedNCycles(qpPattern *P, int minCycles, int maxCycles = 0);
-    qpPattern *activateWhenPatternPHasRenderedNFrames(qpPattern *P, int minFrames, int maxFrames = 0);
-    qpPattern *activateWhenPatternPHasActivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
-    qpPattern *activateWhenPatternPHasDeactivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
+    qpPattern &activateWhenPatternPActivates(qpPattern &P);
+    qpPattern &activateWhenPatternPDeactivates(qpPattern &P);
+    qpPattern &activateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
+    qpPattern &activateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
+    qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+    qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
 
-    qpPattern *deactivateWhenPatternPActivates(qpPattern *P);
-    qpPattern *deactivateWhenPatternPDeactivates(qpPattern *P);
-    qpPattern *deactivateWhenPatternPHasCompletedNCycles(qpPattern *P, int minCycles, int maxCycles = 0);
-    qpPattern *deactivateWhenPatternPHasRenderedNFrames(qpPattern *P, int minFrames, int maxFrames = 0);
-    qpPattern *deactivateWhenPatternPHasActivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
-    qpPattern *deactivateWhenPatternPHasDeactivatedNTimes(qpPattern *P, int minActivations, int maxActivations = 0);  
+    qpPattern &deactivateWhenPatternPActivates(qpPattern &P);
+    qpPattern &deactivateWhenPatternPDeactivates(qpPattern &P);
+    qpPattern &deactivateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
+    qpPattern &deactivateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
+    qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+    qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
 
-    qpPattern *beginInActiveState();
+    qpPattern &beginInActiveState();
 
     bool activate();
     void deactivate();

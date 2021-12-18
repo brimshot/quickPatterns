@@ -3,27 +3,24 @@
 // TODO: none of these methods need to be chainable.....
 
 qpColor::qpColor() {
-
   this->currentColor = CRGB::Black;
   this->colorPalette = CRGBPalette16(CRGB::Black);
 }
 
 void qpColor::update() {
 
-  if(this->nextColorShouldLoad()) {
-    this->loadNextColor();
+  if(this->colorShouldChangePeriodically) {
+    if(this->nextColorShouldLoad()) {
+      this->loadNextColor();
 
-    this->periodCountAtLastColorChange = *this->colorPeriodsCounter;
+      this->periodCountAtLastColorChange = *this->colorPeriodsCounter;
+    }
   }
+
 }
 
 bool qpColor::nextColorShouldLoad() {
-
-  if(this->colorShouldChangePeriodically) {
     return ((*this->colorPeriodsCounter - this->periodCountAtLastColorChange) >= this->currentColorDuration);
-  }
-
-  return false;
 }
 
 void qpColor::loadNextColor() {
@@ -44,22 +41,17 @@ void qpColor::loadNextColor() {
 Timing config
 */
 
-//void qpColor::bindColorDurationTimer(unsigned long *periodCounter, int minPeriods, int maxPeriods);
-
-void qpColor::setPeriodCounter(unsigned long *periodCounter) {
-
+void qpColor::bindColorDurationTimer(unsigned long *periodCounter, int minPeriods, int maxPeriods) {
   this->colorShouldChangePeriodically = true;
 
   this->colorPeriodsCounter = periodCounter;
-}
-
-void qpColor::setColorDuration(int minPeriods, int maxPeriods) {
 
   this->currentColorDuration = this->minColorDuration = minPeriods;
+
   this->maxColorDuration = maxPeriods;
 }
 
-qpColor *qpColor::withChanceToChangeColor(byte percentage) {
+qpColor *qpColor::withChanceToChangeColor(uint8_t percentage) {
 
   this->chanceToChangeColor = constrain(percentage, 0, 100);
 
@@ -98,7 +90,7 @@ void qpColor::loadNextColorFromSetRandomly() {
 Color set config
 */
 
-qpColor *qpColor::useColorSet(CRGB *colorSet, byte numElements) {
+qpColor *qpColor::useColorSet(CRGB *colorSet, uint8_t numElements) {
 
   this->colorSet = colorSet;
   this->numColorsInSet = numElements;
@@ -107,7 +99,7 @@ qpColor *qpColor::useColorSet(CRGB *colorSet, byte numElements) {
   return this;
 }
 
-qpColor *qpColor::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
+qpColor *qpColor::chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode) {
 
   this->useColorSet(colorSet, numElements);
 
@@ -135,7 +127,7 @@ qpColor *qpColor::usePalette(CRGBPalette16 colorPalette) {
 }
 
 
-qpColor *qpColor::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode, byte stepSize) {
+qpColor *qpColor::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode, uint8_t stepSize) {
 
   this->usePalette(colorPalette);
   this->setPaletteStep(stepSize);
@@ -148,7 +140,7 @@ qpColor *qpColor::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MO
   return this;
 }
 
-qpColor *qpColor::setPaletteStep(byte stepSize) {
+qpColor *qpColor::setPaletteStep(uint8_t stepSize) {
       this->paletteStep = stepSize;
 
       return this;

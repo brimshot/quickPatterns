@@ -2,7 +2,7 @@
 
 A pattern and animation manager for individually addressable LEDs (WS2811, WS2812, NeoPixels, etc.) using FastLED.
 
-The goal of quickPatterns is to provide makers a simple interface in code for creating advanced light pattern configurations.
+The goal of quickPatterns is to provide makers a simple interface in code for creating advanced light pattern configurations i.e. multiple patterns running simultaneously, timing and sequencing.
 
 **Features**
 - Easily layer multiple animations on top of each other, with multiple options for how overlapping pixels interact
@@ -10,10 +10,6 @@ The goal of quickPatterns is to provide makers a simple interface in code for cr
 - Configure colors to change in relation to pattern variables including updates, frames, "cycles" or activations
 - Create multiple "scenes" of one or more patterns running simultaneously and quickly change between them
 - Easily write custom light patterns that are immediately usable with all configuration options
-
-> **NOTE:** Since the originally released version 0.1, the return type for configuration methods has changed from reference to pointer.
-> 
-> To make code running on 0.1 compatible with the latest release, replace the . operator with the pointer operator -> when chaining pattern configuration calls
 
  # Documentation
 
@@ -65,7 +61,7 @@ A simple example that can be run right away
 #include <quickPatterns.h>
 
 #define CHIPSET     WS2812B
-#define DATA_PIN    8
+#define DATA_PIN    2
 #define NUM_LEDS    100
 #define BRIGHTNESS  64
 #define COLOR_ORDER GRB         //GRB for WS2812, RGB for WS2811
@@ -101,14 +97,14 @@ void setup() {
 
   // Cylon of 8 pixels that cycles through the rainbow (layer 0)
   quickPatterns.newScene().addPattern(new qpBouncingBars(8))
-    ->chooseColorFromPalette(RainbowColors_p, SEQUENTIAL)
-    ->changeColorEveryNTicks(2);
+    .chooseColorFromPalette(RainbowColors_p, SEQUENTIAL)
+    .changeColorEveryNTicks(2);
 
   // Periodically toss in some lightning flashes at random places along the strand, 10 pixels wide (layer 1)
   quickPatterns.sameScene().addPattern(new qpLightning(10))
-      ->singleColor(CRGB::White)
-      ->activatePeriodicallyEveryNTicks(100, 200) // activate at random intervals between 100 and 200 ticks
-      ->stayActiveForNCycles(2, 4); // each activation will trigger 2 to 4 lightning flashes
+      .singleColor(CRGB::White)
+      .activatePeriodicallyEveryNTicks(100, 200) // activate at random intervals between 100 and 200 ticks
+      .stayActiveForNCycles(2, 4); // each activation will trigger 2 to 4 lightning flashes
 }
 
 void loop()
@@ -172,7 +168,7 @@ Once the quickPatterns controller has been instantiated you can use the addPatte
 For example, a simple pulse of eight pixels that moves back and forth a string of lights:
 ```
 quickPatterns.newScene().addPattern(new qpComet(8))
-  ->singleColor(CRGB::Red);
+  .singleColor(CRGB::Red);
 ```
 addPattern() returns a pointer to the pattern object passed as a parameter which can be used to continue to chain configuration methods.
 In this case we are chaining the singleColor() method which sets our pulse pattern to a constant red.
@@ -649,7 +645,7 @@ class myCustomPattern : public qpPattern {
     //move a single pixel along the strand step by step
     leds[pos++] = _getColor();
     //TODO: this is better.... ?
-//    leds[pos++] = this->getColor();
+//    leds[pos++] = this.getColor();
 
     //start over at first led once we hit last
     if(pos >= numLeds)

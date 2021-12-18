@@ -1,7 +1,7 @@
 #include "qpLayer.h"
 #include "layer_effects/qpContinuallyFadeBy.h"
 
-qpLayer::qpLayer(CRGB *leds, int numLeds, int layerIndex) {
+qpLayer::qpLayer(CRGB *leds, int numLeds) {
   
   this->leds = leds;
   this->numLeds = numLeds;
@@ -52,14 +52,14 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
 // ~ Config
 
-qpPattern *qpLayer::addPattern(qpPattern *pattern) {
+qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
   pattern->assignTargetLeds(this->leds, this->numLeds);
   pattern->initialize();
 
   this->lastReferencedPattern = this->patterns.append(pattern);
 
-  return pattern;
+  return *pattern;
 }
 
 // ~ Effects
@@ -115,7 +115,7 @@ qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
       this->applyLeds = &qpLayer::subtractFromLeds;
       break;
     case OVERWRITE:
-      this->applyLeds = &qpLayer::overwriteLeds;
+      this->applyLeds = &qpLayer::overwriteWithLeds;
       break;
     case OVERLAY:
       this->applyLeds = &qpLayer::overlayOnLeds;
@@ -162,7 +162,7 @@ void qpLayer::overlayOnLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   }
 }
 
-void qpLayer::overwriteLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
+void qpLayer::overwriteWithLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   memcpy(targetLeds, sourceLeds, (sizeof(CRGB)*numLeds));
 }
 

@@ -13,17 +13,15 @@ class qpColor {
     CRGB currentColor;
 
     CRGBPalette16 colorPalette;
-    byte paletteStep = 3; // amount to jump when using palette sequentially
-    byte paletteIndex = 0;
+    uint8_t paletteStep = 3; // amount to jump when using palette sequentially
+    uint8_t paletteIndex = 0;
 
     CRGB *colorSet;
-    byte numColorsInSet = 0;
-    byte colorSetIndex = 0;
+    uint8_t numColorsInSet = 0;
+    uint8_t colorSetIndex = 0;
 
     // Change timing
 
-    //TODO: convert all counters to unsigned
-    
     bool colorShouldChangePeriodically = false;
     bool nextColorShouldLoad();
 
@@ -61,23 +59,17 @@ class qpColor {
     qpColor *singleColor(CRGB color);
 
     qpColor *usePalette(CRGBPalette16 palette);
-    qpColor *chooseColorFromPalette(CRGBPalette16 palette, QP_COLOR_MODE mode, byte stepSize = 3);
-    qpColor *setPaletteStep(byte stepSize);
+    qpColor *chooseColorFromPalette(CRGBPalette16 palette, QP_COLOR_MODE mode, uint8_t stepSize = 3);
+    qpColor *setPaletteStep(uint8_t stepSize);
     
-    qpColor *useColorSet(CRGB *colorSet, byte numElements);
-    qpColor *chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode);
+    qpColor *useColorSet(CRGB *colorSet, uint8_t numElements);
+    qpColor *chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode);
 
-    qpColor *withChanceToChangeColor(byte percentage);
+    qpColor *withChanceToChangeColor(uint8_t percentage);
 
     // Timing
 
-    // TODO: do it this way instead, for consistency
-    //void qpColor::bindColorDurationTimer(unsigned long *periodCounter, int minPeriods, int maxPeriods);
-
-    void setPeriodCounter(unsigned long *periodCounter);
-    void setColorDuration(int minPeriods, int maxPeriods);
-
-
+    void bindColorDurationTimer(unsigned long *periodCounter, int minPeriods, int maxPeriods);
 };
 
 #endif

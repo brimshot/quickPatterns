@@ -1,53 +1,60 @@
 #include "qpPattern.h"
 
-//TODO: this gets called as well as the child constructor?
 qpPattern::qpPattern() {
   this->_color = new qpColor();
 }
 
 /*--------
+Setup
+*/
+
+void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
+  this->_targetLeds = leds;
+  this->_numLeds = numLeds;
+}
+
+
+/*--------
 Rendering
 */
 
-void qpPattern::render(CRGB *leds, int numLeds) {
+void qpPattern::render(CRGB *leds, int numLeds) { //TODO: remove leds / numleds from here
 
-    this->ticks++;
+  this->ticks++;
 
-    if(this->patternShouldActivatePeriodically) {
-      if(this->patternShouldActivate()) {
-          this->activate();
-      }
+  if(this->patternShouldActivatePeriodically) {
+    if(this->patternShouldActivate()) {
+        this->activate();
+    }
+  }
+
+  if(this->_isActive) {
+    if(this->ticks == this->nextRenderTick) {
+        this->frames++;
+        this->nextRenderTick += this->ticksBetweenFrames;                    
+
+        this->draw(); //TODO: this->draw(leds, numLeds);
     }
 
-    if(this->_isActive) {
-      if(this->ticks == this->nextRenderTick) {
-          this->frames++;
-          this->nextRenderTick += this->ticksBetweenFrames;                    
+    this->_color->update();
 
-          this->draw(); //TODO: this->draw(leds, numLeds);
-      }
-  
-      this->_color->update();
-
-      if(this->patternShouldDeactivatePeriodically) {
-        if(this->patternShouldDeactivate()) {
-          this->deactivate();
-          if(this->patternShouldActivatePeriodically) {
-            this->resetActivationTimer();
-          }
+    if(this->patternShouldDeactivatePeriodically) {
+      if(this->patternShouldDeactivate()) {
+        this->deactivate();
+        if(this->patternShouldActivatePeriodically) {
+          this->resetActivationTimer();
         }
       }
     }
+  }
+
 }
 
 CRGB qpPattern::_getColor() {
-
   return this->_color->getColor();
-//   return this->colors.getItem(index)->getColor();
 }
 
 CRGBPalette16 qpPattern::_getPalette() {
-
    return this->_color->getPalette();
 }
 
@@ -109,15 +116,18 @@ bool qpPattern::patternShouldDeactivate() {
 }
 
 void qpPattern::deactivate() {
+
   this->_isActive = false;
+
   this->deactivations++;
+
   this->onDeactivate();
 }
 
-qpPattern *qpPattern::beginInActiveState() {
+qpPattern &qpPattern::beginInActiveState() {
   this->activate(); //TODO: this breaks when there's a random chance of activation, needs to be certain
 
-  return this;
+  return *this;
 }
 
 void qpPattern::resetActivationTimer() {
@@ -147,91 +157,103 @@ void qpPattern::bindPeriodicActivationTimer(unsigned long *periodCounter, int mi
 
   this->patternShouldActivatePeriodically = true;
 
+  this->periodCounterActivationsAreBoundTo = periodCounter;
   this->minPeriodsBetweenActivations = minPeriodsBetweenActivations;
   this->maxPeriodsBetweenActivations = maxPeriodsBetweenActivations;
-  this->periodCounterActivationsAreBoundTo = periodCounter;
 
   this->resetActivationTimer();
 }
 
-qpPattern *qpPattern::withChanceOfActivation(uint8_t percentage) {
+qpPattern &qpPattern::withChanceOfActivation(uint8_t percentage) {
 
   this->chanceToActivatePattern = constrain(percentage, 0, 100);
 
-  return this;
+  return *this;
 }
 
 // ~ Periodic activation
 
-qpPattern *qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
+qpPattern &qpPattern::activatePeriodicallyEveryNTicks(int minTicks, int maxTicks) {
 
   this->bindPeriodicActivationTimer(&this->ticks, minTicks, maxTicks);
 
-  return this;
+  return *this;
 }
 
 // ~ Linked activations
 
-qpPattern *qpPattern::activateWhenPatternPActivates(qpPattern *P) {
-  this->bindPeriodicActivationTimer(&P->activations, 1);
-  return this;
+qpPattern &qpPattern::activateWhenPatternPActivates(qpPattern &P) {
+
+  this->bindPeriodicActivationTimer(&P.activations, 1);
+
+  return *this;
 }
 
-qpPattern *qpPattern::activateWhenPatternPDeactivates(qpPattern *P) {
-  this->bindPeriodicActivationTimer(&P->deactivations, 1);
-  return this;
+qpPattern &qpPattern::activateWhenPatternPDeactivates(qpPattern &P) {
+
+  this->bindPeriodicActivationTimer(&P.deactivations, 1);
+
+  return *this;
 }
 
-qpPattern *qpPattern::activateWhenPatternPHasCompletedNCycles(qpPattern *P, int minCycles, int maxCycles) {
-  this->bindPeriodicActivationTimer(&P->cycles, minCycles, maxCycles);
-  return this;
+qpPattern &qpPattern::activateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles) {
+
+  this->bindPeriodicActivationTimer(&P.cycles, minCycles, maxCycles);
+
+  return *this;
 }
 
-qpPattern *qpPattern::activateWhenPatternPHasRenderedNFrames(qpPattern *P, int minFrames, int maxFrames) {
-  this->bindPeriodicActivationTimer(&P->frames, minFrames, maxFrames);
-  return this;
+qpPattern &qpPattern::activateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames) {
+
+  this->bindPeriodicActivationTimer(&P.frames, minFrames, maxFrames);
+
+  return *this;
 }
 
-qpPattern *qpPattern::activateWhenPatternPHasActivatedNTimes(qpPattern *P, int minTimes, int maxTimes) {
-  this->bindPeriodicActivationTimer(&P->activations, minTimes, maxTimes);
-  return this;
+qpPattern &qpPattern::activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minTimes, int maxTimes) {
+
+  this->bindPeriodicActivationTimer(&P.activations, minTimes, maxTimes);
+
+  return *this;
 }
 
-qpPattern *qpPattern::activateWhenPatternPHasDeactivatedNTimes(qpPattern *P, int minTimes, int maxTimes) {
-  this->bindPeriodicActivationTimer(&P->deactivations, minTimes, maxTimes);
-  return this;
+qpPattern &qpPattern::activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minTimes, int maxTimes) {
+
+  this->bindPeriodicActivationTimer(&P.deactivations, minTimes, maxTimes);
+
+  return *this;
 }
 
 // ~ Linkded deactivations
 
-qpPattern *qpPattern::deactivateWhenPatternPActivates(qpPattern *P) {
-  this->bindDeactivationTimer(&P->activations, 1);
-  return this;
+qpPattern &qpPattern::deactivateWhenPatternPActivates(qpPattern &P) {
+  this->bindDeactivationTimer(&P.activations, 1);
+  return *this;
 }
 
-qpPattern *qpPattern::deactivateWhenPatternPDeactivates(qpPattern *P) {
-  this->bindDeactivationTimer(&P->deactivations, 1);
-  return this;
+qpPattern &qpPattern::deactivateWhenPatternPDeactivates(qpPattern &P) {
+  this->bindDeactivationTimer(&P.deactivations, 1);
+  return *this;
 }
 
-qpPattern *qpPattern::deactivateWhenPatternPHasCompletedNCycles(qpPattern *P, int minCycles, int maxCycles) {
-  this->bindDeactivationTimer(&P->cycles, minCycles, maxCycles);
-  return this;
+qpPattern &qpPattern::deactivateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles) {
+  this->bindDeactivationTimer(&P.cycles, minCycles, maxCycles);
+  return *this;
 }
 
-qpPattern *qpPattern::deactivateWhenPatternPHasRenderedNFrames(qpPattern *P, int minFrames, int maxFrames) {
-  this->bindDeactivationTimer(&P->frames, minFrames, maxFrames);
-  return this;
+qpPattern &qpPattern::deactivateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames) {
+  this->bindDeactivationTimer(&P.frames, minFrames, maxFrames);
+  return *this;
 }
 
-qpPattern *qpPattern::deactivateWhenPatternPHasActivatedNTimes(qpPattern *P, int minTimes, int maxTimes) {
-  this->bindDeactivationTimer(&P->activations, minTimes, maxTimes);
-  return this;
+qpPattern &qpPattern::deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minTimes, int maxTimes) {
+  this->bindDeactivationTimer(&P.activations, minTimes, maxTimes);
+  return *this;
 }
 
-qpPattern *qpPattern::deactivateWhenPatternPHasDeactivatedNTimes(qpPattern *P, int minTimes, int maxTimes) {
-  this->bindDeactivationTimer(&P->deactivations, minTimes, maxTimes);
-  return this;
+qpPattern &qpPattern::deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minTimes, int maxTimes) {
+  this->bindDeactivationTimer(&P.deactivations, minTimes, maxTimes);
+  return *this;
 }
 
 
@@ -240,27 +262,37 @@ Active period duration
 */
 
 void qpPattern::bindDeactivationTimer(unsigned long *periodCounter, int minPeriodsToStayActive, int maxPeriodsToStayActive) {
-  this->activePeriodsCounter = periodCounter;
+
   this->patternShouldDeactivatePeriodically = true;
+
+  this->activePeriodsCounter = periodCounter;
+
   this->minPeriodsToStayActive = this->currentPeriodsToStayActive = max(1, minPeriodsToStayActive);
+
   this->maxPeriodsToStayActive = max(0, maxPeriodsToStayActive);
 }
 
-qpPattern *qpPattern::stayActiveForNTicks(int minTicks, int maxTicks) {
+qpPattern &qpPattern::stayActiveForNTicks(int minTicks, int maxTicks) {
+
   this->bindDeactivationTimer(&this->ticks, minTicks, maxTicks);
-  return this;
+
+  return *this;
 }
 
 
-qpPattern *qpPattern::stayActiveForNFrames(int minFrames, int maxFrames) {
+qpPattern &qpPattern::stayActiveForNFrames(int minFrames, int maxFrames) {
+
   this->bindDeactivationTimer(&this->frames, minFrames, maxFrames);
-  return this;
+
+  return *this;
 }
 
 
-qpPattern *qpPattern::stayActiveForNCycles(int minCycles, int maxCycles) {
+qpPattern &qpPattern::stayActiveForNCycles(int minCycles, int maxCycles) {
+
   this->bindDeactivationTimer(&this->cycles, minCycles, maxCycles);
-  return this;
+
+  return *this;
 }
 
 
@@ -269,40 +301,40 @@ qpPattern *qpPattern::stayActiveForNCycles(int minCycles, int maxCycles) {
 Color config
 */
 
-qpPattern *qpPattern::singleColor(CRGB color) {
+qpPattern &qpPattern::singleColor(CRGB color) {
 
   this->_color->singleColor(color);
 
-  return this;
+  return *this;
 }
 
-qpPattern *qpPattern::usePalette(CRGBPalette16 colorPalette) {
+qpPattern &qpPattern::usePalette(CRGBPalette16 colorPalette) {
 
   this->_color->usePalette(colorPalette);
 
-  return this;
+  return *this;
 }
 
-qpPattern *qpPattern::useColorSet(CRGB *colorSet, byte numColorsInSet){
+qpPattern &qpPattern::useColorSet(CRGB *colorSet, byte numColorsInSet){
 
   this->_color->useColorSet(colorSet, numColorsInSet);
 
-  return this;
+  return *this;
 }
 
 //TODO: add step size in here!
-qpPattern *qpPattern::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
+qpPattern &qpPattern::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
 
   this->_color->chooseColorFromPalette(colorPalette, mode);
 
-  return this;
+  return *this;
 }
 
-qpPattern *qpPattern::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
+qpPattern &qpPattern::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_COLOR_MODE mode) {
 
   this->_color->chooseColorFromSet(colorSet, numElements, mode);
 
-  return this;
+  return *this;
 }
 
 
@@ -310,70 +342,59 @@ qpPattern *qpPattern::chooseColorFromSet(CRGB *colorSet, byte numElements, QP_CO
 Color duration
 */
 
-qpPattern *qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
+qpPattern &qpPattern::changeColorEveryNTicks(int minTicks, int maxTicks) {
 
-  this->_color->setPeriodCounter(&this->ticks);
-  this->_color->setColorDuration(minTicks, maxTicks);
+  this->_color->bindColorDurationTimer(&this->ticks, minTicks, maxTicks);
 
-  return this;
+  return *this;
 }
 
 
-qpPattern *qpPattern::changeColorEveryNCycles(int minCycles, int maxCycles) {
+qpPattern &qpPattern::changeColorEveryNCycles(int minCycles, int maxCycles) {
 
-  this->_color->setPeriodCounter(&this->cycles);
-  this->_color->setColorDuration(minCycles, maxCycles);
+  this->_color->bindColorDurationTimer(&this->cycles, minCycles, maxCycles);
 
-  return this;
+  return *this;
 }
 
-qpPattern *qpPattern::changeColorEveryNFrames(int minFrames, int maxFrames) {
+qpPattern &qpPattern::changeColorEveryNFrames(int minFrames, int maxFrames) {
 
-  this->_color->setPeriodCounter(&this->frames);
-  this->_color->setColorDuration(minFrames, maxFrames);
+  this->_color->bindColorDurationTimer(&this->frames, minFrames, maxFrames);
 
-  return this;
+  return *this;
 }
 
-qpPattern *qpPattern::changeColorEveryNActivations(int minActivations, int maxActivations) {
+qpPattern &qpPattern::changeColorEveryNActivations(int minActivations, int maxActivations) {
 
-  this->_color->setPeriodCounter(&this->activations);
-  this->_color->setColorDuration(minActivations, maxActivations);
+  this->_color->bindColorDurationTimer(&this->activations, minActivations, maxActivations);
 
-  return this;
+  return *this;
 }
 
-qpPattern *qpPattern::withChanceToChangeColor(byte percentage) {
+qpPattern &qpPattern::withChanceToChangeColor(byte percentage) {
 
   this->_color->withChanceToChangeColor(percentage);
 
-  return this;
+  return *this;
 }
 
 
-
-// Setup - called by Layer. Separate injection method allows user defined constructor
-
-void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
-  this->_targetLeds = leds;
-  this->_numLeds = numLeds;
-}
 /*--------
 Misc config
 */
 
-qpPattern *qpPattern::drawEveryNTicks(int ticks) {
+qpPattern &qpPattern::drawEveryNTicks(int ticks) {
 
   this->ticksBetweenFrames = ticks;
 
   if(this->nextRenderTick == 0)
       this->nextRenderTick += this->ticksBetweenFrames;
 
-  return this;
+  return *this;
 }
 
-qpPattern *qpPattern::removeWhenDeactivated(bool value) {
+qpPattern &qpPattern::removeWhenDeactivated(bool value) {
   this->removeOnDeactivation = value;
   
-  return this;
+  return *this;
 }

@@ -27,16 +27,15 @@
 
 /**
  *TODO:
- * - Replace byte with uint8_t
  * - Split strips
- * - nscale8 fade
  * - Reverse effect
+ * - Transitions 
  * - Shapes -> array of pixel positions
  * - Events
  * - Shows
- * - Transitions 
  * - More Teensy testing
  * - Sound reactive plugins + other plugins
+ * - nscale8 fade
  */
 
 class quickPatterns {
@@ -50,7 +49,7 @@ class quickPatterns {
 
     qpLinkedList <qpScene> scenes;
 
-    int sceneIndex = 0;
+    uint8_t sceneIndex = 0;
     qpScene *currentScene = NULL;
 
     qpScene *lastReferencedScene;
@@ -74,35 +73,33 @@ class quickPatterns {
 
     // ~ Config
 
-    qpPattern *addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0
-
+    qpPattern &addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0
 
     // ~ Access
 
     // Patterns
-    qpPattern &pattern(byte patternIndex); //returns specified pattern on layer 0
+    qpPattern &pattern(uint8_t patternIndex); //returns specified pattern on layer 0
 
     // Layers
-    qpLayer &layer(byte layerIndex);
+    qpLayer &layer(uint8_t layerIndex);
 
     // Scenes
     qpScene &newScene();
-    qpScene &scene(byte sceneIndex);
+    qpScene &scene(uint8_t sceneIndex);
 
     // Prev reference
     qpScene &sameScene() { return *this->lastReferencedScene; }
     qpLayer &sameLayer() { return this->sameScene().sameLayer(); }
     qpPattern &samePattern() { return this->sameScene().sameLayer().samePattern(); }
 
-    // TODO: replace with int to make Vscode play nicer?
     // Quick access operators
-    qpPattern &operator()(byte layerIndex); //returns pattern 0 from the specified layer in scene 0
-    qpPattern &operator()(byte sceneIndex, byte layerIndex); //returns pattern 0 from the specified layer in the specified scene
-    qpPattern &operator()(byte sceneIndex, byte layerIndex, byte patternIndex);
+    qpPattern &operator()(uint8_t layerIndex); //returns pattern 0 from the specified layer in scene 0
+    qpPattern &operator()(uint8_t sceneIndex, uint8_t layerIndex); //returns pattern 0 from the specified layer in the specified scene
+    qpPattern &operator()(uint8_t sceneIndex, uint8_t layerIndex, uint8_t patternIndex);
 
 
     // ~ Scene navigation
-    void playScene(byte index);
+    void playScene(uint8_t index);
     void nextScene();
     void playRandomScene();
 
