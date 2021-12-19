@@ -522,7 +522,7 @@ Use pre-render effects to, for example, gradually fade away illuminated pixels a
 quickPatterns.sameLayer().addPreRenderEffect(new qpContinuallyFadeLayerBy(20)); //layer 1 will fade to black by 20/255 once per tick
 ```
 
-By fading before rendering, pixels that were lit by the previous frame will be faded and any pixels drawn in the new frame will show at full brightness.
+By fading before rendering, pixels that were lit by the previous frame will gradually fade away and any pixels drawn in the new frame will show at full brightness.
 
 Use post-render effects to apply adjustments *after* new pattern data has been written to the layer, for example a breathing effect that effects both new writes and previous.
 
@@ -534,13 +534,15 @@ quickPatterns.sameLayer().continuallyFadeLayerBy(20); //layer 1 will fade to bla
 
 ### Custom layer effects
 
-Layer effects are classes that inherit from the `qpLayerEffect` base class. To create a custom layer effect, simply create and implement the *apply()* method, like so:
+Layer effects are classes that inherit from the `qpLayerEffect` base class. To create a custom layer effect, simply create a new class that inherits from `qpLayerEffect` and implement the *apply()* method, like so:
 
 ```
 class MyEffect : public qpLayerEffect {
+
   void apply(CRGB *targetLeds, int numLeds) {
     // ... custom code
   }
+
 }
 ```
 
@@ -557,11 +559,11 @@ quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be r
 
 ## Scenes
 
-Scenes are collections of Layers[#layers] containing Patterns[#patterns]. 
+Scenes are collections of layers and their patterns that can be referenced as a unit. 
 
 Creating multiple scenes, each with their own layers, allows us to switch between various combinations of patterns on the same strand of lights as desired.
 
-To create a new scene simply use the *newScene()* method, which returns a reference to the scene created, like so
+To create a new scene, use the *newScene()* method, which returns a reference to the scene created, like so
 
 ```
 //Creates a new scene (index will be 1) and adds a pattern
@@ -759,18 +761,6 @@ void initialize() {
 }
 ```
 
-
-## Writing custom layer effects
-
-In comparison to patterns, Layer Effects are much simpler creations.
-
-To write a custom Layer Effect, simply create class that inherits from qpLayerEffect like so:
-
-It is only necessary to implement a single method *draw(CRGB *targetLeds, int numLeds)*
-
-This layer effect can now be queued to be applied either before or after the next pattern frames are drawn onto the layer using either *addPreRenderEffect* or *addPostRenderEffect*
-
-Effects are called each time the layer is rendered i.e. once per tick
 
 ## Sample pattern library
 
