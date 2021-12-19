@@ -26,11 +26,11 @@
 #endif
 
 /**
- *TODO:
+ * todo:
  * - Split strips
  * - Reverse effect
  * - Transitions 
- * - Shapes -> array of pixel positions
+ * - Shapes -> passable array of pixel positions
  * - Events
  * - Shows
  * - More Teensy testing

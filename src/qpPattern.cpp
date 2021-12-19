@@ -18,13 +18,19 @@ void qpPattern::assignTargetLeds(CRGB *leds, int numLeds) {
 Rendering
 */
 
-void qpPattern::render(CRGB *leds, int numLeds) { //TODO: remove leds / numleds from here
-
+void qpPattern::render() { 
+  
   this->ticks++;
 
   if(this->patternShouldActivatePeriodically) {
     if(this->patternShouldActivate()) {
-        this->activate();
+      if(this->chanceToActivatePattern > 0) {
+        if(random16(100) < this->chanceToActivatePattern) {
+          this->activate();
+        }
+      } else {
+          this->activate();
+      }
     }
   }
 
@@ -33,7 +39,7 @@ void qpPattern::render(CRGB *leds, int numLeds) { //TODO: remove leds / numleds 
         this->frames++;
         this->nextRenderTick += this->ticksBetweenFrames;                    
 
-        this->draw(); //TODO: this->draw(leds, numLeds);
+        this->draw(); 
     }
 
     this->_color->update();
@@ -47,7 +53,7 @@ void qpPattern::render(CRGB *leds, int numLeds) { //TODO: remove leds / numleds 
       }
     }
   }
-
+  
 }
 
 CRGB qpPattern::_getColor() {
@@ -78,13 +84,6 @@ bool qpPattern::patternShouldActivate() {
 
 
 bool qpPattern::activate() {
-
-  // If we are only activating with a chance, check that here
-  if(this->chanceToActivatePattern > 0) {
-    if(random16(100) > this->chanceToActivatePattern) {
-      return false;
-    }
-  }
 
   if(this->maxPeriodsToStayActive) {
     this->currentPeriodsToStayActive = random16(this->minPeriodsToStayActive, this->maxPeriodsToStayActive);
@@ -122,12 +121,6 @@ void qpPattern::deactivate() {
   this->deactivations++;
 
   this->onDeactivate();
-}
-
-qpPattern &qpPattern::beginInActiveState() {
-  this->activate(); //TODO: this breaks when there's a random chance of activation, needs to be certain
-
-  return *this;
 }
 
 void qpPattern::resetActivationTimer() {
@@ -322,10 +315,17 @@ qpPattern &qpPattern::useColorSet(CRGB *colorSet, byte numColorsInSet){
   return *this;
 }
 
-//TODO: add step size in here!
 qpPattern &qpPattern::chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode) {
 
   this->_color->chooseColorFromPalette(colorPalette, mode);
+
+  this->changeColorEveryNTicks(1);
+
+  return *this;
+}
+
+qpPattern &qpPattern::setPaletteStepSize(int stepSize) {
+  this->_color->setPaletteStep(stepSize);
 
   return *this;
 }

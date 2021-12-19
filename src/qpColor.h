@@ -56,16 +56,16 @@ class qpColor {
 
     // Color sequence
 
-    qpColor *singleColor(CRGB color);
+    void singleColor(CRGB color);
 
-    qpColor *usePalette(CRGBPalette16 palette);
-    qpColor *chooseColorFromPalette(CRGBPalette16 palette, QP_COLOR_MODE mode, uint8_t stepSize = 3);
-    qpColor *setPaletteStep(uint8_t stepSize);
+    void usePalette(CRGBPalette16 palette);
+    void chooseColorFromPalette(CRGBPalette16 palette, QP_COLOR_MODE mode, uint8_t stepSize = 3);
+    void setPaletteStep(uint8_t stepSize);
     
-    qpColor *useColorSet(CRGB *colorSet, uint8_t numElements);
-    qpColor *chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode);
+    void useColorSet(CRGB *colorSet, uint8_t numElements);
+    void chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode);
 
-    qpColor *withChanceToChangeColor(uint8_t percentage);
+    void withChanceToChangeColor(uint8_t percentage);
 
     // Timing
 

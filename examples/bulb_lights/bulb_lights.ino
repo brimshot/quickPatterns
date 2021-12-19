@@ -67,50 +67,50 @@ void setup() {
   // ~
   
   quickPatterns.addPattern(new qpPaletteDissolve(5))
-    ->usePalette(ForestColors_p);
+    .usePalette(ForestColors_p);
 
   quickPatterns.addPattern(new qpElectricity())
-    ->usePalette(OceanColors_p)
-    ->activatePeriodicallyEveryNTicks(200, 300)
-    ->stayActiveForNTicks(80, 140);
+    .usePalette(OceanColors_p)
+    .activatePeriodicallyEveryNTicks(200, 300)
+    .stayActiveForNTicks(80, 140);
   quickPatterns.sameLayer().setLayerBrush(COMBINE).continuallyFadeLayerBy(30);  
 
  // ~ 
 
  quickPatterns.newScene().addPattern(new qpPaletteWave(5))
-  ->usePalette(CRGBPalette16(CRGB::Yellow, CRGB::Orange, CRGB::Goldenrod, CRGB::Red));
+  .usePalette(CRGBPalette16(CRGB::Yellow, CRGB::Orange, CRGB::Goldenrod, CRGB::Red));
 
   quickPatterns.sameScene().addPattern(new qpSparkles(6))
-    ->chooseColorFromPalette(CRGBPalette16(CRGB::Red, CRGB(120, 0, 255)), SEQUENTIAL)
-    ->changeColorEveryNTicks(2);
+    .chooseColorFromPalette(CRGBPalette16(CRGB::Red, CRGB(120, 0, 255)), SEQUENTIAL)
+    .changeColorEveryNTicks(2);
   quickPatterns.sameLayer().continuallyFadeLayerBy(20);  
 
  // ~
 
   quickPatterns.newScene().addPattern(new qpPaletteWave(5))
-    ->usePalette(RainbowColors_p);
+    .usePalette(RainbowColors_p);
 
   quickPatterns.sameScene().addPattern(new qpJuggle())
-    ->drawEveryNTicks(2)
-    ->singleColor(CRGB(64, 64, 64))
-    ->activatePeriodicallyEveryNTicks(30)
-    ->stayActiveForNTicks(30);
+    .drawEveryNTicks(2)
+    .singleColor(CRGB(64, 64, 64))
+    .activatePeriodicallyEveryNTicks(30)
+    .stayActiveForNTicks(30);
   quickPatterns.sameLayer().setLayerBrush(ADD).continuallyFadeLayerBy(20);  
 
   quickPatterns.sameScene().addPattern(new qpLightning(8))
-    ->singleColor(CRGB::White)
-    ->activatePeriodicallyEveryNTicks(300, 400)
-    ->stayActiveForNCycles(3, 6);
+    .singleColor(CRGB::White)
+    .activatePeriodicallyEveryNTicks(300, 400)
+    .stayActiveForNCycles(3, 6);
   quickPatterns.sameLayer().setLayerBrush(SUBTRACT);  
 
 
   // ~
 
   quickPatterns.newScene().addPattern(new qpPaletteTwinkle(6))
-    ->usePalette(RainbowColors_p);
+    .usePalette(RainbowColors_p);
 
   quickPatterns.sameScene().addPattern(new qpWanderingLine(30))
-    ->singleColor(CRGB::White);
+    .singleColor(CRGB::White);
   quickPatterns.sameLayer().setLayerBrush(MASK);    
 
 }

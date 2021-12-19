@@ -13,12 +13,6 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
   bool patternsRendered = false;
 
-  /*
-  // Pre-render fade of any previous values
-  if(this->continualFadeAmount) //conceivably we prevent a loop applying 0 to each led with this check
-    fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
-  */
-
   // Apply pre-render effects
   while(qpLayerEffect *effect = this->preRenderEffects.fetch()) {
       effect->apply(this->leds, this->numLeds);
@@ -26,7 +20,7 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
   // Render patterns
   while(qpPattern *currentPattern = this->patterns.fetch()) {
-    currentPattern->render(this->leds, this->numLeds); 
+    currentPattern->render(); 
     patternsRendered |= currentPattern->isActive();
 
     // If this pattern isn't active and it's configured to auto delete when finished,

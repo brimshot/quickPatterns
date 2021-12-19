@@ -10,6 +10,9 @@ class qpSinelon : public qpPattern {
     void draw() {
       
       int pos = beatsin16(this->speed, 0, _numLeds-1);
+      if(pos <= 0)
+        _countCycle();
+        
       _targetLeds[pos] = _getColor();
     }
 

@@ -2,12 +2,12 @@
 
 A pattern and animation manager for individually addressable LEDs (WS2811, WS2812, NeoPixels, etc.) using FastLED.
 
-The goal of quickPatterns is to provide makers a simple interface in code for creating advanced light pattern configurations i.e. multiple patterns running simultaneously, timing and sequencing.
+The goal of quickPatterns is to provide makers a simple interface in code for building advanced light pattern configurations i.e. multiple patterns running simultaneously, configurable colors, timed and sequenced pattern activation.
 
 **Features**
 - Easily layer multiple animations on top of each other, with multiple options for how overlapping pixels interact
 - Time patterns to activate and deactivate either at specific intervals or in relation to other patterns
-- Configure colors to change in relation to pattern variables including updates, frames, "cycles" or activations
+- Configure colors to change in relation to pattern activity including updates, frames, "cycles" or activations
 - Create multiple "scenes" of one or more patterns running simultaneously and quickly change between them
 - Easily write custom light patterns that are immediately usable with all configuration options
 
@@ -28,6 +28,8 @@ The goal of quickPatterns is to provide makers a simple interface in code for cr
 [Periodic color changes](#periodic-color-changes)
 
 [Periodic pattern activation](#periodic-pattern-activation)
+
+[Linked pattern activation](#linked-pattern-activation)
 
 [Layer effects](#layer-effects)
 
@@ -468,28 +470,84 @@ quickPatterns.addPattern(new qpComet(8))
   .stayActiveForNCycles(4, 10); //once activated, pattern will stay active for random number of cycles between 4 and 10
 ```
 
+## Linked pattern activation
 
+Patterns can also be activated, not at set intervals, but relative to events happening on other patterns.
+
+Save a reference (note the use of `&` character) to the pattern you would like to track when creating it:
+
+```
+qpPattern &Comet = quickPatterns.sameScene().addPattern(new qpComet(8))
+  .singleColor(CRGB::Red);
+```
+
+You can now use this reference to trigger relative activation or deactivation of another new pattern, like so:
+
+```
+quickPatterns.sameScene().addPattern(new qpLightning(10))
+  .singleColor(CRGB::White)
+  .activateWhenPatternPHasCompletedNCycles(Comet, 2)
+  .stayActiveForNCycles(3);
+```
+
+In this example, lightning will flash 3 times, every time the `Comet` pattern has completed 2 cycles.
+
+The full list of available linked activation options are as follows:
+
+```
+qpPattern &activateWhenPatternPActivates(qpPattern &P);
+qpPattern &activateWhenPatternPDeactivates(qpPattern &P);
+qpPattern &activateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
+qpPattern &activateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
+qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+```
+
+The full list of available linked deactivation options are as follows:
+
+```
+qpPattern &deactivateWhenPatternPActivates(qpPattern &P);
+qpPattern &deactivateWhenPatternPDeactivates(qpPattern &P);
+qpPattern &deactivateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
+qpPattern &deactivateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
+qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+```
 
 ## Layer effects
 
-Layer effects are
-that apply to the entire layer.
+Layer effects are adjustments applied to the entire layer either before or after rendering a frame.
 
-Layer effects can be applied before or after patterns are rendered.
-
-Use layer pre-effects to, for example, gradually fade away pixels illuminated when a pattern is drawn
+Use pre-render effects to, for example, gradually fade away illuminated pixels as your pattern moves up and down a light strip.
 
 ```
 quickPatterns.sameLayer().addPreRenderEffect(new qpContinuallyFadeLayerBy(20)); //layer 1 will fade to black by 20/255 once per tick
 ```
 
-### Layer fading
+By fading before rendering, pixels that were lit by the previous frame will be faded and any pixels drawn in the new frame will show at full brightness.
 
-Frequently, a pattern benefits from having older pixels fade out slowly while new pixels are written, such that pixels that aren't refreshed eventually disappear.
-Layers can be configured to fade a set amount each tick before pattern rendering by using the *continuallyFadeLayerBy()* method
+Use post-render effects to apply adjustments *after* new pattern data has been written to the layer, for example a breathing effect that effects both new writes and previous.
+
+*NOTE:* for backwards compatibility, the method `continuallyFadeLayerBy()` (shortcut to adding a fade pre-render effect) remains available:
+
 ```
-quickPatterns.layer(1).continuallyFadeLayerBy(20); //layer 1 will fade to black by 20/255 once per tick
+quickPatterns.sameLayer().continuallyFadeLayerBy(20); //layer 1 will fade to black by 20/255 once per tick
 ```
+
+### Custom layer effects
+
+Layer effects are classes that inherit from the `qpLayerEffect` base class. To create a custom layer effect, simply create and implement the *apply()* method, like so:
+
+```
+class MyEffect : public qpLayerEffect {
+  void apply(CRGB *targetLeds, int numLeds) {
+    // ... custom code
+  }
+}
+```
+
+You can now use your new effect as either a pre-render or post-render effect.
+
 
 ### Layer persistence
 
@@ -499,14 +557,9 @@ To stop a layer from being rendered when none of it's patterns are active, use *
 quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be rendered if none of it's patterns are active
 ```
 
-
-
 ## Scenes
 
 Scenes are collections of Layers[#layers] containing Patterns[#patterns]. 
-
-NO:
-By default, calls to *addPattern()* and *layer()*, as used in our first examples, reference scene 0 and scene 0 will be rendered when *quickPatterns.draw()* is called unless otherwise specified.
 
 Creating multiple scenes, each with their own layers, allows us to switch between various combinations of patterns on the same strand of lights as desired.
 

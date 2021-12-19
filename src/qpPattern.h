@@ -66,7 +66,7 @@ class qpPattern {
     /**
      * Called at each update interval, must be implemented by child classes
      */
-    virtual void draw() = 0;
+    virtual void draw() = 0; //(CRGB *leds = nullptr, int numLeds =) = 0;
     virtual void onActivate() {}
     virtual void onDeactivate() {}
 
@@ -75,7 +75,6 @@ class qpPattern {
     qpPattern();
 
     // ~ Counters
-    //TODO: only ticks should need to be long. learn about pointer casting.
     unsigned long ticks = 0;
     unsigned long frames = 0;
     unsigned long cycles = 0;
@@ -94,8 +93,7 @@ class qpPattern {
     // ~ Render
 
     // Public render hook
-    void render(CRGB *leds, int numLeds);
-    //TODO: renderOnTheseLeds
+    void render();
 
     // ~ Status
     bool isActive() { return _isActive; }
@@ -117,18 +115,13 @@ class qpPattern {
     qpPattern &stayActiveForNCycles(int minCycles, int maxCycles = 0);
     qpPattern &withChanceOfActivation(uint8_t percentage);
 
-
     // Color values
     qpPattern &singleColor(CRGB color);
 
     qpPattern &usePalette(CRGBPalette16 colorPalette);
-
-    //TODO: can this be a pointer..... ?
     qpPattern &chooseColorFromPalette(CRGBPalette16 colorPalette, QP_COLOR_MODE mode);
+    qpPattern &setPaletteStepSize(int size);
 
-    //TODO: gooooo back
-    qpPattern &chooseColorFromPaletteSequentially(CRGBPalette16 colorPalette, int paletteStepSize = 3);
-//    qpPattern &setPaletteStepSize(int size);
     qpPattern &useColorSet(CRGB *colorSet, uint8_t numColorsInSet);
     qpPattern &chooseColorFromSet(CRGB *colorSet, uint8_t numElements, QP_COLOR_MODE mode);
 
@@ -154,8 +147,6 @@ class qpPattern {
     qpPattern &deactivateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
     qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
     qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
-
-    qpPattern &beginInActiveState();
 
     bool activate();
     void deactivate();
