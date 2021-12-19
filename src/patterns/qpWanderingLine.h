@@ -20,6 +20,8 @@ class qpWanderingLine : public qpPattern {
       this->pos += (this->dir * this->length);
     }
 
+    bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
+
   public:
 
     qpWanderingLine(byte length) : length(length) {}

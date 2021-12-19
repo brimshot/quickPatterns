@@ -1,4 +1,5 @@
-#include <qpLayer.h>
+#include "qpLayer.h"
+#include "layer_effects/qpContinuallyFadeBy.h"
 
 qpLayer::qpLayer(CRGB *leds, int numLeds) {
   
@@ -8,21 +9,23 @@ qpLayer::qpLayer(CRGB *leds, int numLeds) {
   this->setLayerBrush(OVERLAY);
 }
 
-
 void qpLayer::draw(CRGB *targetLeds, int numLeds) {
 
   bool patternsRendered = false;
 
-  if(this->continualFadeAmount) //conceivably we prevent a loop applying 0 to each led with this check
-    fadeToBlackBy(this->leds, this->numLeds, this->continualFadeAmount);
+  // Apply pre-render effects
+  while(qpLayerEffect *effect = this->preRenderEffects.fetch()) {
+      effect->apply(this->leds, this->numLeds);
+  }
 
+  // Render patterns
   while(qpPattern *currentPattern = this->patterns.fetch()) {
-    bool isActive = currentPattern->render();
-    patternsRendered |= isActive;
+    currentPattern->render(); 
+    patternsRendered |= currentPattern->isActive();
 
     // If this pattern isn't active and it's configured to auto delete when finished,
     // then destroy and remove from the patterns linked list.
-    if(!isActive && currentPattern->shouldRemoveWhenDecativated()) {
+    if(!currentPattern->isActive() && currentPattern->shouldRemoveWhenDeactivated()) {
       // If this is considered the lastReferencedPattern, updated it.
         if(currentPattern == this->lastReferencedPattern) {
           this->lastReferencedPattern = nullptr;
@@ -31,11 +34,17 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
     }
   }
 
+  // Apply post render effects
+  while(qpLayerEffect *effect = this->postRenderEffects.fetch()) {
+      effect->apply(this->leds, this->numLeds);
+  }
+
+  // Write values into main LED array via selected brush method
   if(patternsRendered || this->bPersistWhenPatternsInactive)
     (this->*applyLeds)(targetLeds, this->leds, numLeds);
 }
 
-// Config
+// ~ Config
 
 qpPattern &qpLayer::addPattern(qpPattern *pattern) {
 
@@ -47,9 +56,35 @@ qpPattern &qpLayer::addPattern(qpPattern *pattern) {
   return *pattern;
 }
 
+// ~ Effects
+
+qpLayer &qpLayer::addAfterRenderEffect(qpLayerEffect *effect) {
+  this->postRenderEffects.append(effect);
+
+  return *this;
+}
+
+qpLayer &qpLayer::addPreRenderEffect(qpLayerEffect *effect) {
+  this->preRenderEffects.append(effect);
+
+  return *this;
+}
+
+// qpLayer &qpLayer::removePattern(qpPattern *pattern) {
+//   this->patterns.remove(pattern);
+
+//   return *this;
+// } 
+
+// qpLayer &qpLayer::removePatternAtIndex(int index) {
+//   this->patterns.removeAtIndex(index);
+
+//   return *this;
+// }
+
 qpLayer &qpLayer::continuallyFadeLayerBy(int fadeAmount) {
 
-  this->continualFadeAmount = constrain(fadeAmount, 0, 255);
+  this->addPreRenderEffect(new qpContinuallyFadeBy(constrain(fadeAmount, 0, 255)));
 
   return *this;
 }
@@ -61,7 +96,7 @@ qpLayer &qpLayer::hideWhenNoActivePatterns(bool trueOrFalse) {
   return *this;
 }
 
-// Brush config
+// ~ Brush config
 
 //preset
 qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
@@ -74,7 +109,7 @@ qpLayer &qpLayer::setLayerBrush(QP_BRUSH_TYPE brushType) {
       this->applyLeds = &qpLayer::subtractFromLeds;
       break;
     case OVERWRITE:
-      this->applyLeds = &qpLayer::overwriteLeds;
+      this->applyLeds = &qpLayer::overwriteWithLeds;
       break;
     case OVERLAY:
       this->applyLeds = &qpLayer::overlayOnLeds;
@@ -101,7 +136,7 @@ qpLayer &qpLayer::setLayerBrush(void (*brushFunc)(CRGB *toLeds, CRGB *sourceLeds
 */
 
 
-// Brushes
+// ~ Brushes
 
 void qpLayer::addToLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   for(int i = 0; i < numLeds; i++)
@@ -121,7 +156,7 @@ void qpLayer::overlayOnLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   }
 }
 
-void qpLayer::overwriteLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
+void qpLayer::overwriteWithLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
   memcpy(targetLeds, sourceLeds, (sizeof(CRGB)*numLeds));
 }
 
@@ -138,7 +173,7 @@ void qpLayer::maskLeds(CRGB *targetLeds, CRGB *sourceLeds, int numLeds) {
 }
 
 
-// Access
+// ~ Access
 
 qpPattern &qpLayer::pattern(byte patternIndex) {
 

@@ -1,12 +1,7 @@
-#include <quickPatterns.h>
+#include "quickPatterns.h"
 
 quickPatterns::quickPatterns(CRGB *leds, int numLeds) {
-
   this->lightStrand = new qpLightStrand(leds, numLeds);
-
-  random16_add_entropy(random(0, 1000));
-  random16_add_entropy(random(0, 1000));
-  random16_add_entropy(analogRead(0));
 }
 
 quickPatterns::~quickPatterns() {
@@ -44,7 +39,7 @@ qpPattern &quickPatterns::addPattern(qpPattern *pattern) {
 
 
 // Returns requested scene or automatically adds and returns a new scene if index does not yet exist
-qpScene &quickPatterns::scene(byte index) {
+qpScene &quickPatterns::scene(uint8_t index) {
 
   if(index > (this->scenes.numElements - 1))
     return this->newScene();
@@ -68,7 +63,7 @@ qpScene &quickPatterns::newScene() {
 
 // ~ Access
 
-qpLayer &quickPatterns::layer(byte layerIndex) {
+qpLayer &quickPatterns::layer(uint8_t layerIndex) {
 
   return this->scene(0).layer(layerIndex);
 }
@@ -85,7 +80,7 @@ void quickPatterns::nextScene() {
 }
 
 
-void quickPatterns::playScene(byte index) {
+void quickPatterns::playScene(uint8_t index) {
 
   if(index >= this->scenes.numElements)
     return;
@@ -100,7 +95,7 @@ void quickPatterns::playScene(byte index) {
 
 void quickPatterns::playRandomScene() {
 
-  byte index;
+  uint8_t index;
   do {
     index = random8(0, (this->scenes.numElements));
   } while(index == this->sceneIndex);
@@ -111,17 +106,17 @@ void quickPatterns::playRandomScene() {
 
 // Quick access operators
 
-qpPattern&quickPatterns::operator()(byte layerIndex) {
+qpPattern&quickPatterns::operator()(uint8_t layerIndex) {
 
   return this->scene(0).layer(layerIndex).pattern(0);
 }
 
-qpPattern&quickPatterns::operator()(byte sceneIndex, byte layerIndex) {
+qpPattern&quickPatterns::operator()(uint8_t sceneIndex, uint8_t layerIndex) {
 
   return this->scene(sceneIndex).layer(layerIndex).pattern(0);
 }
 
-qpPattern&quickPatterns::operator()(byte sceneIndex, byte layerIndex, byte patternIndex) {
+qpPattern&quickPatterns::operator()(uint8_t sceneIndex, uint8_t layerIndex, uint8_t patternIndex) {
 
   return this->scene(sceneIndex).layer(layerIndex).pattern(patternIndex);
 }

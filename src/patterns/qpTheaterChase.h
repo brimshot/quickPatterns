@@ -4,11 +4,13 @@ class qpTheaterChase : public qpPattern {
   private:
     byte offset = 0;
 
+    bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
+
   public:
 
     void draw() {
 
-      _clearLeds();
+      fill_solid(_targetLeds, _numLeds, CRGB::Black);
 
       for (int i=0; i < _numLeds; i=i+3) {
         if(_inBounds(i+this->offset))

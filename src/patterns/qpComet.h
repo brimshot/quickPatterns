@@ -6,6 +6,8 @@ class qpComet : public qpPattern {
         int pos = 0;
         int dir = 1;
 
+        bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
+
     public:
 
         qpComet(byte length, bool bounce = false, byte dir = 1) : length(length), bounce(bounce), dir(dir) {}

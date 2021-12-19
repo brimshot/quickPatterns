@@ -5,28 +5,37 @@
 #define QP_INCLUDE_PATTERNS 1
 #endif
 
-#include <Arduino.h>
-#include <qpLinkedList.h>
-#include <qpColor.h>
-#include <qpPattern.h>
-#include <qpLayer.h>
-#include <qpScene.h>
-#include <qpLightStrand.h>
+#ifndef QP_INCLUDE_EFFECTS
+#define QP_INCLUDE_EFFECTS 1
+#endif
 
+#include <FastLED.h>
+#include "qpEnums.h"
+#include "qpLinkedList.h"
+#include "qpScene.h"
+#include "qpLightStrand.h"
+
+// Patterns
 #if QP_INCLUDE_PATTERNS == 1
-#include <qpPatternFiles.h>
+#include "patterns/AllPatterns.h"
+#endif
+
+// Effects
+#if QP_INCLUDE_EFFECTS == 1
+#include "layer_effects/AllEffects.h"
 #endif
 
 /**
- *TODO:
- * - Shows
- * - Scene framerates
- * - Fix blend / combine brush
+ * todo:
+ * - Split strips
+ * - Reverse effect
  * - Transitions 
- * - Teensy 3.2 not working with single pattern?
- * - Teensy 4.0 support
- * - Linked colors
- * - Linker fixes
+ * - Shapes -> passable array of pixel positions
+ * - Events
+ * - Shows
+ * - More Teensy testing
+ * - Sound reactive plugins + other plugins
+ * - nscale8 fade
  */
 
 class quickPatterns {
@@ -40,7 +49,7 @@ class quickPatterns {
 
     qpLinkedList <qpScene> scenes;
 
-    int sceneIndex = 0;
+    uint8_t sceneIndex = 0;
     qpScene *currentScene = NULL;
 
     qpScene *lastReferencedScene;
@@ -56,23 +65,27 @@ class quickPatterns {
 
     void setTickMillis(int tickLengthMillis) { this->tickLengthInMillis = tickLengthMillis; }
 
+    void show() {
+      if(draw()) {
+        FastLED.show();
+      }
+    }
 
     // ~ Config
 
     qpPattern &addPattern(qpPattern *pattern); //creates a new layer and adds passed pattern as pattern 0
 
-
     // ~ Access
 
     // Patterns
-    qpPattern &pattern(byte patternIndex); //returns specified pattern on layer 0
+    qpPattern &pattern(uint8_t patternIndex); //returns specified pattern on layer 0
 
     // Layers
-    qpLayer &layer(byte layerIndex);
+    qpLayer &layer(uint8_t layerIndex);
 
     // Scenes
     qpScene &newScene();
-    qpScene &scene(byte sceneIndex);
+    qpScene &scene(uint8_t sceneIndex);
 
     // Prev reference
     qpScene &sameScene() { return *this->lastReferencedScene; }
@@ -80,14 +93,13 @@ class quickPatterns {
     qpPattern &samePattern() { return this->sameScene().sameLayer().samePattern(); }
 
     // Quick access operators
-    qpPattern &operator()(byte layerIndex); //returns pattern 0 from the specified layer in scene 0
-    qpPattern &operator()(byte sceneIndex, byte layerIndex); //returns pattern 0 from the specified layer in the specified scene
-    qpPattern &operator()(byte sceneIndex, byte layerIndex, byte patternIndex);
+    qpPattern &operator()(uint8_t layerIndex); //returns pattern 0 from the specified layer in scene 0
+    qpPattern &operator()(uint8_t sceneIndex, uint8_t layerIndex); //returns pattern 0 from the specified layer in the specified scene
+    qpPattern &operator()(uint8_t sceneIndex, uint8_t layerIndex, uint8_t patternIndex);
 
 
     // ~ Scene navigation
-
-    void playScene(byte index);
+    void playScene(uint8_t index);
     void nextScene();
     void playRandomScene();
 

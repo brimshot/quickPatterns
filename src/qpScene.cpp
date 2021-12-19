@@ -1,4 +1,4 @@
-#include <qpScene.h>
+#include "qpScene.h"
 
 void qpScene::draw(CRGB *targetLeds, int numLeds) {
 

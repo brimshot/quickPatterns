@@ -11,7 +11,7 @@ class qpBouncingBars : public qpPattern {
     void draw() {
 
       // Black out previous pixels before drawing the next frame
-      _clearLeds();
+      fill_solid(_targetLeds, _numLeds, CRGB::Black);
 
       // Draw two bars of width size equally offset from either end of our strand
       for(int i = 0; i < this->size; i++) {
