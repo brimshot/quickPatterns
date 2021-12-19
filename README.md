@@ -37,8 +37,6 @@ The goal of quickPatterns is to provide makers a simple interface in code for bu
 
 [Writing custom patterns](#writing-custom-patterns)
 
-[Writing custom layer effects](#writing-layer-effects)
-
 [Sample pattern library](#sample-pattern-library)
 
 ## Installation
@@ -47,14 +45,14 @@ quickPatterns uses the [FastLED](link) library which must be installed on your s
 
 ### From the command line
 
-Navigate to your Arduino/libraries directory and clone via the following command:
+Navigate to your *Arduino/libraries* directory and clone via the following command:
 ```
 git clone https://github.com/brimshot/quickPatterns.git
 ```
 
 ### ZIP archive
 
-Choose "Download ZIP" from the Code menu when viewing the source on github and extract the archive inside your Arduino/libraries directory
+Choose "Download ZIP" from the Code menu when viewing the source on github and extract the archive inside your *Arduino/libraries* directory
 
 ## Example sketch
 A simple example that can be run right away
