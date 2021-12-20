@@ -27,6 +27,8 @@ void qpPattern::render() {
       if(this->chanceToActivatePattern > 0) {
         if(random16(100) < this->chanceToActivatePattern) {
           this->activate();
+        } else {
+          this->resetActivationTimer();
         }
       } else {
           this->activate();
