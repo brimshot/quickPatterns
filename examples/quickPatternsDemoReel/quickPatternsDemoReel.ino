@@ -248,7 +248,7 @@ void setup() {
 
   quickPatterns.sameScene().addPattern(new qpLightning(20))
     .singleColor(CRGB(200, 0, 180))
-    .activateWhenPatternPHasDeactivatedNTimes(WhiteLightning, 3) //After pattern p has activated 3 times... possible?
+    .activateWhenPatternPHasDeactivatedNTimes(WhiteLightning, 3) //After pattern p has activated 3 times
     .stayActiveForNCycles(4);
 
   // ----- End Scene 4
