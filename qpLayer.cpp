@@ -28,6 +28,7 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
           this->lastReferencedPattern = nullptr;
         }
         this->patterns.remove(currentPattern);
+        Serial.println("removed!");
     }
   }
 
@@ -145,6 +146,21 @@ qpPattern &qpLayer::pattern(byte patternIndex) {
   this->lastReferencedPattern = this->patterns.getItem(patternIndex);
 
   return *this->lastReferencedPattern;
+}
+
+byte qpLayer::numberOfPatterns() {
+  return this->patterns.numElements;
+}
+
+void qpLayer::removePattern(byte patternIndex) {
+  qpPattern* pattern = this->patterns.getItem(patternIndex);
+  if (pattern == nullptr) {
+    return;
+  }
+  if(this->lastReferencedPattern == pattern) {
+    this->lastReferencedPattern = nullptr;
+  }
+  this->patterns.remove(patternIndex);
 }
 
 qpPattern &qpLayer::operator()(byte patternIndex) {
