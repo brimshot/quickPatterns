@@ -112,6 +112,7 @@ public:
 
           delete current->item;
           delete current;
+          numElements--;
           return true;
         }
 

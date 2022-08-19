@@ -65,6 +65,8 @@ class qpLayer {
     // Patterns
     qpPattern &pattern(byte patternIndex);
     qpPattern &samePattern() { return *this->lastReferencedPattern; }
+    byte numberOfPatterns();
+    void removePattern(byte patternIndex);
 
     // Quick access operators
     qpPattern &operator()(byte patternIndex);
