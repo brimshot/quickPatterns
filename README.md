@@ -497,8 +497,8 @@ qpPattern &activateWhenPatternPActivates(qpPattern &P);
 qpPattern &activateWhenPatternPDeactivates(qpPattern &P);
 qpPattern &activateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
 qpPattern &activateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
-qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
-qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
+qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
 ```
 
 The full list of available linked deactivation options are as follows:
@@ -508,8 +508,8 @@ qpPattern &deactivateWhenPatternPActivates(qpPattern &P);
 qpPattern &deactivateWhenPatternPDeactivates(qpPattern &P);
 qpPattern &deactivateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
 qpPattern &deactivateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
-qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
-qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
+qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
 ```
 
 ## Layer effects
@@ -559,7 +559,7 @@ quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be r
 
 ## Scenes
 
-Scenes are collections of layers and their patterns that can be referenced as a unit. 
+Scenes are collections of layers and their patterns that can be referenced as a unit.
 
 Creating multiple scenes, each with their own layers, allows us to switch between various combinations of patterns on the same strand of lights as desired.
 
@@ -764,7 +764,7 @@ void initialize() {
 
 ## Sample pattern library
 
-The following patterns are included with the library. 
+The following patterns are included with the library.
 
 **qpComet**
 ```
