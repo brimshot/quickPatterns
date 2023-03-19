@@ -677,7 +677,7 @@ quickPatterns uses FastLED to accomplish it's rendering, so if you are not famil
 
 You can test your pattern code using Wokwi FastLED simulator
 
-You can directly copy and paste the `draw(CRGB *leds, int numLeds)` method from your pattern class into the simulator
+You can directly copy and paste the `draw()` method from your pattern class into the simulator
 
 
 

@@ -66,7 +66,7 @@ class qpPattern {
     /**
      * Called at each update interval, must be implemented by child classes
      */
-    virtual void draw() = 0; //(CRGB *leds = nullptr, int numLeds =) = 0;
+    virtual void draw() = 0;
     virtual void onActivate() {}
     virtual void onDeactivate() {}
 
