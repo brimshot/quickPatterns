@@ -690,18 +690,18 @@ class myCustomPattern : public qpPattern {
   int pos = 0;
 
   //draw() is called whenever the pattern is rendered, default is once per tick
-  void draw(CRGB *leds, int numLeds) {
+  void draw() {
 
     //clears all pixels on the layer
-    fill_solid(leds, numLeds, CRGB::Black);
+    fill_solid(_targetLeds, _numLeds, CRGB::Black);
 
     //move a single pixel along the strand step by step
-    leds[pos++] = _getColor();
+    _targetLeds[pos++] = _getColor();
     //TODO: this is better.... ?
-//    leds[pos++] = this.getColor();
+//    _targetLeds[pos++] = this.getColor();
 
     //start over at first led once we hit last
-    if(pos >= numLeds)
+    if(pos >= _numLeds)
       pos = 0;
   }
 
@@ -816,7 +816,7 @@ Fills strand with a moving gradient using palette set via *usePalette()* that fa
 
 **qpPaletteDissolve.h**
 ```
-qpPaletteBreathe(int speed)
+qpPaletteDissolve(int speed)
 ```
 Waves of palette colors that move in and out as per *speed* parameter
 
