@@ -28,7 +28,6 @@ void qpLayer::draw(CRGB *targetLeds, int numLeds) {
           this->lastReferencedPattern = nullptr;
         }
         this->patterns.remove(currentPattern);
-        Serial.println("removed!");
     }
   }
 
