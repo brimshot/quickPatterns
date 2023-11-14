@@ -101,7 +101,7 @@ bool qpPattern::activate() {
 
   this->activations++;
 
-  this->nextRenderTick = this->ticks;
+  this->nextRenderTick = this->ticks + 1;
 
   this->onActivate();
 
