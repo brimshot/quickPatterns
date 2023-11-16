@@ -182,6 +182,21 @@ qpPattern &qpLayer::pattern(byte patternIndex) {
   return *this->lastReferencedPattern;
 }
 
+byte qpLayer::numberOfPatterns() {
+  return this->patterns.numElements;
+}
+
+void qpLayer::removePattern(byte patternIndex) {
+  qpPattern* pattern = this->patterns.getItem(patternIndex);
+  if (pattern == nullptr) {
+    return;
+  }
+  if(this->lastReferencedPattern == pattern) {
+    this->lastReferencedPattern = nullptr;
+  }
+  this->patterns.remove(patternIndex);
+}
+
 qpPattern &qpLayer::operator()(byte patternIndex) {
 
   return this->pattern(patternIndex);

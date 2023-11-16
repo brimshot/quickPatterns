@@ -12,7 +12,7 @@ quickPatterns::~quickPatterns() {
 
 bool quickPatterns::draw() {
 
-  uint32_t currentMillis = millis();
+  unsigned long currentMillis = millis();
 
   if(currentMillis >= this->nextTickMillis) {
 

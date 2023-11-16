@@ -17,7 +17,7 @@ class qpPattern {
     // ~ Animation speed
 
     int ticksBetweenFrames = 1;
-    int nextRenderTick = 1;
+    unsigned long nextRenderTick = 1;
 
     // ~ Periodic activation
 
