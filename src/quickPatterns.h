@@ -43,7 +43,7 @@ class quickPatterns {
   private:
 
     short tickLengthInMillis = 25;
-    uint32_t nextTickMillis = 0;
+    unsigned long nextTickMillis = 0;
 
     qpLightStrand *lightStrand;
 
