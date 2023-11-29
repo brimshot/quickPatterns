@@ -62,11 +62,11 @@ class qpPattern {
     bool _inBounds(int pos) { return ((pos >= 0) && (pos < _numLeds)); }
 
     inline void _countCycle() { this->cycles++; frames = 0; }
-    
+
     /**
      * Called at each update interval, must be implemented by child classes
      */
-    virtual void draw() = 0; //(CRGB *leds = nullptr, int numLeds =) = 0;
+    virtual void draw() = 0;
     virtual void onActivate() {}
     virtual void onDeactivate() {}
 
@@ -138,15 +138,15 @@ class qpPattern {
     qpPattern &activateWhenPatternPDeactivates(qpPattern &P);
     qpPattern &activateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
     qpPattern &activateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
-    qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
-    qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+    qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
+    qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
 
     qpPattern &deactivateWhenPatternPActivates(qpPattern &P);
     qpPattern &deactivateWhenPatternPDeactivates(qpPattern &P);
     qpPattern &deactivateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
     qpPattern &deactivateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
-    qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
-    qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+    qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
+    qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
 
     bool activate();
     void deactivate();

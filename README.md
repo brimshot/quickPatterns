@@ -497,8 +497,8 @@ qpPattern &activateWhenPatternPActivates(qpPattern &P);
 qpPattern &activateWhenPatternPDeactivates(qpPattern &P);
 qpPattern &activateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
 qpPattern &activateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
-qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
-qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+qpPattern &activateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
+qpPattern &activateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
 ```
 
 The full list of available linked deactivation options are as follows:
@@ -508,8 +508,8 @@ qpPattern &deactivateWhenPatternPActivates(qpPattern &P);
 qpPattern &deactivateWhenPatternPDeactivates(qpPattern &P);
 qpPattern &deactivateWhenPatternPHasCompletedNCycles(qpPattern &P, int minCycles, int maxCycles = 0);
 qpPattern &deactivateWhenPatternPHasRenderedNFrames(qpPattern &P, int minFrames, int maxFrames = 0);
-qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
-qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);  
+qpPattern &deactivateWhenPatternPHasActivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
+qpPattern &deactivateWhenPatternPHasDeactivatedNTimes(qpPattern &P, int minActivations, int maxActivations = 0);
 ```
 
 ## Layer effects
@@ -559,7 +559,7 @@ quickPatterns.layer(1).hideWhenNoActivePatterns(); //layer 1 will no longer be r
 
 ## Scenes
 
-Scenes are collections of layers and their patterns that can be referenced as a unit. 
+Scenes are collections of layers and their patterns that can be referenced as a unit.
 
 Creating multiple scenes, each with their own layers, allows us to switch between various combinations of patterns on the same strand of lights as desired.
 
@@ -677,7 +677,7 @@ quickPatterns uses FastLED to accomplish it's rendering, so if you are not famil
 
 You can test your pattern code using Wokwi FastLED simulator
 
-You can directly copy and paste the `draw(CRGB *leds, int numLeds)` method from your pattern class into the simulator
+You can directly copy and paste the `draw()` method from your pattern class into the simulator
 
 
 
@@ -690,18 +690,18 @@ class myCustomPattern : public qpPattern {
   int pos = 0;
 
   //draw() is called whenever the pattern is rendered, default is once per tick
-  void draw(CRGB *leds, int numLeds) {
+  void draw() {
 
     //clears all pixels on the layer
-    fill_solid(leds, numLeds, CRGB::Black);
+    fill_solid(_targetLeds, _numLeds, CRGB::Black);
 
     //move a single pixel along the strand step by step
-    leds[pos++] = _getColor();
+    _targetLeds[pos++] = _getColor();
     //TODO: this is better.... ?
-//    leds[pos++] = this.getColor();
+//    _targetLeds[pos++] = this.getColor();
 
     //start over at first led once we hit last
-    if(pos >= numLeds)
+    if(pos >= _numLeds)
       pos = 0;
   }
 
@@ -764,7 +764,7 @@ void initialize() {
 
 ## Sample pattern library
 
-The following patterns are included with the library. 
+The following patterns are included with the library.
 
 **qpComet**
 ```
@@ -816,7 +816,7 @@ Fills strand with a moving gradient using palette set via *usePalette()* that fa
 
 **qpPaletteDissolve.h**
 ```
-qpPaletteBreathe(int speed)
+qpPaletteDissolve(int speed)
 ```
 Waves of palette colors that move in and out as per *speed* parameter
 
